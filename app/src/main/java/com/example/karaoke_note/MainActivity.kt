@@ -3,14 +3,18 @@ package com.example.karaoke_note
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.karaoke_note.ui.theme.Karaoke_noteTheme
 
 class MainActivity : ComponentActivity() {
@@ -23,9 +27,20 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Column {
-                        Greeting("Android")
-                        Greeting("Android")
+                    val navController = rememberNavController()
+                    Scaffold(
+                        topBar = {
+                            AppBar(navController)
+                        }
+                    ) { paddingValues ->
+                        NavHost(navController, startDestination = "home", Modifier.padding(paddingValues)) {
+                            composable("home") {
+                                Home(navController)
+                            }
+                            composable("song_data") {
+                                Greeting("song_data", Modifier.padding(paddingValues))
+                            }
+                        }
                     }
                 }
             }
