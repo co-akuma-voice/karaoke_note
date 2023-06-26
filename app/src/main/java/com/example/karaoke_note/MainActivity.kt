@@ -3,12 +3,19 @@ package com.example.karaoke_note
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Divider
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -18,6 +25,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.karaoke_note.ui.theme.Karaoke_noteTheme
 
 class MainActivity : ComponentActivity() {
+
+    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -33,7 +42,11 @@ class MainActivity : ComponentActivity() {
                             AppBar(navController)
                         }
                     ) { paddingValues ->
-                        NavHost(navController, startDestination = "home", Modifier.padding(paddingValues)) {
+                        NavHost(
+                            navController,
+                            startDestination = "home",
+                            Modifier.padding(paddingValues)
+                        ) {
                             composable("home") {
                                 Home(navController)
                             }
@@ -42,9 +55,45 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
+                    LatestList()
                 }
             }
         }
+    }
+}
+
+@ExperimentalMaterialApi
+@Composable
+fun LatestList() {
+    Column {
+        ListItem(
+            text = { Text("Three line list item") },
+            secondaryText = {
+                Text("Long secondary text for the current list item")
+            },
+            singleLineSecondaryText = false,
+            trailing = { Text("meta") }
+        )
+        Divider()
+        ListItem(
+            text = { Text("Three line list item") },
+            overlineText = { Text(text = "OVER-LINE") },
+            secondaryText = { Text(text = "Secondary Text") }
+        )
+        Divider()
+        ListItem(
+            text = { Text("Three line list item with 24x24 icon.") },
+            secondaryText = { Text("This is a long secondary text for the current list item " +
+                    "displayed on two lines") },
+            singleLineSecondaryText = false,
+            icon = {
+                Icon(
+                    Icons.Filled.Favorite,
+                    contentDescription = null
+                )
+            }
+        )
+        Divider()
     }
 }
 
