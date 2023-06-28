@@ -9,21 +9,23 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.List
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,51 +40,67 @@ import androidx.navigation.NavController
 @Composable
 fun Home(navController: NavController) {
     Column {
-        Button(onClick = { navController.navigate("song_data") }) {
-            Text("Navigate to song_data")
-        }
-        LazyColumn(
+        Box(
             modifier = Modifier
+                .weight(1f)
+        ){
+            Button(onClick = { navController.navigate("song_data") }) {
+                Text("Navigate to song_data")
+            }
+        }
+        Box(
+            modifier = Modifier
+                .weight(8f)
         ) {
-            item {
-                LatestCard(
-                    date = "1996/08/17",
-                    title = "長いタイトル長いタイトル長いタイトル長いタイトル",
-                    artist = "長いアーティスト長いアーティスト長いアーティスト長いアーティスト",
-                    score = 98.76543,
-                    key = -6,
-                    comment = "テストテスト"
-                )
+            LazyColumn(
+                modifier = Modifier
+            ) {
+                item {
+                    LatestCard(
+                        date = "1996/08/17",
+                        title = "長いタイトル長いタイトル長いタイトル長いタイトル",
+                        artist = "長いアーティスト長いアーティスト長いアーティスト長いアーティスト",
+                        score = 98.76543,
+                        key = -6,
+                        comment = "テストテスト"
+                    )
+                }
+                item {
+                    LatestCard(
+                        date = "2023/06/24",
+                        title = "1 2 3 ~恋が始まる~",
+                        artist = "いきものがかり",
+                        score = 100.000,
+                        key = -2,
+                        comment = ""
+                    )
+                }
+                item {
+                    LatestCard(
+                        date = "2023/06/24",
+                        title = "ARIA",
+                        artist = "Kalafina",
+                        score = 90.672,
+                        key = -1,
+                        comment = "-1で試す。"
+                    )
+                }
+                items(5) {
+                    LatestCard(
+                        date = "2023/06/24",
+                        title = "星月夜",
+                        artist = "由薫",
+                        score = 90.919,
+                        key = -3,
+                    )
+                }
             }
-            item {
-                LatestCard(
-                    date = "2023/06/24",
-                    title = "1 2 3 ~恋が始まる~",
-                    artist = "いきものがかり",
-                    score = 100.000,
-                    key = -2,
-                    comment = ""
-                )
-            }
-            item {
-                LatestCard(
-                    date = "2023/06/24",
-                    title = "ARIA",
-                    artist = "Kalafina",
-                    score = 90.672,
-                    key = -1,
-                    comment = "-1で試す。"
-                )
-            }
-            items(5) {
-                LatestCard(
-                    date = "2023/06/24",
-                    title = "星月夜",
-                    artist = "由薫",
-                    score = 90.919,
-                    key = -3,
-                )
-            }
+        }
+        Box(
+            modifier = Modifier
+                .weight(2f)
+        ) {
+            BottomNavigationBar()
         }
     }
 }
@@ -201,25 +219,38 @@ fun LatestCard(date: String, title: String, artist: String, score: Double, key: 
     }
 }
 
+data class BottomNavItem(
+    val name: String,
+    val route: String,
+    val icon: ImageVector,
+)
 
-sealed class BottomBarItem(var dist: String, var icon: ImageVector) {
-    object Latest : BottomBarItem("Latest", Icons.Filled.Home)
-    object Lists : BottomBarItem("Lists", Icons.Filled.List)
-}
 @ExperimentalMaterial3Api
 @Composable
-fun BottomBar() {
-    val selectedItem = remember { mutableStateOf(0) }
-    val items = listOf(BottomBarItem.Latest, BottomBarItem.Lists)
+fun BottomNavigationBar() {
+    var selectedItem by remember { mutableStateOf(0) }
+    val bottomNavItems = listOf(
+        BottomNavItem(
+            name = "Home",
+            route = "home",
+            icon = Icons.Rounded.Home,
+        ),
+        BottomNavItem(
+            name = "List",
+            route = "list",
+            icon = Icons.Rounded.List,
+        )
+    )
 
-    BottomNavigation {
-        items.forEachIndexed { index, item ->
-            BottomNavigationItem(
-                icon = { Icon(item.icon, contentDescription = item.dist) },
-                label = { Text(item.dist) },
-                selected = selectedItem.value == index,
-                selectedContentColor = Color.White,
-                onClick = { selectedItem.value = index }
+    NavigationBar(
+        //containerColor = MaterialTheme.colorScheme.primary,
+    ){
+        bottomNavItems.forEachIndexed { index, item ->
+            NavigationBarItem(
+                icon = { Icon(item.icon, contentDescription = item.name) },
+                label = { Text(text = item.name) },
+                selected = selectedItem == index,
+                onClick = { selectedItem = index }
             )
         }
     }
