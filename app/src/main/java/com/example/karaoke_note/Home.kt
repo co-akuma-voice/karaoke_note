@@ -242,9 +242,7 @@ fun BottomNavigationBar() {
         )
     )
 
-    NavigationBar(
-        //containerColor = MaterialTheme.colorScheme.primary,
-    ){
+    NavigationBar {
         bottomNavItems.forEachIndexed { index, item ->
             NavigationBarItem(
                 icon = { Icon(item.icon, contentDescription = item.name) },
