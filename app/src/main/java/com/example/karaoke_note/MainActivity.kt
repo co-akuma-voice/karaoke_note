@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
                                 Home(navController)
                             }
                             composable("song_data") {
-                                Greeting("song_data", Modifier.padding(paddingValues))
+                                SongScores("song", "artist")
                             }
                         }
                     }
