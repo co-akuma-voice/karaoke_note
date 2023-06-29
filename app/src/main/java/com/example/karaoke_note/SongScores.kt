@@ -38,7 +38,7 @@ enum class SortDirection {
 val sampleSongScores = listOf(
     SongScore(LocalDate.of(2023, 4, 25), 85.2f, 0, "dummy1"),
     SongScore(LocalDate.of(2023, 5, 24), 92.7f, -3, "dummy2"),
-    SongScore(LocalDate.of(2023, 6, 23), 78.5f, 0, ""),
+    SongScore(LocalDate.of(2023, 6, 23), 100f, 0, ""),
 )
 
 @Composable
@@ -119,7 +119,7 @@ fun HeaderRow(sortColumn: SortColumn, sortDirection: SortDirection, onSortChange
                 else -> {}
             }
         }
-        Box(modifier = Modifier.weight(1f).clickable {
+        Box(modifier = Modifier.weight(1.2f).clickable {
             val newDirection = when (sortColumn) {
                 SortColumn.Score -> when (sortDirection) {
                     SortDirection.None, SortDirection.Desc -> SortDirection.Asc
@@ -170,7 +170,7 @@ fun HeaderRow(sortColumn: SortColumn, sortDirection: SortDirection, onSortChange
 fun ScoreRow(score: SongScore) {
     Row(Modifier.fillMaxWidth()) {
         Text(text = score.date.toString(), modifier = Modifier.weight(2f))
-        Text(text = String.format("%.3f", score.score), textAlign = TextAlign.End, modifier = Modifier.weight(1f))
+        Text(text = String.format("%.3f", score.score), textAlign = TextAlign.End, modifier = Modifier.weight(1.2f))
         Text(text = score.key.toString(), textAlign = TextAlign.Center, modifier = Modifier.weight(1f))
         Text(text = score.comment, modifier = Modifier.weight(3f))
     }
