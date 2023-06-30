@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.List
 import androidx.compose.material3.Button
@@ -100,7 +102,7 @@ fun Home(navController: NavController) {
             modifier = Modifier
                 .weight(2f)
         ) {
-            BottomNavigationBar()
+            BottomNavigationBar(navController)
         }
     }
 }
@@ -219,6 +221,7 @@ fun LatestCard(date: String, title: String, artist: String, score: Double, key: 
     }
 }
 
+/*
 data class BottomNavItem(
     val name: String,
     val route: String,
@@ -227,18 +230,18 @@ data class BottomNavItem(
 
 @ExperimentalMaterial3Api
 @Composable
-fun BottomNavigationBar() {
+fun BottomNavigationBar(navController: NavController) {
     var selectedItem by remember { mutableStateOf(0) }
     val bottomNavItems = listOf(
         BottomNavItem(
             name = "Home",
             route = "home",
-            icon = Icons.Rounded.Home,
+            icon = Icons.Filled.Home,
         ),
         BottomNavItem(
             name = "List",
             route = "list",
-            icon = Icons.Rounded.List,
+            icon = Icons.Filled.List,
         )
     )
 
@@ -248,8 +251,8 @@ fun BottomNavigationBar() {
                 icon = { Icon(item.icon, contentDescription = item.name) },
                 label = { Text(text = item.name) },
                 selected = selectedItem == index,
-                onClick = { selectedItem = index }
+                onClick = { navController.navigate(item.route) }
             )
         }
     }
-}
+}*/

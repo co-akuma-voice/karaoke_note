@@ -47,26 +47,13 @@ class MainActivity : ComponentActivity() {
                             composable("song_data") {
                                 SongScores("song", "artist")
                             }
+                            composable("list"){
+                                ArtistsList("artist")
+                            }
                         }
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Karaoke_noteTheme {
-        Greeting("Android")
     }
 }
