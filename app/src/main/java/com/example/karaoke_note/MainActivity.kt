@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
                                 SongScores("song", "artist")
                             }
                             composable("list"){
-                                ArtistsList("artist")
+                                ArtistEntrance("artist")
                             }
                         }
                     }
