@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.karaoke_note.data.AppDatabase
 import com.example.karaoke_note.ui.theme.Karaoke_noteTheme
 
 class MainActivity : ComponentActivity() {
@@ -23,6 +24,8 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val songDao = AppDatabase.getDatabase(this).songDao()
+        val context = this
         setContent {
             Karaoke_noteTheme {
                 // A surface container using the 'background' color from the theme
@@ -45,7 +48,8 @@ class MainActivity : ComponentActivity() {
                                 Home(navController)
                             }
                             composable("song_data") {
-                                SongScores("song", "artist")
+                                val song = songDao.getSong("Song1", "Artist1")!!
+                                SongScores(song, context)
                             }
                         }
                     }
