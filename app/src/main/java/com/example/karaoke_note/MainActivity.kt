@@ -17,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.karaoke_note.data.AppDatabase
+import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.ui.theme.Karaoke_noteTheme
 
 class MainActivity : ComponentActivity() {
@@ -48,8 +49,8 @@ class MainActivity : ComponentActivity() {
                                 Home(navController)
                             }
                             composable("song_data") {
-                                val song = songDao.getSong("Song1", "Artist1")!!
-                                SongScores(song, context)
+                                val songId = songDao.insertSong(Song(title = "Song1", artist = "Artist1"))
+                                SongScores(Song(id = songId, title = "Song1", artist = "Artist1"), context)
                             }
                         }
                     }
