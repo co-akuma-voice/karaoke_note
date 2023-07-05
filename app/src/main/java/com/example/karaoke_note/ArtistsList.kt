@@ -47,10 +47,10 @@ fun ArtistsPage(navController: NavController, artist: String, ) {
     Column {
         // 実際にはデータベースから、artistをもとにデータを探す
 
-        Box(modifier = Modifier.weight(1f)) {
+        Box(modifier = Modifier.weight(0.5f)) {
             Spacer(modifier = Modifier)
         }
-        Box(modifier = Modifier.weight(8f)) {
+        Box(modifier = Modifier.weight(9f)) {
             val artists = sampleArtist
             SortArtists(artists)
         }
