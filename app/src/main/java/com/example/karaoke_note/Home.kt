@@ -220,39 +220,3 @@ fun LatestCard(date: String, title: String, artist: String, score: Double, key: 
         }
     }
 }
-
-/*
-data class BottomNavItem(
-    val name: String,
-    val route: String,
-    val icon: ImageVector,
-)
-
-@ExperimentalMaterial3Api
-@Composable
-fun BottomNavigationBar(navController: NavController) {
-    var selectedItem by remember { mutableStateOf(0) }
-    val bottomNavItems = listOf(
-        BottomNavItem(
-            name = "Home",
-            route = "home",
-            icon = Icons.Filled.Home,
-        ),
-        BottomNavItem(
-            name = "List",
-            route = "list",
-            icon = Icons.Filled.List,
-        )
-    )
-
-    NavigationBar {
-        bottomNavItems.forEachIndexed { index, item ->
-            NavigationBarItem(
-                icon = { Icon(item.icon, contentDescription = item.name) },
-                label = { Text(text = item.name) },
-                selected = selectedItem == index,
-                onClick = { navController.navigate(item.route) }
-            )
-        }
-    }
-}*/
