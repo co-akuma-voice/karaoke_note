@@ -9,12 +9,9 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 
 data class BottomNavItem(
@@ -26,7 +23,6 @@ data class BottomNavItem(
 @ExperimentalMaterial3Api
 @Composable
 fun BottomNavigationBar(navController: NavController) {
-    var selectedItem by remember { mutableStateOf(0) }
     val bottomNavItems = listOf(
         BottomNavItem(
             name = "Home",
@@ -41,12 +37,15 @@ fun BottomNavigationBar(navController: NavController) {
     )
 
     NavigationBar {
-        bottomNavItems.forEachIndexed { index, item ->
+        bottomNavItems.forEach { item ->
+            val selected = item.route == navController.currentBackStackEntryAsState().value?.destination?.route
             NavigationBarItem(
                 icon = { Icon(item.icon, contentDescription = item.name) },
                 label = { Text(text = item.name) },
-                selected = selectedItem == index,
-                onClick = { navController.navigate(item.route) }
+                selected = selected,
+                onClick = {
+                    navController.navigate(item.route)
+                }
             )
         }
     }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -24,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 
 data class ArtistData(val name: String, val color: Color = Color.White)
 
@@ -41,13 +43,19 @@ val sampleArtist = listOf(
 
 @ExperimentalMaterial3Api
 @Composable
-fun ArtistEntrance(artist: String) {
+fun ArtistsPage(navController: NavController, artist: String, ) {
     Column {
         // 実際にはデータベースから、artistをもとにデータを探す
 
-        Box(modifier = Modifier) {
+        Box(modifier = Modifier.weight(1f)) {
+            Spacer(modifier = Modifier)
+        }
+        Box(modifier = Modifier.weight(8f)) {
             val artists = sampleArtist
             SortArtists(artists)
+        }
+        Box(modifier = Modifier.weight(2f)) {
+            BottomNavigationBar(navController)
         }
     }
 }
@@ -82,13 +90,15 @@ fun SortArtists(artists: List<ArtistData>) {
 @Composable
 fun ArtistsListHeader(sortDirection: SortDirection, onSortChanged: (SortDirection) -> Unit) {
     Row(Modifier.fillMaxWidth()) {
-        Box(modifier = Modifier.fillMaxWidth().clickable {
-            val newArtistDirection = when (sortDirection) {
-                SortDirection.None, SortDirection.Desc -> SortDirection.Asc
-                else -> SortDirection.Desc
-            }
-            onSortChanged(newArtistDirection)
-        }) {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                val newArtistDirection = when (sortDirection) {
+                    SortDirection.None, SortDirection.Desc -> SortDirection.Asc
+                    else -> SortDirection.Desc
+                }
+                onSortChanged(newArtistDirection)
+            }) {
             Text(text = "アーティスト", modifier = Modifier.align(Alignment.CenterStart))
             when(sortDirection) {
                 SortDirection.Asc -> Text(
