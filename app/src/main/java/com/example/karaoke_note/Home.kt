@@ -9,27 +9,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.List
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -40,18 +31,12 @@ import androidx.navigation.NavController
 @Composable
 fun Home(navController: NavController) {
     Column {
-        Box(
-            modifier = Modifier
-                .weight(1f)
-        ){
+        Box(modifier = Modifier.weight(1f)){
             Button(onClick = { navController.navigate("song_data") }) {
                 Text("Navigate to song_data")
             }
         }
-        Box(
-            modifier = Modifier
-                .weight(8f)
-        ) {
+        Box(modifier = Modifier.weight(8f)) {
             LazyColumn(
                 modifier = Modifier
             ) {
@@ -96,11 +81,8 @@ fun Home(navController: NavController) {
                 }
             }
         }
-        Box(
-            modifier = Modifier
-                .weight(2f)
-        ) {
-            BottomNavigationBar()
+        Box(modifier = Modifier.weight(2f)) {
+            BottomNavigationBar(navController)
         }
     }
 }
@@ -215,41 +197,6 @@ fun LatestCard(date: String, title: String, artist: String, score: Double, key: 
                     }
                 }
             }
-        }
-    }
-}
-
-data class BottomNavItem(
-    val name: String,
-    val route: String,
-    val icon: ImageVector,
-)
-
-@ExperimentalMaterial3Api
-@Composable
-fun BottomNavigationBar() {
-    var selectedItem by remember { mutableStateOf(0) }
-    val bottomNavItems = listOf(
-        BottomNavItem(
-            name = "Home",
-            route = "home",
-            icon = Icons.Rounded.Home,
-        ),
-        BottomNavItem(
-            name = "List",
-            route = "list",
-            icon = Icons.Rounded.List,
-        )
-    )
-
-    NavigationBar {
-        bottomNavItems.forEachIndexed { index, item ->
-            NavigationBarItem(
-                icon = { Icon(item.icon, contentDescription = item.name) },
-                label = { Text(text = item.name) },
-                selected = selectedItem == index,
-                onClick = { selectedItem = index }
-            )
         }
     }
 }
