@@ -17,9 +17,10 @@ abstract class AppDatabase : RoomDatabase() {
         private var Instance: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {
-            return Instance
-                ?: Room.databaseBuilder(context, AppDatabase::class.java, "karaoke_database")
-                    .allowMainThreadQueries().build()
+            return Instance ?: synchronized(this) {
+                    Room.databaseBuilder(context, AppDatabase::class.java, "karaoke_database")
+                        .allowMainThreadQueries().build()
+                }
         }
     }
 }
