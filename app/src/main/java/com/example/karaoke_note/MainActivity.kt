@@ -35,6 +35,12 @@ class MainActivity : ComponentActivity() {
                     Scaffold(
                         topBar = {
                             AppBar(navController)
+                        },
+                        bottomBar = {
+                            BottomNavigationBar(navController)
+                        },
+                        floatingActionButton = {
+                            NewEntryButton()
                         }
                     ) { paddingValues ->
                         NavHost(

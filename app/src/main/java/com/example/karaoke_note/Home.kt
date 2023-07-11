@@ -81,9 +81,6 @@ fun Home(navController: NavController) {
                 }
             }
         }
-        Box(modifier = Modifier.weight(2f)) {
-            BottomNavigationBar(navController)
-        }
     }
 }
 

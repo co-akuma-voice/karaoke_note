@@ -54,9 +54,6 @@ fun ArtistsPage(navController: NavController, artist: String, ) {
             val artists = sampleArtist
             SortArtists(artists)
         }
-        Box(modifier = Modifier.weight(2f)) {
-            BottomNavigationBar(navController)
-        }
     }
 }
 
