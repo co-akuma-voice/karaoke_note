@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
                             BottomNavigationBar(navController)
                         },
                         floatingActionButton = {
-                            NewEntryButton()
+                            NewEntryButton(navController)
                         }
                     ) { paddingValues ->
                         NavHost(
@@ -57,6 +57,9 @@ class MainActivity : ComponentActivity() {
                             }
                             composable("list"){
                                 ArtistsPage(navController, "artist")
+                            }
+                            composable("new_entry"){
+                                NewEntryPage(navController)
                             }
                         }
                     }
