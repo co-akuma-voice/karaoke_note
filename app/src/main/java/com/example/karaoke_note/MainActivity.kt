@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -20,6 +21,7 @@ import com.example.karaoke_note.ui.theme.Karaoke_noteTheme
 class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class)
+    @ExperimentalMaterialApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val songDao = AppDatabase.getDatabase(this).songDao()
@@ -59,7 +61,7 @@ class MainActivity : ComponentActivity() {
                                 ArtistsPage(navController, "artist")
                             }
                             composable("new_entry"){
-                                NewEntryPage(navController)
+                                ModalBottomSheetCompose()
                             }
                         }
                     }
