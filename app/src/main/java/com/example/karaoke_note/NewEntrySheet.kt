@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
@@ -149,16 +150,10 @@ fun CustomScoreTextField(
 
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3Api
-@ExperimentalMaterialApi
 @Composable
-fun ModalBottomSheetCompose() {
-    val scope = rememberCoroutineScope()
-    //val scaffoldState = rememberBottomSheetScaffoldState()
-    val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Expanded, skipHalfExpanded = true)
-
+fun NewEntryContent() {
     var newTitle by remember { mutableStateOf("") }
     var newArtist by remember { mutableStateOf("") }
     var newScore by remember { mutableStateOf("") }
@@ -166,6 +161,103 @@ fun ModalBottomSheetCompose() {
     var newComment by remember { mutableStateOf("") }
 
     val focusRequester = remember { FocusRequester() }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ){
+            OutlinedTextField(
+                value = newTitle,
+                onValueChange = { newTitle = it },
+                modifier = Modifier.padding(2.dp),
+                label = { Text(text = "Song") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                ),
+                trailingIcon = {
+                    Icon(
+                        Icons.Default.Clear,
+                        contentDescription = "clear text",
+                        modifier = Modifier.clickable { newTitle = "" }
+                    ) },
+            )
+
+            OutlinedTextField(
+                value = newArtist,
+                onValueChange = { newArtist = it },
+                modifier = Modifier.padding(2.dp),
+                label = { Text(text = "Artist") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                ),
+                trailingIcon = {
+                    Icon(
+                        Icons.Default.Clear,
+                        contentDescription = "clear text",
+                        modifier = Modifier.clickable { newArtist = "" }
+                    )
+                },
+            )
+
+            CustomScoreTextField(
+                value = newScore,
+                modifier = Modifier,
+                label = "Score",
+                singleLine = true,
+                focusRequester = focusRequester,
+                onChange = { changed -> newScore = changed }
+            )
+
+            Slider(
+                value = newKey,
+                onValueChange = { newKey = it },
+                modifier = Modifier.padding(10.dp),
+                valueRange = -6f..6f,
+                steps = 11,
+            )
+
+            OutlinedTextField(
+                value = newComment,
+                onValueChange = { newComment = it },
+                modifier = Modifier.padding(2.dp),
+                label = { Text(text = "Comment") },
+                singleLine = false,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Default
+                ),
+                trailingIcon = {
+                    Icon(
+                        Icons.Default.Clear,
+                        contentDescription = "clear text",
+                        modifier = Modifier.clickable { newComment = "" }
+                    )
+                },
+            )
+        }
+}
+
+@Composable
+fun BottomSheetEmptyContent() {
+    Spacer(modifier = Modifier.size(1.dp))
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
+@Composable
+fun ModalBottomSheetCompose() {
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Expanded,
+        skipHalfExpanded = true
+    )
 
     ModalBottomSheetLayout(
         sheetContent = {
@@ -186,97 +278,14 @@ fun ModalBottomSheetCompose() {
                     )
                 }
             }
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ){
-                OutlinedTextField(
-                    value = newTitle,
-                    onValueChange = { newTitle = it },
-                    modifier = Modifier
-                        .padding(5.dp),
-                    label = { Text(text = "Song") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next
-                    ),
-                    trailingIcon = {
-                        Icon(
-                            Icons.Default.Clear,
-                            contentDescription = "clear text",
-                            modifier = Modifier.clickable { newTitle = "" }
-                        ) },
-                )
-
-                OutlinedTextField(
-                    value = newArtist,
-                    onValueChange = { newArtist = it },
-                    modifier = Modifier
-                        .padding(5.dp),
-                    label = { Text(text = "Artist") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next
-                    ),
-                    trailingIcon = {
-                        Icon(
-                            Icons.Default.Clear,
-                            contentDescription = "clear text",
-                            modifier = Modifier.clickable { newArtist = "" }
-                        )
-                                   },
-                )
-
-                CustomScoreTextField(
-                    value = newScore,
-                    modifier = Modifier,
-                    label = "Score",
-                    singleLine = true,
-                    focusRequester = focusRequester,
-                    onChange = { changed -> newScore = changed }
-                )
-
-                Slider(
-                    value = newKey,
-                    onValueChange = { newKey = it },
-                    modifier = Modifier
-                        .padding(10.dp),
-                    valueRange = -6f..6f,
-                    steps = 11,
-                )
-
-                OutlinedTextField(
-                    value = newComment,
-                    onValueChange = { newComment = it },
-                    modifier = Modifier
-                        .padding(5.dp),
-                    label = { Text(text = "Comment") },
-                    singleLine = false,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Default
-                    ),
-                    trailingIcon = {
-                        Icon(
-                            Icons.Default.Clear,
-                            contentDescription = "clear text",
-                            modifier = Modifier.clickable { newComment = "" }
-                        )
-                                   },
-                )
-
-                Spacer(Modifier.height(20.dp))
-                Button(
-                    onClick = {
-                        scope.launch { sheetState.hide() }
-                    }
-                ){
-                    Text("Click to collapse sheet")
+            NewEntryContent()
+            Spacer(Modifier.height(20.dp))
+            Button(
+                onClick = {
+                    scope.launch { sheetState.hide() }
                 }
+            ){
+                Text("New Entry")
             }
         },
         sheetState = sheetState,
