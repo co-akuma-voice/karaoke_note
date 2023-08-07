@@ -1,5 +1,6 @@
 package com.example.karaoke_note
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -15,24 +16,3 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
 
-@Composable
-fun NewEntryButton(navController: NavController){
-    //val ctx = LocalContext.current
-
-    FloatingActionButton(
-        onClick = {
-            //Toast.makeText(ctx, "Floating Action Button is Clicked.", Toast.LENGTH_SHORT).show()
-            navController.navigate(route = "new_entry")
-        },
-        modifier = Modifier
-            .padding(16.dp),
-        shape = RoundedCornerShape(16.dp),
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-    ) {
-        Icon(
-            imageVector = Icons.Rounded.Add,
-            contentDescription = "Add",
-            tint = Color.White,
-        )
-    }
-}

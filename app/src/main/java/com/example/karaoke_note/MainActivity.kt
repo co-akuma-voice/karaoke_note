@@ -3,6 +3,7 @@ package com.example.karaoke_note
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
@@ -20,7 +21,7 @@ import com.example.karaoke_note.ui.theme.Karaoke_noteTheme
 
 class MainActivity : ComponentActivity() {
 
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
     @ExperimentalMaterialApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +43,8 @@ class MainActivity : ComponentActivity() {
                             BottomNavigationBar(navController)
                         },
                         floatingActionButton = {
-                            NewEntryButton(navController)
+                            //NewEntryButton()
+                            AnimatedContentFABtoDiagram()
                         }
                     ) { paddingValues ->
                         NavHost(
@@ -59,9 +61,6 @@ class MainActivity : ComponentActivity() {
                             }
                             composable("list"){
                                 ArtistsPage(navController, "artist")
-                            }
-                            composable("new_entry"){
-                                ModalBottomSheetCompose()
                             }
                         }
                     }

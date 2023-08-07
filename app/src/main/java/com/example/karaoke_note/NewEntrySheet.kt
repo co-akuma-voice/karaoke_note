@@ -1,38 +1,48 @@
 package com.example.karaoke_note
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.IconButton
+import androidx.compose.material.Surface
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposableTargetMarker
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
@@ -43,8 +53,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.text.isDigitsOnly
-import kotlinx.coroutines.launch
+import androidx.navigation.NavController
 
 var scoreMaxLength = 5
 
@@ -131,7 +143,7 @@ fun CustomScoreTextField(
         },
         modifier = Modifier
             .focusRequester(focusRequester)
-            .padding(10.dp),
+            .padding(8.dp),
         label = { Text(label) },
         singleLine = singleLine,
         visualTransformation = ScoreNumberVisualTransformation(),
@@ -150,10 +162,13 @@ fun CustomScoreTextField(
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @ExperimentalMaterial3Api
 @Composable
-fun NewEntryContent() {
+fun NewEntryScreen() {
+    var dialogOpened by remember { mutableStateOf(true) }
+
     var newTitle by remember { mutableStateOf("") }
     var newArtist by remember { mutableStateOf("") }
     var newScore by remember { mutableStateOf("") }
@@ -162,137 +177,163 @@ fun NewEntryContent() {
 
     val focusRequester = remember { FocusRequester() }
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ){
-            OutlinedTextField(
-                value = newTitle,
-                onValueChange = { newTitle = it },
-                modifier = Modifier.padding(2.dp),
-                label = { Text(text = "Song") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                ),
-                trailingIcon = {
-                    Icon(
-                        Icons.Default.Clear,
-                        contentDescription = "clear text",
-                        modifier = Modifier.clickable { newTitle = "" }
-                    ) },
-            )
+    //if (dialogOpened) {
+        Dialog(
+            onDismissRequest = {dialogOpened = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Surface(
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        IconButton(
+                            onClick = {dialogOpened = false}
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Clear,
+                                contentDescription = "cancel",
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .size(16.dp)
+                            )
+                        }
+                        TextButton(
+                            onClick = { }
+                        ) {
+                            Text("Save")
+                        }
+                    }
 
-            OutlinedTextField(
-                value = newArtist,
-                onValueChange = { newArtist = it },
-                modifier = Modifier.padding(2.dp),
-                label = { Text(text = "Artist") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                ),
-                trailingIcon = {
-                    Icon(
-                        Icons.Default.Clear,
-                        contentDescription = "clear text",
-                        modifier = Modifier.clickable { newArtist = "" }
+                    OutlinedTextField(
+                        value = newTitle,
+                        onValueChange = { newTitle = it },
+                        modifier = Modifier.fillMaxWidth().padding(2.dp),
+                        label = { Text(text = "Song") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        ),
+                        trailingIcon = {
+                            Icon(
+                                Icons.Default.Clear,
+                                contentDescription = "clear text",
+                                modifier = Modifier.clickable { newTitle = "" }
+                            )
+                        },
                     )
-                },
-            )
 
-            CustomScoreTextField(
-                value = newScore,
-                modifier = Modifier,
-                label = "Score",
-                singleLine = true,
-                focusRequester = focusRequester,
-                onChange = { changed -> newScore = changed }
-            )
-
-            Slider(
-                value = newKey,
-                onValueChange = { newKey = it },
-                modifier = Modifier.padding(10.dp),
-                valueRange = -6f..6f,
-                steps = 11,
-            )
-
-            OutlinedTextField(
-                value = newComment,
-                onValueChange = { newComment = it },
-                modifier = Modifier.padding(2.dp),
-                label = { Text(text = "Comment") },
-                singleLine = false,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Default
-                ),
-                trailingIcon = {
-                    Icon(
-                        Icons.Default.Clear,
-                        contentDescription = "clear text",
-                        modifier = Modifier.clickable { newComment = "" }
+                    OutlinedTextField(
+                        value = newArtist,
+                        onValueChange = { newArtist = it },
+                        modifier = Modifier.padding(2.dp),
+                        label = { Text(text = "Artist") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        ),
+                        trailingIcon = {
+                            Icon(
+                                Icons.Default.Clear,
+                                contentDescription = "clear text",
+                                modifier = Modifier.clickable { newArtist = "" }
+                            )
+                        },
                     )
-                },
-            )
+
+                    CustomScoreTextField(
+                        value = newScore,
+                        modifier = Modifier,
+                        label = "Score",
+                        singleLine = true,
+                        focusRequester = focusRequester,
+                        onChange = { changed -> newScore = changed }
+                    )
+
+                    Slider(
+                        value = newKey,
+                        onValueChange = { newKey = it },
+                        modifier = Modifier.padding(10.dp),
+                        valueRange = -6f..6f,
+                        steps = 11,
+                    )
+
+                    OutlinedTextField(
+                        value = newComment,
+                        onValueChange = { newComment = it },
+                        modifier = Modifier.padding(2.dp),
+                        label = { Text(text = "Comment") },
+                        singleLine = false,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Default
+                        ),
+                        trailingIcon = {
+                            Icon(
+                                Icons.Default.Clear,
+                                contentDescription = "clear text",
+                                modifier = Modifier.clickable { newComment = "" }
+                            )
+                        },
+                    )
+                }
+            }
         }
+    //}
 }
 
 @Composable
-fun BottomSheetEmptyContent() {
-    Spacer(modifier = Modifier.size(1.dp))
-}
+fun NewEntryButton(){
+    //val ctx = LocalContext.current
 
-@OptIn(ExperimentalMaterial3Api::class)
-@ExperimentalMaterialApi
-@ExperimentalMaterial3Api
-@Composable
-fun ModalBottomSheetCompose() {
-    val scope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Expanded,
-        skipHalfExpanded = true
-    )
-
-    ModalBottomSheetLayout(
-        sheetContent = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(18.dp),
-            ){
-                IconButton(
-                    onClick = {
-                        scope.launch { sheetState.hide() }
-                    },
-                    modifier = Modifier.align(Alignment.TopStart),
-                ){
-                    Icon(
-                        imageVector = Icons.Filled.Clear,
-                        contentDescription = "Cancel"
-                    )
-                }
-            }
-            NewEntryContent()
-            Spacer(Modifier.height(20.dp))
-            Button(
-                onClick = {
-                    scope.launch { sheetState.hide() }
-                }
-            ){
-                Text("New Entry")
-            }
+    FloatingActionButton(
+        onClick = {
+            //Toast.makeText(ctx, "Floating Action Button is Clicked.", Toast.LENGTH_SHORT).show()
+            //navController.navigate(route = "new_entry")
         },
-        sheetState = sheetState,
+        modifier = Modifier
+            .padding(16.dp),
+        shape = RoundedCornerShape(16.dp),
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
     ) {
-        // Dummy implementation
-        Column() {
-            Spacer(modifier = Modifier.height(20.dp))
+        Icon(
+            imageVector = Icons.Rounded.Add,
+            contentDescription = "Add",
+            tint = Color.White,
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@ExperimentalAnimationApi
+@Composable
+fun AnimatedContentFABtoDiagram() {
+    var expanded by remember { mutableStateOf(false) }
+
+    Surface(
+        color = MaterialTheme.colorScheme.primary,
+        onClick = { expanded = !expanded }
+    ){
+        AnimatedContent(
+            targetState = expanded,
+        ) { targetExpanded ->
+            if (targetExpanded) {
+                NewEntryScreen()
+            }
+            else {
+                NewEntryButton()
+            }
         }
     }
 }
