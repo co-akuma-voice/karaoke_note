@@ -14,7 +14,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.karaoke_note.data.AppDatabase
-import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.ui.theme.Karaoke_noteTheme
 
 class MainActivity : ComponentActivity() {
@@ -24,7 +23,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val songDao = AppDatabase.getDatabase(this).songDao()
         val songScoreDao = AppDatabase.getDatabase(this).songScoreDao()
-        val context = this
         setContent {
             Karaoke_noteTheme {
                 // A surface container using the 'background' color from the theme
@@ -46,9 +44,14 @@ class MainActivity : ComponentActivity() {
                             composable("home") {
                                 Home(navController, songDao, songScoreDao)
                             }
-                            composable("song_data") {
-                                val songId = songDao.insertSong(Song(title = "Song1", artist = "Artist1"))
-                                SongScores(Song(id = songId, title = "Song1", artist = "Artist1"), context)
+                            composable("song_data/{songId}") {backStackEntry ->
+                                val songId = backStackEntry.arguments?.getString("songId")?.toLongOrNull()
+                                if (songId != null) {
+                                    val song = songDao.getSong(songId)
+                                    if (song != null) {
+                                        SongScores(song, songScoreDao)
+                                    }
+                                }
                             }
                             composable("list"){
                                 ArtistsPage(navController, "artist")
