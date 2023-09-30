@@ -23,6 +23,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val songDao = AppDatabase.getDatabase(this).songDao()
+        val songScoreDao = AppDatabase.getDatabase(this).songScoreDao()
         val context = this
         setContent {
             Karaoke_noteTheme {
@@ -43,7 +44,7 @@ class MainActivity : ComponentActivity() {
                             Modifier.padding(paddingValues)
                         ) {
                             composable("home") {
-                                Home(navController)
+                                Home(navController, songDao, songScoreDao)
                             }
                             composable("song_data") {
                                 val songId = songDao.insertSong(Song(title = "Song1", artist = "Artist1"))
