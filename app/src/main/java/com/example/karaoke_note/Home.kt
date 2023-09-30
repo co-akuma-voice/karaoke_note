@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -105,11 +104,6 @@ private fun loadDummyData(songDao: SongDao, songScoreDao: SongScoreDao) {
 fun Home(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao) {
     loadDummyData(songDao, songScoreDao)
     Column {
-        Box(modifier = Modifier.weight(1f)) {
-            Button(onClick = { navController.navigate("song_data") }) {
-                Text("Navigate to song_data")
-            }
-        }
         Box(modifier = Modifier.weight(8f)) {
             LazyColumn(
                 modifier = Modifier
@@ -118,7 +112,7 @@ fun Home(navController: NavController, songDao: SongDao, songScoreDao: SongScore
                 items(songDataList) { songData ->
                     val song = songDao.getSong(songData.songId)
                     if (song != null) {
-                        LatestCard(song = song, songScore = songData)
+                        LatestCard(song, songData, navController)
                     } else {
                         // データベースが壊れている
                     }
@@ -133,7 +127,7 @@ fun Home(navController: NavController, songDao: SongDao, songScoreDao: SongScore
 
 @ExperimentalMaterial3Api
 @Composable
-fun LatestCard(song: Song, songScore: SongScore) {
+fun LatestCard(song: Song, songScore: SongScore, navController: NavController) {
     remember { mutableStateOf(false) }
     var commentforcard = ""
     if (songScore.comment.isNotEmpty()) {
@@ -145,7 +139,7 @@ fun LatestCard(song: Song, songScore: SongScore) {
             .padding(horizontal = 20.dp, vertical = 12.dp)
     ) {
         Card(
-            onClick = { },
+            onClick = {navController.navigate("song_data/${song.id}")},
             shape = MaterialTheme.shapes.medium,
             modifier = Modifier
                 .fillMaxWidth(),
