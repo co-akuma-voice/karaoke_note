@@ -1,6 +1,5 @@
 package com.example.karaoke_note
 
-import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.karaoke_note.data.AppDatabase
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
@@ -45,8 +43,7 @@ enum class SortDirection {
 }
 
 @Composable
-fun SongScores(song: Song, context: Context) {
-    val songScoreDao = AppDatabase.getDatabase(context).songScoreDao()
+fun SongScores(song: Song, songScoreDao: SongScoreDao) {
     val scoresFlow = songScoreDao.getScoresForSong(song.id)
     val scores by scoresFlow.collectAsState(initial = emptyList())
     Column {

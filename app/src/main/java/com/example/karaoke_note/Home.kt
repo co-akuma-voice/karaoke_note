@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Button
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,58 +26,96 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.karaoke_note.data.Song
+import com.example.karaoke_note.data.SongDao
+import com.example.karaoke_note.data.SongScore
+import com.example.karaoke_note.data.SongScoreDao
+import java.time.LocalDate
+
+private fun loadDummyData(songDao: SongDao, songScoreDao: SongScoreDao) {
+    val songId1 = songDao.insertSong(
+        Song(
+            title = "長いタイトル長いタイトル長いタイトル長いタイトル",
+            artist = "長いアーティスト長いアーティスト長いアーティスト長いアーティスト"
+        )
+    )
+    songScoreDao.insertSongScore(
+        SongScore(
+            songId = songId1,
+            date = LocalDate.parse("1996-08-17"),
+            score = 98.76543f,
+            key = -6,
+            comment = "テストテスト"
+        )
+    )
+
+    val songId2 = songDao.insertSong(Song(title = "1 2 3 ~恋が始まる~", artist = "いきものがかり"))
+    songScoreDao.insertSongScore(
+        SongScore(
+            songId = songId2,
+            date = LocalDate.parse("2023-06-24"),
+            score = 100.000f,
+            key = -2,
+            comment = ""
+        )
+    )
+    val songId3 = songDao.insertSong(Song(title = "ARIA", artist = "Kalafina"))
+    songScoreDao.insertSongScore(
+        SongScore(
+            songId = songId3,
+            date = LocalDate.parse("2023-06-24"),
+            score = 90.672f,
+            key = -1,
+            comment = "-1で試す。"
+        )
+    )
+    val songId4 = songDao.insertSong(Song(title = "星月夜", artist = "由薫"))
+    songScoreDao.insertSongScore(
+        SongScore(
+            songId = songId4,
+            date = LocalDate.parse("2023-06-24"),
+            score = 90.919f,
+            key = -3,
+            comment = ""
+        )
+    )
+    songScoreDao.insertSongScore(
+        SongScore(
+            songId = songId4,
+            date = LocalDate.parse("2023-06-24"),
+            score = 90.920f,
+            key = -3,
+            comment = ""
+        )
+    )
+    songScoreDao.insertSongScore(
+        SongScore(
+            songId = songId4,
+            date = LocalDate.parse("2023-06-24"),
+            score = 90.921f,
+            key = -3,
+            comment = ""
+        )
+    )
+}
 
 @ExperimentalMaterial3Api
 @Composable
-fun Home(navController: NavController) {
+fun Home(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao) {
+    loadDummyData(songDao, songScoreDao)
     Column {
-        Box(modifier = Modifier.weight(1f)){
-            Button(onClick = { navController.navigate("song_data") }) {
-                Text("Navigate to song_data")
-            }
-        }
         Box(modifier = Modifier.weight(8f)) {
             LazyColumn(
                 modifier = Modifier
             ) {
-                item {
-                    LatestCard(
-                        date = "1996/08/17",
-                        title = "長いタイトル長いタイトル長いタイトル長いタイトル",
-                        artist = "長いアーティスト長いアーティスト長いアーティスト長いアーティスト",
-                        score = 98.76543,
-                        key = -6,
-                        comment = "テストテスト"
-                    )
-                }
-                item {
-                    LatestCard(
-                        date = "2023/06/24",
-                        title = "1 2 3 ~恋が始まる~",
-                        artist = "いきものがかり",
-                        score = 100.000,
-                        key = -2,
-                        comment = ""
-                    )
-                }
-                item {
-                    LatestCard(
-                        date = "2023/06/24",
-                        title = "ARIA",
-                        artist = "Kalafina",
-                        score = 90.672,
-                        key = -1,
-                        comment = "-1で試す。"
-                    )
-                }
-                items(5) {
-                    LatestCard(
-                        date = "2023/06/24",
-                        title = "星月夜",
-                        artist = "由薫",
-                        score = 90.919,
-                        key = -3,
-                    )
+                val songDataList = songScoreDao.getLatestScores(10)
+                items(songDataList) { songData ->
+                    val song = songDao.getSong(songData.songId)
+                    if (song != null) {
+                        LatestCard(song, songData, navController)
+                    } else {
+                        // データベースが壊れている
+                    }
                 }
             }
         }
@@ -89,10 +127,10 @@ fun Home(navController: NavController) {
 
 @ExperimentalMaterial3Api
 @Composable
-fun LatestCard(date: String, title: String, artist: String, score: Double, key: Int, comment: String = "") {
+fun LatestCard(song: Song, songScore: SongScore, navController: NavController) {
     remember { mutableStateOf(false) }
     var commentforcard = ""
-    if (comment.isNotEmpty()) {
+    if (songScore.comment.isNotEmpty()) {
         commentforcard = "..."
     }
 
@@ -101,7 +139,7 @@ fun LatestCard(date: String, title: String, artist: String, score: Double, key: 
             .padding(horizontal = 20.dp, vertical = 12.dp)
     ) {
         Card(
-            onClick = { },
+            onClick = {navController.navigate("song_data/${song.id}")},
             shape = MaterialTheme.shapes.medium,
             modifier = Modifier
                 .fillMaxWidth(),
@@ -124,7 +162,7 @@ fun LatestCard(date: String, title: String, artist: String, score: Double, key: 
                         verticalArrangement = Arrangement.SpaceBetween
                     ){
                         Text(
-                            text = date,
+                            text = songScore.date.toString(),
                             modifier = Modifier
                                 .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
                                 .align(Alignment.Start),
@@ -133,7 +171,7 @@ fun LatestCard(date: String, title: String, artist: String, score: Double, key: 
                             fontSize = 6.sp,
                         )
                         Text(
-                            text = title,
+                            text = song.title,
                             modifier = Modifier
                                 .padding(start = 20.dp, top = 4.dp, bottom = 4.dp)
                                 .align(Alignment.Start),
@@ -144,7 +182,7 @@ fun LatestCard(date: String, title: String, artist: String, score: Double, key: 
                             overflow = TextOverflow.Ellipsis,
                         )
                         Text(
-                            text = artist,
+                            text = song.artist,
                             modifier = Modifier
                                 .padding(start = 20.dp, top = 4.dp, bottom = 4.dp)
                                 .align(Alignment.Start),
@@ -168,7 +206,7 @@ fun LatestCard(date: String, title: String, artist: String, score: Double, key: 
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = String.format("%.3f", score),
+                            text = String.format("%.3f", songScore.score),
                             modifier = Modifier
                                 .padding(top = 0.dp, end = 16.dp, bottom = 2.dp)
                                 .align(Alignment.End),
@@ -177,7 +215,7 @@ fun LatestCard(date: String, title: String, artist: String, score: Double, key: 
                             fontSize = 12.sp,
                         )
                         Text(
-                            text = key.toString(),
+                            text = songScore.key.toString(),
                             modifier = Modifier
                                 .padding(top = 2.dp, end = 16.dp, bottom = 2.dp)
                                 .align(Alignment.End),
