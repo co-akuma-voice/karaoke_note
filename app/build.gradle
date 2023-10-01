@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace 'com.example.karaoke_note'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.example.karaoke_note"

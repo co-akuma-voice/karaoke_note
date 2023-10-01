@@ -43,8 +43,8 @@ class MainActivity : ComponentActivity() {
                             BottomNavigationBar(navController)
                         },
                         floatingActionButton = {
-                            //NewEntryButton()
-                            AnimatedContentFABtoDiagram()
+                            NewEntryScreen()
+                            //AnimatedContentFABtoDiagram()
                         }
                     ) { paddingValues ->
                         NavHost(

@@ -117,7 +117,7 @@ fun ArtistsListHeader(sortDirection: SortDirection, onSortChanged: (SortDirectio
 fun ArtistsListDrawing(artist: ArtistData) {
     Column {
         ListItem(
-            headlineText = {
+            headlineContent = {
                 Text(
                     text = artist.name,
                     overflow = TextOverflow.Ellipsis

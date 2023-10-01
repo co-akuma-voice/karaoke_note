@@ -1,23 +1,16 @@
 package com.example.karaoke_note
 
 import android.widget.Toast
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.keyframes
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.TextButton
@@ -32,17 +25,17 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposableTargetMarker
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
@@ -53,10 +46,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.text.isDigitsOnly
-import androidx.navigation.NavController
+import kotlin.math.roundToInt
 
 var scoreMaxLength = 5
 
@@ -102,7 +96,6 @@ class ScoreNumberVisualTransformation : VisualTransformation {
 @Composable
 fun CustomScoreTextField(
     value: String,
-    modifier: Modifier,
     label: String,
     singleLine: Boolean,
     focusRequester: FocusRequester,
@@ -116,10 +109,10 @@ fun CustomScoreTextField(
             )
         )
     }
-
     val ctx = LocalContext.current
     val patternPerfect = Regex("^1")
     val patternZero = Regex("^0+")
+
     OutlinedTextField(
         value = textFieldValue,
         onValueChange = { changed ->
@@ -143,7 +136,8 @@ fun CustomScoreTextField(
         },
         modifier = Modifier
             .focusRequester(focusRequester)
-            .padding(8.dp),
+            .fillMaxWidth()
+            .padding(10.dp),
         label = { Text(label) },
         singleLine = singleLine,
         visualTransformation = ScoreNumberVisualTransformation(),
@@ -159,56 +153,70 @@ fun CustomScoreTextField(
             )
         },
     )
-
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3Api
 @Composable
 fun NewEntryScreen() {
-    var dialogOpened by remember { mutableStateOf(true) }
+    var dialogOpened by remember { mutableStateOf(false) }
 
     var newTitle by remember { mutableStateOf("") }
     var newArtist by remember { mutableStateOf("") }
     var newScore by remember { mutableStateOf("") }
-    var newKey by remember { mutableStateOf(0f) }
+    var newKey by remember { mutableFloatStateOf(0f) }
     var newComment by remember { mutableStateOf("") }
 
     val focusRequester = remember { FocusRequester() }
 
-    //if (dialogOpened) {
+    val verticalPaddingValue = 10.dp
+    val horizontalPaddingValue = 10.dp
+
+    FloatingActionButton(
+        onClick = { dialogOpened = true },
+        modifier = Modifier
+            .padding(16.dp),
+        shape = RoundedCornerShape(16.dp),
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.Add,
+            contentDescription = "Add",
+            tint = Color.White,
+        )
+    }
+
+    if (dialogOpened) {
         Dialog(
-            onDismissRequest = {dialogOpened = false },
+            onDismissRequest = { dialogOpened = false },
             properties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
             Surface(
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.background,
                 modifier = Modifier.fillMaxSize()
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
+                Column {
+                    Box (
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontalPaddingValue, verticalPaddingValue)
+                    ){
                         IconButton(
-                            onClick = {dialogOpened = false}
+                            onClick = { dialogOpened = false },
+                            modifier = Modifier.align(Alignment.CenterStart),
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Clear,
                                 contentDescription = "cancel",
                                 modifier = Modifier
-                                    .padding(8.dp)
+                                    .padding(horizontalPaddingValue, verticalPaddingValue)
                                     .size(16.dp)
                             )
                         }
                         TextButton(
-                            onClick = { }
+                            onClick = { },
+                            modifier = Modifier.align(Alignment.CenterEnd),
                         ) {
                             Text("Save")
                         }
@@ -217,7 +225,9 @@ fun NewEntryScreen() {
                     OutlinedTextField(
                         value = newTitle,
                         onValueChange = { newTitle = it },
-                        modifier = Modifier.fillMaxWidth().padding(2.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontalPaddingValue, verticalPaddingValue),
                         label = { Text(text = "Song") },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
@@ -236,7 +246,9 @@ fun NewEntryScreen() {
                     OutlinedTextField(
                         value = newArtist,
                         onValueChange = { newArtist = it },
-                        modifier = Modifier.padding(2.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontalPaddingValue, verticalPaddingValue),
                         label = { Text(text = "Artist") },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
@@ -254,25 +266,55 @@ fun NewEntryScreen() {
 
                     CustomScoreTextField(
                         value = newScore,
-                        modifier = Modifier,
                         label = "Score",
                         singleLine = true,
-                        focusRequester = focusRequester,
-                        onChange = { changed -> newScore = changed }
-                    )
+                        focusRequester = focusRequester
+                    ) { changed -> newScore = changed }
 
-                    Slider(
-                        value = newKey,
-                        onValueChange = { newKey = it },
-                        modifier = Modifier.padding(10.dp),
-                        valueRange = -6f..6f,
-                        steps = 11,
-                    )
+                    Column {
+                        Text(
+                            text = "Key",
+                            modifier = Modifier
+                                .padding(start = 20.dp, top = verticalPaddingValue, end = 0.dp, bottom = 0.dp),
+                            fontSize = 16.sp
+                        )
+                        Box (
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ){
+                            val sliderLength : Int = LocalConfiguration.current.screenWidthDp
+                            val newKeyText: String
+                            val newKeyLabel = newKey.roundToInt()
+                            newKeyText = if (newKeyLabel > 0) {
+                                "+$newKeyLabel"
+                            } else {
+                                "$newKeyLabel"
+                            }
+
+                            Text(
+                                text = newKeyText,
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .offset(x = (sliderLength / 13 * newKey).dp)
+                            )
+                        }
+                        Slider(
+                            value = newKey,
+                            onValueChange = { newKey = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = horizontalPaddingValue, vertical = 0.dp),
+                            valueRange = -6f..6f,
+                            steps = 11,
+                        )
+                    }
 
                     OutlinedTextField(
                         value = newComment,
                         onValueChange = { newComment = it },
-                        modifier = Modifier.padding(2.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontalPaddingValue, verticalPaddingValue),
                         label = { Text(text = "Comment") },
                         singleLine = false,
                         keyboardOptions = KeyboardOptions(
@@ -290,31 +332,10 @@ fun NewEntryScreen() {
                 }
             }
         }
-    //}
-}
-
-@Composable
-fun NewEntryButton(){
-    //val ctx = LocalContext.current
-
-    FloatingActionButton(
-        onClick = {
-            //Toast.makeText(ctx, "Floating Action Button is Clicked.", Toast.LENGTH_SHORT).show()
-            //navController.navigate(route = "new_entry")
-        },
-        modifier = Modifier
-            .padding(16.dp),
-        shape = RoundedCornerShape(16.dp),
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-    ) {
-        Icon(
-            imageVector = Icons.Rounded.Add,
-            contentDescription = "Add",
-            tint = Color.White,
-        )
     }
 }
 
+/*
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @ExperimentalAnimationApi
 @Composable
@@ -337,3 +358,5 @@ fun AnimatedContentFABtoDiagram() {
         }
     }
 }
+
+ */
