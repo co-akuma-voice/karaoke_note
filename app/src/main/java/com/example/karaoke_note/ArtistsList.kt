@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.karaoke_note.data.SongDao
 
 data class ArtistData(val name: String, val color: Color = Color.White)
 
@@ -43,7 +44,7 @@ val sampleArtist = listOf(
 
 @ExperimentalMaterial3Api
 @Composable
-fun ArtistsPage(navController: NavController, artist: String, ) {
+fun ArtistsPage(navController: NavController, songDao: SongDao) {
     Column {
         // 実際にはデータベースから、artistをもとにデータを探す
 
