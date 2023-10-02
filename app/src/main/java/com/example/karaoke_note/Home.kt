@@ -119,9 +119,6 @@ fun Home(navController: NavController, songDao: SongDao, songScoreDao: SongScore
                 }
             }
         }
-        Box(modifier = Modifier.weight(2f)) {
-            BottomNavigationBar(navController)
-        }
     }
 }
 

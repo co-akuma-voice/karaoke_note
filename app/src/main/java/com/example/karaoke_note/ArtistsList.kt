@@ -54,9 +54,6 @@ fun ArtistsPage(navController: NavController, artist: String, ) {
             val artists = sampleArtist
             SortArtists(artists)
         }
-        Box(modifier = Modifier.weight(2f)) {
-            BottomNavigationBar(navController)
-        }
     }
 }
 
@@ -120,7 +117,7 @@ fun ArtistsListHeader(sortDirection: SortDirection, onSortChanged: (SortDirectio
 fun ArtistsListDrawing(artist: ArtistData) {
     Column {
         ListItem(
-            headlineText = {
+            headlineContent = {
                 Text(
                     text = artist.name,
                     overflow = TextOverflow.Ellipsis
