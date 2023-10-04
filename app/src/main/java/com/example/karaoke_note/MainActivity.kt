@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                             composable("list"){
-                                ArtistsPage(navController, "artist")
+                                ArtistsPage(navController, songDao)
                             }
                         }
                     }

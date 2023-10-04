@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -36,7 +37,8 @@ private fun loadDummyData(songDao: SongDao, songScoreDao: SongScoreDao) {
     val songId1 = songDao.insertSong(
         Song(
             title = "長いタイトル長いタイトル長いタイトル長いタイトル",
-            artist = "長いアーティスト長いアーティスト長いアーティスト長いアーティスト"
+            artist = "長いアーティスト長いアーティスト長いアーティスト長いアーティスト",
+            iconColor = Color.Red.toArgb()
         )
     )
     songScoreDao.insertSongScore(
@@ -49,7 +51,11 @@ private fun loadDummyData(songDao: SongDao, songScoreDao: SongScoreDao) {
         )
     )
 
-    val songId2 = songDao.insertSong(Song(title = "1 2 3 ~恋が始まる~", artist = "いきものがかり"))
+    val songId2 = songDao.insertSong(Song(
+        title = "1 2 3 ~恋が始まる~",
+        artist = "いきものがかり",
+        iconColor = Color.Yellow.toArgb()
+    ))
     songScoreDao.insertSongScore(
         SongScore(
             songId = songId2,
@@ -59,7 +65,7 @@ private fun loadDummyData(songDao: SongDao, songScoreDao: SongScoreDao) {
             comment = ""
         )
     )
-    val songId3 = songDao.insertSong(Song(title = "ARIA", artist = "Kalafina"))
+    val songId3 = songDao.insertSong(Song(title = "ARIA", artist = "Kalafina", iconColor = Color.Black.toArgb()))
     songScoreDao.insertSongScore(
         SongScore(
             songId = songId3,
@@ -69,7 +75,7 @@ private fun loadDummyData(songDao: SongDao, songScoreDao: SongScoreDao) {
             comment = "-1で試す。"
         )
     )
-    val songId4 = songDao.insertSong(Song(title = "星月夜", artist = "由薫"))
+    val songId4 = songDao.insertSong(Song(title = "星月夜", artist = "由薫", iconColor = Color.Black.toArgb()))
     songScoreDao.insertSongScore(
         SongScore(
             songId = songId4,

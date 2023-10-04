@@ -26,24 +26,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.karaoke_note.data.Song
+import com.example.karaoke_note.data.SongDao
 
 data class ArtistData(val name: String, val color: Color = Color.White)
 
-val sampleArtist = listOf(
-    ArtistData("Artist0", Color.Red),
-    ArtistData("Artist123456789012345678901234567890", Color.Magenta),
-    ArtistData("あいうえお", Color.Yellow),
-    ArtistData("]-[|/34<#!", Color.Green),
-    ArtistData("@@@@@#####", Color.Cyan),
-    ArtistData("Artist5", Color.Blue),
-    ArtistData("Artist6", Color.Black),
-    ArtistData("Artist7", Color.Gray),
-    ArtistData("Artist8", Color.White),
-)
+fun getUniqueArtistData(songs: List<Song>): List<ArtistData> {
+    val artistDataSet = mutableSetOf<ArtistData>()
+    for (song in songs) {
+        val color = Color(song.iconColor)
+        val artistData = ArtistData(song.artist, color)
+        artistDataSet.add(artistData)
+    }
+    return artistDataSet.toList()
+}
 
 @ExperimentalMaterial3Api
 @Composable
-fun ArtistsPage(navController: NavController, artist: String, ) {
+fun ArtistsPage(navController: NavController, songDao: SongDao) {
     Column {
         // 実際にはデータベースから、artistをもとにデータを探す
 
@@ -51,7 +51,8 @@ fun ArtistsPage(navController: NavController, artist: String, ) {
             Spacer(modifier = Modifier)
         }
         Box(modifier = Modifier.weight(9f)) {
-            val artists = sampleArtist
+            val songs = songDao.getAllSongs()
+            val artists = getUniqueArtistData(songs)
             SortArtists(artists)
         }
     }
