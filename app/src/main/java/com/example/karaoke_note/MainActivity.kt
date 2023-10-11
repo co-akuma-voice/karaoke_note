@@ -1,5 +1,6 @@
 package com.example.karaoke_note
 
+import SongList
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -65,6 +66,12 @@ class MainActivity : ComponentActivity() {
                             }
                             composable("list"){
                                 ArtistsPage(navController, songDao)
+                            }
+                            composable("song_list/{artist}"){backStackEntry ->
+                                val artist = backStackEntry.arguments?.getString("artist")
+                                if (artist != null) {
+                                    SongList(navController, artist, songDao, songScoreDao)
+                                }
                             }
                         }
                     }

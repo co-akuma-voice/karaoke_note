@@ -53,14 +53,14 @@ fun ArtistsPage(navController: NavController, songDao: SongDao) {
         Box(modifier = Modifier.weight(9f)) {
             val songs = songDao.getAllSongs()
             val artists = getUniqueArtistData(songs)
-            SortArtists(artists)
+            SortArtists(navController, artists)
         }
     }
 }
 
 @ExperimentalMaterial3Api
 @Composable
-fun SortArtists(artists: List<ArtistData>) {
+fun SortArtists(navController: NavController, artists: List<ArtistData>) {
     var sortedArtists by remember { mutableStateOf(artists) }
     var sortDirection by remember { mutableStateOf(SortDirection.Asc) }
 
@@ -78,7 +78,7 @@ fun SortArtists(artists: List<ArtistData>) {
         ) {
             LazyColumn {
                 itemsIndexed(sortedArtists) { index, artists ->
-                    ArtistsListDrawing(artists)
+                    ArtistsListDrawing(navController, artists)
                 }
             }
         }
@@ -115,8 +115,12 @@ fun ArtistsListHeader(sortDirection: SortDirection, onSortChanged: (SortDirectio
 
 @ExperimentalMaterial3Api
 @Composable
-fun ArtistsListDrawing(artist: ArtistData) {
-    Column {
+fun ArtistsListDrawing(navController: NavController, artist: ArtistData) {
+    Column (
+        modifier = Modifier.clickable {
+            navController.navigate("song_list/${artist.name}")
+        }
+    ){
         ListItem(
             headlineContent = {
                 Text(
