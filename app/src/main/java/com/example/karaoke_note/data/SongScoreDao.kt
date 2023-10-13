@@ -18,6 +18,21 @@ interface SongScoreDao {
     @Query("SELECT * FROM SongScore WHERE songId = :songId AND date = :date AND score = :score AND \"key\" = :key AND comment = :comment")
     fun findSongScore(songId: Long, date: LocalDate, score: Float, key: Int, comment: String): SongScore?
 
+    @Query("""
+        SELECT * FROM SongScore 
+        WHERE songId = :songId 
+        ORDER BY score DESC 
+        LIMIT 1
+    """)
+    fun getHighestScoreBySongId(songId: Long): SongScore?
+
+    @Query("""
+        SELECT date FROM SongScore 
+        ORDER BY date DESC 
+        LIMIT 1
+    """)
+    fun getMostRecentDate(): LocalDate?
+
     @Transaction
     fun insertSongScore(score: SongScore) {
         val existingEntry = findSongScore(

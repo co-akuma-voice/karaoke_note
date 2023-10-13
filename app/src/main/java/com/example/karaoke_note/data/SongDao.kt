@@ -19,6 +19,9 @@ interface SongDao {
     @Query("SELECT * FROM Song WHERE id = :id")
     fun getSong(id: Long): Song?
 
+    @Query("SELECT * FROM Song WHERE artist = :artist")
+    fun getSongsByArtist(artist: String): List<Song>
+
     @Transaction
     fun insertSong(song: Song): Long {
         return getSongId(song.title, song.artist) ?: insertUniqueSong(song)
