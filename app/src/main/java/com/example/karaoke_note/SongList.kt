@@ -33,7 +33,7 @@ enum class SongSortColumn {
     HighestScore,
     Date
 }
-data class SongData(val title: String, val highestScore: Float, val lastDate: LocalDate)
+data class SongData(val id: Long, val title: String, val highestScore: Float, val lastDate: LocalDate)
 
 fun convertToSongDataList(songScoreDao: SongScoreDao, songs: List<Song>): List<SongData> {
     return runBlocking(Dispatchers.IO) {
@@ -42,6 +42,7 @@ fun convertToSongDataList(songScoreDao: SongScoreDao, songs: List<Song>): List<S
                 val highestScoreEntry = songScoreDao.getHighestScoreBySongId(song.id)
                 val lastDate = songScoreDao.getMostRecentDate()
                 SongData(
+                    id = song.id,
                     title = song.title,
                     highestScore = highestScoreEntry?.score ?: 0f,
                     lastDate = lastDate ?: LocalDate.MIN
@@ -55,12 +56,12 @@ fun SongList(navController: NavController, artist: String, songDao: SongDao, son
     val songs = convertToSongDataList(songScoreDao, songDao.getSongsByArtist(artist))
     Column {
         Text(text = artist)
-        SongTable(songs, songScoreDao)
+        SongTable(navController, songs)
     }
 }
 
 @Composable
-fun SongTable(songs: List<SongData>, songScoreDao: SongScoreDao) {
+fun SongTable(navController: NavController, songs: List<SongData>) {
     var sortDirection by remember { mutableStateOf(SortDirection.None) }
     var sortColumn by remember { mutableStateOf(SongSortColumn.Title) }
     val sortedSongs = remember(songs, sortColumn, sortDirection) {
@@ -96,7 +97,7 @@ fun SongTable(songs: List<SongData>, songScoreDao: SongScoreDao) {
         }
         LazyColumn {
             itemsIndexed(sortedSongs) { index, songData ->
-                SongRow(songData, songScoreDao)
+                SongRow(navController, songData)
                 if (index < songs.size - 1) {
                     Divider(color = Color.Gray, thickness = 1.dp)
                 }
@@ -182,10 +183,12 @@ fun HeaderRow(sortColumn: SongSortColumn, sortDirection: SortDirection, onSortCh
 
 
 @Composable
-fun SongRow(songData: SongData, songScoreDao: SongScoreDao) {
-    Row(Modifier.fillMaxWidth()) {
+fun SongRow(navController: NavController, songData: SongData) {
+    Row(Modifier.fillMaxWidth().clickable {
+        navController.navigate("song_data/${songData.id}")
+    }) {
         Text(text = songData.title, modifier = Modifier.weight(2f))
-        Text(text = String.format("%.3f", songData.highestScore), textAlign = TextAlign.End, modifier = Modifier.weight(1.5f))
+        Text(text = String.format("%.3f", songData.highestScore), textAlign = TextAlign.Center, modifier = Modifier.weight(1.5f))
         Text(text = songData.lastDate.toString(), textAlign = TextAlign.Center, modifier = Modifier.weight(1f))
     }
 }
