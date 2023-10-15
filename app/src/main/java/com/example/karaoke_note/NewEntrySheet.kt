@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
@@ -59,6 +60,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.text.isDigitsOnly
+import com.example.karaoke_note.data.Song
+import com.example.karaoke_note.data.SongDao
+import com.example.karaoke_note.data.SongScore
+import com.example.karaoke_note.data.SongScoreDao
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -102,7 +107,6 @@ class ScoreNumberVisualTransformation : VisualTransformation {
         )
     }
 }
-
 
 @ExperimentalMaterial3Api
 @Composable
@@ -288,7 +292,7 @@ fun getLocalizedDate(): LocalDate {
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3Api
 @Composable
-fun NewEntryScreen() {
+fun NewEntryScreen(songDao: SongDao, songScoreDao: SongScoreDao) {
     var dialogOpened by remember { mutableStateOf(false) }
 
     var newTitle by remember { mutableStateOf("") }
@@ -346,7 +350,25 @@ fun NewEntryScreen() {
                             )
                         }
                         TextButton(
-                            onClick = { },
+                            onClick = {
+                                val newSongId = songDao.insertSong(
+                                    Song(
+                                        title = newTitle,
+                                        artist = newArtist,
+                                        iconColor = Color.Black.toArgb()
+                                    )
+                                )
+                                songScoreDao.insertSongScore(
+                                    SongScore(
+                                        songId = newSongId,
+                                        date = newDate,
+                                        score = newScore.toFloat(),
+                                        key = newKey.toInt(),
+                                        comment = newComment
+                                    )
+                                )
+                                dialogOpened = false
+                            },
                             modifier = Modifier.align(Alignment.CenterEnd),
                         ) {
                             Text("Save")
