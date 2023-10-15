@@ -140,9 +140,7 @@ fun CustomScoreTextField(
                     Toast.makeText(ctx, "Leading 0 is not allowed.", Toast.LENGTH_SHORT).show()
                 }
                 else {
-                    if (changed.text.matches(patternPerfect)) {
-                        scoreMaxLength = 6
-                    }
+                    scoreMaxLength = if (changed.text.matches(patternPerfect)) { 6 } else { 5 }
                     if (changed.text.length <= scoreMaxLength) {
                         textFieldValue = changed
                     }
