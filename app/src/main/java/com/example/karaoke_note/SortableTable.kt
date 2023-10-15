@@ -27,7 +27,8 @@ enum class SortDirection {
 fun <T> SortableTable(
     items: List<T>,
     columns: List<TableColumn<T>>,
-    initialSortColumnIndex: Int = 0
+    initialSortColumnIndex: Int = 0,
+    onRowClick: (T) -> Unit = {}
 ) {
     var sortDirection by remember { mutableStateOf(SortDirection.None) }
     var sortColumnIndex by remember { mutableStateOf(initialSortColumnIndex) }
@@ -51,7 +52,9 @@ fun <T> SortableTable(
         }
         LazyColumn {
             itemsIndexed(sortedItems) { index, item ->
-                DataRow(columns, item)
+                DataRow(columns, item) {
+                    onRowClick(item)
+                }
                 if (index < items.size - 1) {
                     Divider(color = Color.Gray, thickness = 1.dp)
                 }
@@ -64,7 +67,7 @@ data class TableColumn<T>(
     val title: String,
     val content: @Composable (T) -> Unit,
     val comparator: Comparator<T>?,
-    val weight: Float
+    val weight: Float,
 )
 
 @Composable
@@ -116,8 +119,11 @@ fun <T> HeaderRow(
 }
 
 @Composable
-fun <T> DataRow(columns: List<TableColumn<T>>, item: T) {
-    Row(Modifier.fillMaxWidth()) {
+fun <T> DataRow(columns: List<TableColumn<T>>, item: T, onClick: () -> Unit) {
+    Row(Modifier
+        .fillMaxWidth()
+        .clickable(onClick = onClick)
+    ) {
         columns.forEach { column ->
             Box(modifier = Modifier.weight(column.weight)) {
                 column.content(item)
