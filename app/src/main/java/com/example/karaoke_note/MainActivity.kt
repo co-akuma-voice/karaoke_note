@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
                         floatingActionButton = {
                             NewEntryScreen(songDao, songScoreDao)
                             //AnimatedContentFABtoDiagram()
-                        }
+                        },
                     ) { paddingValues ->
                         NavHost(
                             navController,

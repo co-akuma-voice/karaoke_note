@@ -47,19 +47,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.core.text.isDigitsOnly
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
@@ -68,45 +63,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import kotlin.math.roundToInt
-
-var scoreMaxLength = 5
-
-class ScoreNumberVisualTransformation : VisualTransformation {
-    override fun filter(text: AnnotatedString): TransformedText {
-        val trimmed = text.text
-        var output = ""
-
-        for (i in trimmed.indices) {
-            if (trimmed[0] == '1') {
-                output = "100.000"
-                break
-            }
-            else {
-                output += trimmed[i]
-                if (i == scoreMaxLength - 4) {
-                    output += '.'
-                }
-            }
-        }
-
-        val offsetMapping = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int): Int {
-                if (offset <= 2) return offset
-                return offset + 1
-            }
-
-            override fun transformedToOriginal(offset: Int): Int {
-                if (offset <= 2) return offset
-                return offset - 1
-            }
-        }
-
-        return TransformedText(
-            text = AnnotatedString(output),
-            offsetMapping = offsetMapping
-        )
-    }
-}
 
 @ExperimentalMaterial3Api
 @Composable
@@ -125,26 +81,22 @@ fun CustomScoreTextField(
             )
         )
     }
+    var invalidScore by remember { mutableStateOf(true) }
+    val patternPerfect = "100\\.000".toRegex()
+    val patternNormal = """^\d{2}\.\d{3}$""".toRegex()
+
     val ctx = LocalContext.current
-    val patternPerfect = Regex("^1")
     val patternZero = Regex("^0+")
 
     OutlinedTextField(
         value = textFieldValue,
         onValueChange = { changed ->
-            if (!changed.text.isDigitsOnly()) {
-                Toast.makeText(ctx, "Digits are only available.", Toast.LENGTH_SHORT).show()
+            if (changed.text.matches(patternZero)) {
+                Toast.makeText(ctx, "Leading 0 is not allowed.", Toast.LENGTH_SHORT).show()
             }
             else {
-                if (changed.text.matches(patternZero)) {
-                    Toast.makeText(ctx, "Leading 0 is not allowed.", Toast.LENGTH_SHORT).show()
-                }
-                else {
-                    scoreMaxLength = if (changed.text.matches(patternPerfect)) { 6 } else { 5 }
-                    if (changed.text.length <= scoreMaxLength) {
-                        textFieldValue = changed
-                    }
-                }
+                invalidScore = !(changed.text.matches(patternNormal) or changed.text.matches(patternPerfect))
+                textFieldValue = changed
             }
             onChange(changed.text)
         },
@@ -153,18 +105,36 @@ fun CustomScoreTextField(
             .fillMaxWidth()
             .padding(10.dp),
         label = { Text(label) },
+        isError = invalidScore,
+        supportingText = {
+            if (invalidScore) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "Format: XX.XXX or 100.000",
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        },
         singleLine = singleLine,
-        visualTransformation = ScoreNumberVisualTransformation(),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number,
-            imeAction = ImeAction.Next
+            imeAction = ImeAction.Default
         ),
         trailingIcon = {
-            Icon(
-                Icons.Default.Clear,
-                contentDescription = "clear text",
-                modifier = Modifier.clickable { textFieldValue = TextFieldValue("") }
-            )
+            if (invalidScore) {
+                Icon(
+                    Icons.Default.Clear,
+                    contentDescription = "clear text",
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.clickable { textFieldValue = TextFieldValue("") }
+                )
+            } else {
+                Icon(
+                    Icons.Default.Clear,
+                    contentDescription = "clear text",
+                    modifier = Modifier.clickable { textFieldValue = TextFieldValue("") }
+                )
+            }
         },
     )
 }
@@ -293,207 +263,258 @@ fun getLocalizedDate(): LocalDate {
 fun NewEntryScreen(songDao: SongDao, songScoreDao: SongScoreDao) {
     var dialogOpened by remember { mutableStateOf(false) }
 
+    var invalidTitle by remember { mutableStateOf(true) }
     var newTitle by remember { mutableStateOf("") }
+    var invalidArtist by remember { mutableStateOf(true) }
     var newArtist by remember { mutableStateOf("") }
     var newScore by remember { mutableStateOf("") }
     var newKey by remember { mutableFloatStateOf(0f) }
+    var newDate by remember { mutableStateOf(LocalDate.now()) }
     var newComment by remember { mutableStateOf("") }
 
-    var newDate by remember { mutableStateOf(LocalDate.now()) }
-    
     val focusRequester = remember { FocusRequester() }
 
     val verticalPaddingValue = 10
     val horizontalPaddingValue = 10
 
-    FloatingActionButton(
-        onClick = { dialogOpened = true },
-        modifier = Modifier
-            .padding(16.dp),
-        shape = RoundedCornerShape(16.dp),
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-    ) {
-        Icon(
-            imageVector = Icons.Rounded.Add,
-            contentDescription = "Add",
-            tint = Color.White,
-        )
-    }
-
-    if (dialogOpened) {
-        Dialog(
-            onDismissRequest = { dialogOpened = false },
-            properties = DialogProperties(usePlatformDefaultWidth = false)
+        FloatingActionButton(
+            onClick = { dialogOpened = true },
+            modifier = Modifier
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
         ) {
-            Surface(
-                color = MaterialTheme.colorScheme.background,
-                modifier = Modifier.fillMaxSize()
+            Icon(
+                imageVector = Icons.Rounded.Add,
+                contentDescription = "Add",
+                tint = Color.White,
+            )
+        }
+
+        if (dialogOpened) {
+            Dialog(
+                onDismissRequest = { dialogOpened = false },
+                properties = DialogProperties(usePlatformDefaultWidth = false)
             ) {
-                Column {
-                    Box (
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp)
-                    ){
-                        IconButton(
-                            onClick = { dialogOpened = false },
-                            modifier = Modifier.align(Alignment.CenterStart),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Clear,
-                                contentDescription = "cancel",
-                                modifier = Modifier
-                                    .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp)
-                                    .size(16.dp)
-                            )
-                        }
-                        TextButton(
-                            onClick = {
-                                val newSongId = songDao.insertSong(
-                                    Song(
-                                        title = newTitle,
-                                        artist = newArtist,
-                                        iconColor = Color.Black.toArgb()
-                                    )
-                                )
-                                songScoreDao.insertSongScore(
-                                    SongScore(
-                                        songId = newSongId,
-                                        date = newDate,
-                                        score = newScore.toFloat(),
-                                        key = newKey.toInt(),
-                                        comment = newComment
-                                    )
-                                )
-                                dialogOpened = false
-                            },
-                            modifier = Modifier.align(Alignment.CenterEnd),
-                        ) {
-                            Text("Save")
-                        }
-                    }
-
-                    OutlinedTextField(
-                        value = newTitle,
-                        onValueChange = { newTitle = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp),
-                        label = { Text(text = "Song") },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        ),
-                        trailingIcon = {
-                            Icon(
-                                Icons.Default.Clear,
-                                contentDescription = "clear text",
-                                modifier = Modifier.clickable { newTitle = "" }
-                            )
-                        },
-                    )
-
-                    OutlinedTextField(
-                        value = newArtist,
-                        onValueChange = { newArtist = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp),
-                        label = { Text(text = "Artist") },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        ),
-                        trailingIcon = {
-                            Icon(
-                                Icons.Default.Clear,
-                                contentDescription = "clear text",
-                                modifier = Modifier.clickable { newArtist = "" }
-                            )
-                        },
-                    )
-
-                    CustomScoreTextField(
-                        value = newScore,
-                        label = "Score",
-                        singleLine = true,
-                        focusRequester = focusRequester
-                    ) { changed -> newScore = changed }
-
+                Surface(
+                    color = MaterialTheme.colorScheme.background,
+                    modifier = Modifier.fillMaxSize()
+                ) {
                     Column {
-                        Text(
-                            text = "Key",
-                            modifier = Modifier
-                                .padding(start = (horizontalPaddingValue * 2).dp, top = verticalPaddingValue.dp),
-                            fontSize = 16.sp
-                        )
-                        Box (
+                        Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                        ){
-                            val sliderLength : Int = LocalConfiguration.current.screenWidthDp
-                            val newKeyText: String
-                            val newKeyLabel = newKey.roundToInt()
-                            newKeyText = if (newKeyLabel > 0) {
-                                "+$newKeyLabel"
-                            } else {
-                                "$newKeyLabel"
+                                .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp)
+                        ) {
+                            IconButton(
+                                onClick = { dialogOpened = false },
+                                modifier = Modifier.align(Alignment.CenterStart),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Clear,
+                                    contentDescription = "cancel",
+                                    modifier = Modifier
+                                        .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp)
+                                        .size(16.dp)
+                                )
                             }
+                            TextButton(
+                                modifier = Modifier.align(Alignment.CenterEnd),
+                                onClick = {
+                                    val newSongId = songDao.insertSong(
+                                        Song(
+                                            title = newTitle,
+                                            artist = newArtist,
+                                            iconColor = Color.Black.toArgb()
+                                        )
+                                    )
+                                    songScoreDao.insertSongScore(
+                                        SongScore(
+                                            songId = newSongId,
+                                            date = newDate,
+                                            score = newScore.toFloat(),
+                                            key = newKey.toInt(),
+                                            comment = newComment
+                                        )
+                                    )
+                                    dialogOpened = false
+                                },
+                            ) {
+                                Text("Save")
+                            }
+                        }
+
+                        OutlinedTextField(
+                            value = newTitle,
+                            onValueChange = {
+                                invalidTitle = it.isBlank()
+                                newTitle = it
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp),
+                            label = { Text(text = "Song") },
+                            singleLine = true,
+                            isError = invalidTitle,
+                            supportingText = {
+                                if (invalidTitle) {
+                                    Text(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        text = "Blank is not allowed.",
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Next
+                            ),
+                            trailingIcon = {
+                                if (invalidTitle) {
+                                    Icon(
+                                        Icons.Default.Clear,
+                                        contentDescription = "clear text",
+                                        tint = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.clickable { newTitle = "" }
+                                    )
+                                } else {
+                                    Icon(
+                                        Icons.Default.Clear,
+                                        contentDescription = "clear text",
+                                        modifier = Modifier.clickable { newTitle = "" }
+                                    )
+                                }
+                            },
+                        )
+
+                        OutlinedTextField(
+                            value = newArtist,
+                            onValueChange = {
+                                invalidArtist = it.isBlank()
+                                newArtist = it
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp),
+                            label = { Text(text = "Artist") },
+                            singleLine = true,
+                            isError = invalidArtist,
+                            supportingText = {
+                                if (invalidArtist) {
+                                    Text(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        text = "Blank is not allowed.",
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Next
+                            ),
+                            trailingIcon = {
+                                if (invalidArtist) {
+                                    Icon(
+                                        Icons.Default.Clear,
+                                        contentDescription = "clear text",
+                                        tint = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.clickable { newArtist = "" }
+                                    )
+                                } else {
+                                    Icon(
+                                        Icons.Default.Clear,
+                                        contentDescription = "clear text",
+                                        modifier = Modifier.clickable { newArtist = "" }
+                                    )
+                                }
+                            },
+                        )
+
+                        CustomScoreTextField(
+                            value = newScore,
+                            label = "Score",
+                            singleLine = true,
+                            focusRequester = focusRequester
+                        ) { changed -> newScore = changed }
+
+                        Column {
                             Text(
-                                text = newKeyText,
+                                text = "Key",
                                 modifier = Modifier
-                                    .align(Alignment.Center)
-                                    .offset(x = ((sliderLength - horizontalPaddingValue * 2) / 13 * newKey).dp)
+                                    .padding(
+                                        start = (horizontalPaddingValue * 2).dp,
+                                        top = verticalPaddingValue.dp
+                                    ),
+                                fontSize = 16.sp
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            ) {
+                                val sliderLength: Int = LocalConfiguration.current.screenWidthDp
+                                val newKeyText: String
+                                val newKeyLabel = newKey.roundToInt()
+                                newKeyText = if (newKeyLabel > 0) {
+                                    "+$newKeyLabel"
+                                } else {
+                                    "$newKeyLabel"
+                                }
+                                Text(
+                                    text = newKeyText,
+                                    modifier = Modifier
+                                        .align(Alignment.Center)
+                                        .offset(x = ((sliderLength - horizontalPaddingValue * 2) / 13 * newKey).dp)
+                                )
+                            }
+                            Slider(
+                                value = newKey,
+                                onValueChange = { newKey = it },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        horizontal = (horizontalPaddingValue * 2).dp,
+                                        vertical = 0.dp
+                                    ),
+                                valueRange = -6f..6f,
+                                steps = 11,
                             )
                         }
-                        Slider(
-                            value = newKey,
-                            onValueChange = { newKey = it },
+
+                        Column(
+                            modifier = Modifier
+                                .padding(
+                                    start = (horizontalPaddingValue * 2).dp,
+                                    top = verticalPaddingValue.dp
+                                )
+                        ) {
+                            Text(text = "Date")
+                            newDate = getLocalizedDate()
+                        }
+
+                        OutlinedTextField(
+                            value = newComment,
+                            onValueChange = { newComment = it },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(
-                                    horizontal = (horizontalPaddingValue * 2).dp,
-                                    vertical = 0.dp
-                                ),
-                            valueRange = -6f..6f,
-                            steps = 11,
+                                .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp),
+                            label = { Text(text = "Comment") },
+                            singleLine = false,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Default
+                            ),
+                            trailingIcon = {
+                                Icon(
+                                    Icons.Default.Clear,
+                                    contentDescription = "clear text",
+                                    modifier = Modifier.clickable { newComment = "" }
+                                )
+                            },
                         )
                     }
-
-                    Column (
-                        modifier = Modifier
-                            .padding(start = (horizontalPaddingValue * 2).dp, top = verticalPaddingValue.dp)
-                    ){
-                        Text(text = "Date")
-                        newDate = getLocalizedDate()
-                    }
-
-                    OutlinedTextField(
-                        value = newComment,
-                        onValueChange = { newComment = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp),
-                        label = { Text(text = "Comment") },
-                        singleLine = false,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Default
-                        ),
-                        trailingIcon = {
-                            Icon(
-                                Icons.Default.Clear,
-                                contentDescription = "clear text",
-                                modifier = Modifier.clickable { newComment = "" }
-                            )
-                        },
-                    )
                 }
             }
         }
-    }
 }
 
 /*
