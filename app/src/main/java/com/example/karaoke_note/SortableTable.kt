@@ -1,3 +1,4 @@
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,6 +51,7 @@ fun <T> SortableTable(
             sortColumnIndex = newSortColumnIndex
             sortDirection = newSortDirection
         }
+        Divider(color = Color.Gray, thickness = 1.dp)
         LazyColumn {
             itemsIndexed(sortedItems) { index, item ->
                 DataRow(columns, item) {
@@ -80,10 +82,11 @@ fun <T> HeaderRow(
     Row(Modifier.fillMaxWidth()) {
         columns.forEachIndexed { index, column ->
             val isCurrentSortColumn = index == currentSortColumnIndex
-
+            val color = if (index % 2 == 0) Color.Gray.copy(alpha = 0.4f) else Color.Gray.copy(alpha = 0.2f)
             Box(
                 modifier = Modifier
                     .weight(column.weight)
+                    .background(color)
                     .then(
                         if (column.comparator == null) Modifier
                         else Modifier.clickable {
@@ -124,8 +127,14 @@ fun <T> DataRow(columns: List<TableColumn<T>>, item: T, onClick: () -> Unit) {
         .fillMaxWidth()
         .clickable(onClick = onClick)
     ) {
-        columns.forEach { column ->
-            Box(modifier = Modifier.weight(column.weight)) {
+        columns.forEachIndexed { index, column ->
+            val color = if (index % 2 == 0) Color.Gray.copy(alpha = 0.4f) else Color.Gray.copy(alpha = 0.2f)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color)
+                    .weight(column.weight)
+            ) {
                 column.content(item)
             }
         }
