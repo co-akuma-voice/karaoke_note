@@ -4,6 +4,7 @@ import SortableTable
 import TableColumn
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.IconButton
@@ -36,12 +37,12 @@ fun SongScores(song: Song, songScoreDao: SongScoreDao) {
             2f
         ),
         TableColumn("点数",
-            { Text(text = String.format("%.3f", it.score), textAlign = TextAlign.End) },
+            { Text(text = String.format("%.3f", it.score), textAlign = TextAlign.End, modifier = Modifier.fillMaxWidth()) },
             compareBy{ it.score },
             1.5f
         ),
         TableColumn("キー",
-            { Text(text = it.key.toString(), textAlign = TextAlign.Center) },
+            { Text(text = it.key.toString(), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()) },
             compareBy{ it.key },
             1f
         ),
