@@ -1,6 +1,14 @@
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
@@ -34,7 +42,10 @@ fun SongList(navController: NavController, artist: String, songDao: SongDao, son
     val songs = convertToSongDataList(songScoreDao, songDao.getSongsByArtist(artist))
     val columns = listOf(
         TableColumn<SongData>("タイトル",
-            { Text(text = it.title) } ,
+            {
+                val scrollState = rememberScrollState()
+                Text(text = it.title, modifier = Modifier.horizontalScroll(scrollState))
+            } ,
             compareBy{ it.title },
             2f
         ),
@@ -49,7 +60,11 @@ fun SongList(navController: NavController, artist: String, songDao: SongDao, son
             2f
         )
     )
-    SortableTable(items = songs, columns = columns) { item ->
-        navController.navigate("song_data/${item.id}")
+    Column {
+        Text(text = "${artist}の曲一覧", fontSize = 24.sp)
+        Divider(color = Color.Gray, thickness = 1.dp)
+        SortableTable(items = songs, columns = columns) { item ->
+            navController.navigate("song_data/${item.id}")
+        }
     }
 }

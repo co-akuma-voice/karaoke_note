@@ -1,3 +1,4 @@
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,9 +51,11 @@ fun <T> SortableTable(
             sortColumnIndex = newSortColumnIndex
             sortDirection = newSortDirection
         }
+        Divider(color = Color.Gray, thickness = 1.dp)
         LazyColumn {
             itemsIndexed(sortedItems) { index, item ->
-                DataRow(columns, item) {
+                val color = if (index % 2 == 0) Color.Gray.copy(alpha = 0.4f) else Color.Gray.copy(alpha = 0.2f)
+                DataRow(columns, item, color) {
                     onRowClick(item)
                 }
                 if (index < items.size - 1) {
@@ -80,7 +83,6 @@ fun <T> HeaderRow(
     Row(Modifier.fillMaxWidth()) {
         columns.forEachIndexed { index, column ->
             val isCurrentSortColumn = index == currentSortColumnIndex
-
             Box(
                 modifier = Modifier
                     .weight(column.weight)
@@ -97,7 +99,7 @@ fun <T> HeaderRow(
             ) {
                 Text(
                     text = column.title,
-                    modifier = Modifier.align(Alignment.CenterStart)
+                    modifier = Modifier.align(Alignment.CenterStart),
                 )
 
                 if (isCurrentSortColumn) {
@@ -119,13 +121,18 @@ fun <T> HeaderRow(
 }
 
 @Composable
-fun <T> DataRow(columns: List<TableColumn<T>>, item: T, onClick: () -> Unit) {
+fun <T> DataRow(columns: List<TableColumn<T>>, item: T, color: Color, onClick: () -> Unit) {
     Row(Modifier
         .fillMaxWidth()
         .clickable(onClick = onClick)
     ) {
-        columns.forEach { column ->
-            Box(modifier = Modifier.weight(column.weight)) {
+        columns.forEachIndexed { _, column ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color)
+                    .weight(column.weight)
+            ) {
                 column.content(item)
             }
         }

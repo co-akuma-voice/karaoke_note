@@ -2,15 +2,25 @@ package com.example.karaoke_note
 
 import SortableTable
 import TableColumn
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.Icon
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
@@ -27,24 +37,27 @@ fun SongScores(song: Song, songScoreDao: SongScoreDao) {
             2f
         ),
         TableColumn("点数",
-            { Text(text = String.format("%.3f", it.score), textAlign = TextAlign.End) },
+            { Text(text = String.format("%.3f", it.score), textAlign = TextAlign.End, modifier = Modifier.fillMaxWidth()) },
             compareBy{ it.score },
             1.5f
         ),
         TableColumn("キー",
-            { Text(text = it.key.toString(), textAlign = TextAlign.Center) },
+            { Text(text = it.key.toString(), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()) },
             compareBy{ it.key },
             1f
         ),
         TableColumn("コメント",
-            { Text(text = it.comment) },
+            {
+                val scrollState = rememberScrollState()
+                Text(text = it.comment, modifier = Modifier.horizontalScroll(scrollState))
+            },
             compareBy{ it.comment.length },
             3f
         ),
         TableColumn("削除",
             {
-                IconButton(onClick = { songScoreDao.deleteSongScore(it.id) }) {
-                    Icon(Icons.Filled.Delete, "delete")
+                IconButton(onClick = { songScoreDao.deleteSongScore(it.id) }, modifier = Modifier.size(22.dp) ) {
+                    Icon(Icons.Filled.Delete, "delete", Modifier.size(22.dp))
                 }
             },
             null,
@@ -52,5 +65,9 @@ fun SongScores(song: Song, songScoreDao: SongScoreDao) {
         )
     )
 
-    SortableTable(items = scores, columns = columns)
+    Column {
+        Text(text = "${song.title}のスコア一覧", fontSize = 24.sp)
+        Divider(color = Color.Gray, thickness = 1.dp)
+        SortableTable(items = scores, columns = columns)
+    }
 }
