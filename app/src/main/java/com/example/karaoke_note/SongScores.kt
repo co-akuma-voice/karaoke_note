@@ -22,13 +22,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.karaoke_note.data.Song
+import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.CoroutineScope
+
+
 
 @Composable
-fun SongScores(song: Song, songScoreDao: SongScoreDao) {
+fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: CoroutineScope) {
     val scoresFlow = songScoreDao.getScoresForSong(song.id)
     val scores by scoresFlow.collectAsState(initial = emptyList())
+    fun deleteSongScore(scoreId: Long) {
+        scope.launch {
+            songScoreDao.deleteSongScore(scoreId)
+            if (songScoreDao.countScoresForSong(song.id) == 0) {
+                songDao.delete(song.id)
+            }
+        }
+    }
 
     val columns = listOf(
         TableColumn<SongScore>("日付",
@@ -56,7 +69,7 @@ fun SongScores(song: Song, songScoreDao: SongScoreDao) {
         ),
         TableColumn("削除",
             {
-                IconButton(onClick = { songScoreDao.deleteSongScore(it.id) }, modifier = Modifier.size(22.dp) ) {
+                IconButton(onClick = {deleteSongScore(it.id)}, modifier = Modifier.size(22.dp) ) {
                     Icon(Icons.Filled.Delete, "delete", Modifier.size(22.dp))
                 }
             },
