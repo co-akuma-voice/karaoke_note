@@ -315,288 +315,288 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     val horizontalPaddingValue = 10
 
 
-        FloatingActionButton(
-            onClick = { dialogOpened = true },
-            modifier = Modifier
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
+    FloatingActionButton(
+        onClick = { dialogOpened = true },
+        modifier = Modifier
+            .padding(16.dp),
+        shape = RoundedCornerShape(16.dp),
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.Add,
+            contentDescription = "Add",
+            tint = Color.White,
+        )
+    }
+
+    if (dialogOpened) {
+        Dialog(
+            onDismissRequest = { dialogOpened = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
-            Icon(
-                imageVector = Icons.Rounded.Add,
-                contentDescription = "Add",
-                tint = Color.White,
-            )
-        }
-
-        if (dialogOpened) {
-            Dialog(
-                onDismissRequest = { dialogOpened = false },
-                properties = DialogProperties(usePlatformDefaultWidth = false)
+            Surface(
+                color = MaterialTheme.colorScheme.background,
+                modifier = Modifier.fillMaxSize()
             ) {
-                Surface(
-                    color = MaterialTheme.colorScheme.background,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Column {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp)
+                Column {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp)
+                    ) {
+                        IconButton(
+                            onClick = {
+                                newScore = ""
+                                newKey = 0f
+                                newDate = LocalDate.now()
+                                newComment = ""
+                                dialogOpened = false
+                            },
+                            modifier = Modifier.align(Alignment.CenterStart),
                         ) {
-                            IconButton(
-                                onClick = {
-                                    newScore = ""
-                                    newKey = 0f
-                                    newDate = LocalDate.now()
-                                    newComment = ""
-                                    dialogOpened = false
-                                },
-                                modifier = Modifier.align(Alignment.CenterStart),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Clear,
-                                    contentDescription = "cancel",
-                                    modifier = Modifier
-                                        .padding(
-                                            horizontalPaddingValue.dp,
-                                            verticalPaddingValue.dp
-                                        )
-                                        .size(16.dp)
-                                )
-                            }
-                            TextButton(
-                                modifier = Modifier.align(Alignment.CenterEnd),
-                                onClick = {
-                                    val newSongId = songDao.insertSong(
-                                        Song(
-                                            title = newTitle,
-                                            artist = newArtist,
-                                            iconColor = Color.Black.toArgb()
-                                        )
+                            Icon(
+                                imageVector = Icons.Filled.Clear,
+                                contentDescription = "cancel",
+                                modifier = Modifier
+                                    .padding(
+                                        horizontalPaddingValue.dp,
+                                        verticalPaddingValue.dp
                                     )
-                                    songScoreDao.insertSongScore(
-                                        SongScore(
-                                            songId = newSongId,
-                                            date = newDate,
-                                            score = newScore.toFloat(),
-                                            key = newKey.toInt(),
-                                            comment = newComment
-                                        )
-                                    )
-                                    newScore = ""
-                                    newKey = 0f
-                                    newDate = LocalDate.now()
-                                    newComment = ""
-
-                                    dialogOpened = false
-                                },
-                            ) {
-                                Text("Save")
-                            }
+                                    .size(16.dp)
+                            )
                         }
-
-                        LazyColumn(
-                            modifier = Modifier,
-                            verticalArrangement = Arrangement.spacedBy(verticalPaddingValue.dp)
-                        ) {
-                            item {
-                                OutlinedTextField(
-                                    value = newTitle,
-                                    onValueChange = {
-                                        newTitle = it
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(
-                                            horizontalPaddingValue.dp,
-                                            verticalPaddingValue.dp
-                                        ),
-                                    label = { Text(text = "Song") },
-                                    singleLine = true,
-                                    isError = invalidTitle,
-                                    supportingText = {
-                                        if (invalidTitle) {
-                                            Text(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                text = "Blank is not allowed.",
-                                                color = MaterialTheme.colorScheme.error
-                                            )
-                                        }
-                                    },
-                                    keyboardOptions = KeyboardOptions(
-                                        keyboardType = KeyboardType.Text,
-                                        imeAction = ImeAction.Next
-                                    ),
-                                    trailingIcon = {
-                                        if (invalidTitle) {
-                                            Icon(
-                                                Icons.Default.Clear,
-                                                contentDescription = "clear text",
-                                                tint = MaterialTheme.colorScheme.error,
-                                                modifier = Modifier.clickable { newTitle = "" }
-                                            )
-                                        } else {
-                                            Icon(
-                                                Icons.Default.Clear,
-                                                contentDescription = "clear text",
-                                                modifier = Modifier.clickable { newTitle = "" }
-                                            )
-                                        }
-                                    },
-                                )
-                            }
-
-                            item {
-                                OutlinedTextField(
-                                    value = newArtist,
-                                    onValueChange = {
-                                        newArtist = it
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(
-                                            horizontalPaddingValue.dp,
-                                            verticalPaddingValue.dp
-                                        ),
-                                    label = { Text(text = "Artist") },
-                                    singleLine = true,
-                                    isError = invalidArtist,
-                                    supportingText = {
-                                        if (invalidArtist) {
-                                            Text(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                text = "Blank is not allowed.",
-                                                color = MaterialTheme.colorScheme.error
-                                            )
-                                        }
-                                    },
-                                    keyboardOptions = KeyboardOptions(
-                                        keyboardType = KeyboardType.Text,
-                                        imeAction = ImeAction.Next
-                                    ),
-                                    trailingIcon = {
-                                        if (invalidArtist) {
-                                            Icon(
-                                                Icons.Default.Clear,
-                                                contentDescription = "clear text",
-                                                tint = MaterialTheme.colorScheme.error,
-                                                modifier = Modifier.clickable { newArtist = "" }
-                                            )
-                                        } else {
-                                            Icon(
-                                                Icons.Default.Clear,
-                                                contentDescription = "clear text",
-                                                modifier = Modifier.clickable { newArtist = "" }
-                                            )
-                                        }
-                                    },
-                                )
-                            }
-
-                            item {
-                                CustomScoreTextField(
-                                    value = newScore,
-                                    label = "Score",
-                                    singleLine = true,
-                                    focusRequester = focusRequester
-                                ) { changed -> newScore = changed }
-                            }
-
-                            item {
-                                Column {
-                                    Text(
-                                        text = "Key",
-                                        modifier = Modifier
-                                            .padding(
-                                                start = (horizontalPaddingValue * 2).dp,
-                                                top = verticalPaddingValue.dp
-                                            ),
-                                        fontSize = 16.sp
+                        TextButton(
+                            modifier = Modifier.align(Alignment.CenterEnd),
+                            onClick = {
+                                val newSongId = songDao.insertSong(
+                                    Song(
+                                        title = newTitle,
+                                        artist = newArtist,
+                                        iconColor = Color.Black.toArgb()
                                     )
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                    ) {
-                                        val sliderLength: Int =
-                                            LocalConfiguration.current.screenWidthDp
-                                        val newKeyText: String
-                                        val newKeyLabel = newKey.roundToInt()
-                                        newKeyText = if (newKeyLabel > 0) {
-                                            "+$newKeyLabel"
-                                        } else {
-                                            "$newKeyLabel"
-                                        }
+                                )
+                                songScoreDao.insertSongScore(
+                                    SongScore(
+                                        songId = newSongId,
+                                        date = newDate,
+                                        score = newScore.toFloat(),
+                                        key = newKey.toInt(),
+                                        comment = newComment
+                                    )
+                                )
+                                newScore = ""
+                                newKey = 0f
+                                newDate = LocalDate.now()
+                                newComment = ""
+
+                                dialogOpened = false
+                            },
+                        ) {
+                            Text("Save")
+                        }
+                    }
+
+                    LazyColumn(
+                        modifier = Modifier,
+                        verticalArrangement = Arrangement.spacedBy(verticalPaddingValue.dp)
+                    ) {
+                        item {
+                            OutlinedTextField(
+                                value = newTitle,
+                                onValueChange = {
+                                    newTitle = it
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        horizontalPaddingValue.dp,
+                                        verticalPaddingValue.dp
+                                    ),
+                                label = { Text(text = "Song") },
+                                singleLine = true,
+                                isError = invalidTitle,
+                                supportingText = {
+                                    if (invalidTitle) {
                                         Text(
-                                            text = newKeyText,
-                                            modifier = Modifier
-                                                .align(Alignment.Center)
-                                                .offset(x = ((sliderLength - horizontalPaddingValue * 2) / 13 * newKey).dp)
+                                            modifier = Modifier.fillMaxWidth(),
+                                            text = "Blank is not allowed.",
+                                            color = MaterialTheme.colorScheme.error
                                         )
                                     }
-                                    Slider(
-                                        value = newKey,
-                                        onValueChange = { newKey = it },
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(
-                                                horizontal = (horizontalPaddingValue * 2).dp,
-                                                vertical = 0.dp
-                                            ),
-                                        valueRange = -6f..6f,
-                                        steps = 11,
-                                    )
-                                }
-                            }
+                                },
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Text,
+                                    imeAction = ImeAction.Next
+                                ),
+                                trailingIcon = {
+                                    if (invalidTitle) {
+                                        Icon(
+                                            Icons.Default.Clear,
+                                            contentDescription = "clear text",
+                                            tint = MaterialTheme.colorScheme.error,
+                                            modifier = Modifier.clickable { newTitle = "" }
+                                        )
+                                    } else {
+                                        Icon(
+                                            Icons.Default.Clear,
+                                            contentDescription = "clear text",
+                                            modifier = Modifier.clickable { newTitle = "" }
+                                        )
+                                    }
+                                },
+                            )
+                        }
 
-                            item {
-                                Column(
+                        item {
+                            OutlinedTextField(
+                                value = newArtist,
+                                onValueChange = {
+                                    newArtist = it
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        horizontalPaddingValue.dp,
+                                        verticalPaddingValue.dp
+                                    ),
+                                label = { Text(text = "Artist") },
+                                singleLine = true,
+                                isError = invalidArtist,
+                                supportingText = {
+                                    if (invalidArtist) {
+                                        Text(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            text = "Blank is not allowed.",
+                                            color = MaterialTheme.colorScheme.error
+                                        )
+                                    }
+                                },
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Text,
+                                    imeAction = ImeAction.Next
+                                ),
+                                trailingIcon = {
+                                    if (invalidArtist) {
+                                        Icon(
+                                            Icons.Default.Clear,
+                                            contentDescription = "clear text",
+                                            tint = MaterialTheme.colorScheme.error,
+                                            modifier = Modifier.clickable { newArtist = "" }
+                                        )
+                                    } else {
+                                        Icon(
+                                            Icons.Default.Clear,
+                                            contentDescription = "clear text",
+                                            modifier = Modifier.clickable { newArtist = "" }
+                                        )
+                                    }
+                                },
+                            )
+                        }
+
+                        item {
+                            CustomScoreTextField(
+                                value = newScore,
+                                label = "Score",
+                                singleLine = true,
+                                focusRequester = focusRequester
+                            ) { changed -> newScore = changed }
+                        }
+
+                        item {
+                            Column {
+                                Text(
+                                    text = "Key",
                                     modifier = Modifier
                                         .padding(
                                             start = (horizontalPaddingValue * 2).dp,
                                             top = verticalPaddingValue.dp
-                                        )
+                                        ),
+                                    fontSize = 16.sp
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
                                 ) {
-                                    Text(text = "Date")
-                                    newDate = getLocalizedDate()
+                                    val sliderLength: Int =
+                                        LocalConfiguration.current.screenWidthDp
+                                    val newKeyText: String
+                                    val newKeyLabel = newKey.roundToInt()
+                                    newKeyText = if (newKeyLabel > 0) {
+                                        "+$newKeyLabel"
+                                    } else {
+                                        "$newKeyLabel"
+                                    }
+                                    Text(
+                                        text = newKeyText,
+                                        modifier = Modifier
+                                            .align(Alignment.Center)
+                                            .offset(x = ((sliderLength - horizontalPaddingValue * 2) / 13 * newKey).dp)
+                                    )
                                 }
-                            }
-
-                            item {
-                                OutlinedTextField(
-                                    value = newComment,
-                                    onValueChange = { newComment = it },
+                                Slider(
+                                    value = newKey,
+                                    onValueChange = { newKey = it },
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(
-                                            horizontalPaddingValue.dp,
-                                            verticalPaddingValue.dp
-                                        )
-                                        .imePadding(),
-                                    label = { Text(text = "Comment") },
-                                    singleLine = false,
-                                    keyboardOptions = KeyboardOptions(
-                                        keyboardType = KeyboardType.Text,
-                                        imeAction = ImeAction.Default
-                                    ),
-                                    trailingIcon = {
-                                        Icon(
-                                            Icons.Default.Clear,
-                                            contentDescription = "clear text",
-                                            modifier = Modifier.clickable { newComment = "" }
-                                        )
-                                    },
+                                            horizontal = (horizontalPaddingValue * 2).dp,
+                                            vertical = 0.dp
+                                        ),
+                                    valueRange = -6f..6f,
+                                    steps = 11,
                                 )
                             }
+                        }
 
-                            item {
-                                Spacer(modifier = Modifier.height(300.dp))
+                        item {
+                            Column(
+                                modifier = Modifier
+                                    .padding(
+                                        start = (horizontalPaddingValue * 2).dp,
+                                        top = verticalPaddingValue.dp
+                                    )
+                            ) {
+                                Text(text = "Date")
+                                newDate = getLocalizedDate()
                             }
+                        }
+
+                        item {
+                            OutlinedTextField(
+                                value = newComment,
+                                onValueChange = { newComment = it },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        horizontalPaddingValue.dp,
+                                        verticalPaddingValue.dp
+                                    )
+                                    .imePadding(),
+                                label = { Text(text = "Comment") },
+                                singleLine = false,
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Text,
+                                    imeAction = ImeAction.Default
+                                ),
+                                trailingIcon = {
+                                    Icon(
+                                        Icons.Default.Clear,
+                                        contentDescription = "clear text",
+                                        modifier = Modifier.clickable { newComment = "" }
+                                    )
+                                },
+                            )
+                        }
+
+                        item {
+                            Spacer(modifier = Modifier.height(300.dp))
                         }
                     }
                 }
             }
         }
+    }
 }
 
 /*
