@@ -53,5 +53,6 @@ interface SongScoreDao {
     @Query("DELETE FROM SongScore WHERE id = :id")
     fun deleteSongScore(id: Long)
 
-
+    @Query("SELECT COUNT(*) FROM SongScore WHERE songId = :songId")
+    suspend fun countScoresForSong(songId: Long): Int
 }
