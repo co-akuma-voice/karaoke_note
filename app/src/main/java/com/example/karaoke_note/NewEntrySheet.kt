@@ -312,7 +312,9 @@ fun NewEntryScreen(songDao: SongDao, songScoreDao: SongScoreDao) {
                             IconButton(
                                 onClick = {
                                     newTitle = ""
+                                    invalidTitle = true
                                     newArtist = ""
+                                    invalidArtist = true
                                     newScore = ""
                                     newKey = 0f
                                     newDate = LocalDate.now()
@@ -352,7 +354,9 @@ fun NewEntryScreen(songDao: SongDao, songScoreDao: SongScoreDao) {
                                         )
                                     )
                                     newTitle = ""
+                                    invalidTitle = true
                                     newArtist = ""
+                                    invalidArtist = true
                                     newScore = ""
                                     newKey = 0f
                                     newDate = LocalDate.now()
