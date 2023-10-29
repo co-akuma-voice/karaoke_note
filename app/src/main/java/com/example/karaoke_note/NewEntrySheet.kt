@@ -1,5 +1,6 @@
 package com.example.karaoke_note
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -59,6 +60,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
@@ -264,7 +267,7 @@ fun getLocalizedDate(): LocalDate {
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3Api
 @Composable
-fun NewEntryScreen(songDao: SongDao, songScoreDao: SongScoreDao) {
+fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao) {
     var dialogOpened by remember { mutableStateOf(false) }
 
     var invalidTitle by remember { mutableStateOf(true) }
@@ -278,8 +281,31 @@ fun NewEntryScreen(songDao: SongDao, songScoreDao: SongScoreDao) {
 
     val focusRequester = remember { FocusRequester() }
 
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStackEntry?.destination?.route
+
     val verticalPaddingValue = 5
     val horizontalPaddingValue = 10
+
+    if (currentRoute?.startsWith("song_data/") == true) {
+        Log.d("route", "song_data/")
+        val songId = currentBackStackEntry?.arguments?.getString("songId")?.toLongOrNull()
+        if (songId != null) {
+            val song = songDao.getSong(songId)
+            newArtist = song?.artist ?: ""
+            newTitle = song?.title ?: ""
+        }
+    } else if (currentRoute?.startsWith("song_list/") == true) {
+        Log.d("route", "song_list/")
+        newArtist = currentBackStackEntry?.arguments?.getString("artist").toString()
+        newTitle = ""
+    } else {
+        newArtist = ""
+        newTitle = ""
+    }
+    invalidTitle = (newTitle == "")
+    invalidArtist = (newArtist == "")
+
 
         FloatingActionButton(
             onClick = { dialogOpened = true },
