@@ -1,6 +1,5 @@
 package com.example.karaoke_note
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +37,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -60,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.karaoke_note.data.Song
@@ -264,16 +266,44 @@ fun getLocalizedDate(): LocalDate {
     return localizedSelectedDate
 }
 
+
+private fun getDefaultValuesBasedOnRoute(
+    backStackEntry: NavBackStackEntry?,
+    songDao: SongDao
+): Pair<String, String> {
+    val currentRoute = backStackEntry?.destination?.route
+
+    return when {
+        currentRoute?.startsWith("song_data/") == true -> {
+            val songId = backStackEntry.arguments?.getString("songId")?.toLongOrNull()
+            val song = if (songId != null) songDao.getSong(songId) else null
+            Pair(song?.artist ?: "", song?.title ?: "")
+        }
+        currentRoute?.startsWith("song_list/") == true -> {
+            val artist = backStackEntry.arguments?.getString("artist").orEmpty()
+            Pair(artist, "")
+        }
+        else -> Pair("", "")
+    }
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3Api
 @Composable
 fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao) {
     var dialogOpened by remember { mutableStateOf(false) }
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
 
-    var invalidTitle by remember { mutableStateOf(true) }
-    var newTitle by remember { mutableStateOf("") }
-    var invalidArtist by remember { mutableStateOf(true) }
+    val (defaultArtist, defaultTitle) = getDefaultValuesBasedOnRoute(currentBackStackEntry, songDao)
     var newArtist by remember { mutableStateOf("") }
+    var newTitle by remember { mutableStateOf("") }
+
+    LaunchedEffect(key1 = defaultArtist, key2 = defaultTitle) {
+        newArtist = defaultArtist
+        newTitle = defaultTitle
+    }
+
+    val invalidTitle by remember {derivedStateOf { newTitle.isEmpty() }}
+    val invalidArtist by remember {derivedStateOf { newArtist.isEmpty() }}
     var newScore by remember { mutableStateOf("") }
     var newKey by remember { mutableFloatStateOf(0f) }
     var newDate by remember { mutableStateOf(LocalDate.now()) }
@@ -281,30 +311,8 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
 
     val focusRequester = remember { FocusRequester() }
 
-    val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = currentBackStackEntry?.destination?.route
-
     val verticalPaddingValue = 5
     val horizontalPaddingValue = 10
-
-    if (currentRoute?.startsWith("song_data/") == true) {
-        Log.d("route", "song_data/")
-        val songId = currentBackStackEntry?.arguments?.getString("songId")?.toLongOrNull()
-        if (songId != null) {
-            val song = songDao.getSong(songId)
-            newArtist = song?.artist ?: ""
-            newTitle = song?.title ?: ""
-        }
-    } else if (currentRoute?.startsWith("song_list/") == true) {
-        Log.d("route", "song_list/")
-        newArtist = currentBackStackEntry?.arguments?.getString("artist").toString()
-        newTitle = ""
-    } else {
-        newArtist = ""
-        newTitle = ""
-    }
-    invalidTitle = (newTitle == "")
-    invalidArtist = (newArtist == "")
 
 
         FloatingActionButton(
@@ -338,10 +346,6 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                         ) {
                             IconButton(
                                 onClick = {
-                                    newTitle = ""
-                                    invalidTitle = true
-                                    newArtist = ""
-                                    invalidArtist = true
                                     newScore = ""
                                     newKey = 0f
                                     newDate = LocalDate.now()
@@ -380,10 +384,6 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                             comment = newComment
                                         )
                                     )
-                                    newTitle = ""
-                                    invalidTitle = true
-                                    newArtist = ""
-                                    invalidArtist = true
                                     newScore = ""
                                     newKey = 0f
                                     newDate = LocalDate.now()
@@ -404,7 +404,6 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 OutlinedTextField(
                                     value = newTitle,
                                     onValueChange = {
-                                        invalidTitle = it.isBlank()
                                         newTitle = it
                                     },
                                     modifier = Modifier
@@ -452,7 +451,6 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 OutlinedTextField(
                                     value = newArtist,
                                     onValueChange = {
-                                        invalidArtist = it.isBlank()
                                         newArtist = it
                                     },
                                     modifier = Modifier
