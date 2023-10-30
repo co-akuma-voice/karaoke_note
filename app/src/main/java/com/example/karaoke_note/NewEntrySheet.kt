@@ -380,7 +380,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         songId = newSongId,
                                         date = newDate,
                                         score = newScore.toFloat(),
-                                        key = newKey.toInt(),
+                                        key = newKey.roundToInt(),
                                         comment = newComment
                                     )
                                 )
