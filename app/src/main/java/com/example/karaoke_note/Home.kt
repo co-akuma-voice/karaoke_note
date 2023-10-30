@@ -21,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -31,84 +30,10 @@ import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
-import java.time.LocalDate
-
-private fun loadDummyData(songDao: SongDao, songScoreDao: SongScoreDao) {
-    val songId1 = songDao.insertSong(
-        Song(
-            title = "長いタイトル長いタイトル長いタイトル長いタイトル",
-            artist = "長いアーティスト長いアーティスト長いアーティスト長いアーティスト",
-            iconColor = Color.Red.toArgb()
-        )
-    )
-    songScoreDao.insertSongScore(
-        SongScore(
-            songId = songId1,
-            date = LocalDate.parse("1996-08-17"),
-            score = 98.76543f,
-            key = -6,
-            comment = "テストテスト"
-        )
-    )
-
-    val songId2 = songDao.insertSong(Song(
-        title = "1 2 3 ~恋が始まる~",
-        artist = "いきものがかり",
-        iconColor = Color.Yellow.toArgb()
-    ))
-    songScoreDao.insertSongScore(
-        SongScore(
-            songId = songId2,
-            date = LocalDate.parse("2023-06-24"),
-            score = 100.000f,
-            key = -2,
-            comment = ""
-        )
-    )
-    val songId3 = songDao.insertSong(Song(title = "ARIA", artist = "Kalafina", iconColor = Color.Black.toArgb()))
-    songScoreDao.insertSongScore(
-        SongScore(
-            songId = songId3,
-            date = LocalDate.parse("2023-06-24"),
-            score = 90.672f,
-            key = -1,
-            comment = "-1で試す。"
-        )
-    )
-    val songId4 = songDao.insertSong(Song(title = "星月夜", artist = "由薫", iconColor = Color.Black.toArgb()))
-    songScoreDao.insertSongScore(
-        SongScore(
-            songId = songId4,
-            date = LocalDate.parse("2023-06-24"),
-            score = 90.919f,
-            key = -3,
-            comment = ""
-        )
-    )
-    songScoreDao.insertSongScore(
-        SongScore(
-            songId = songId4,
-            date = LocalDate.parse("2023-06-24"),
-            score = 90.920f,
-            key = -3,
-            comment = ""
-        )
-    )
-    songScoreDao.insertSongScore(
-        SongScore(
-            songId = songId4,
-            date = LocalDate.parse("2023-06-24"),
-            score = 90.921f,
-            key = -3,
-            comment = ""
-        )
-    )
-}
 
 @ExperimentalMaterial3Api
 @Composable
 fun Home(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao) {
-    loadDummyData(songDao, songScoreDao)
     Column {
         Box(modifier = Modifier.weight(8f)) {
             LazyColumn(
