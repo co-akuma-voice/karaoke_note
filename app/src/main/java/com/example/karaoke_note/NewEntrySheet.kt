@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
@@ -138,87 +139,69 @@ fun CommonTextField(
     )
 }
 
-/*
-@OptIn(ExperimentalFoundationApi::class)
-@ExperimentalMaterial3Api
-@Composable
-fun CustomScoreTextField(
-    value: String,
-    label: String,
-    singleLine: Boolean,
-    focusRequester: FocusRequester,
-    onChange: (String) -> Unit
-){
-    var textFieldValue by remember {
-        mutableStateOf(
-            TextFieldValue(
-                text = value,
-                selection = TextRange(value.length)
-            )
-        )
-    }
-    var invalidScore by remember { mutableStateOf(true) }
-    val patternPerfect = "100\\.000".toRegex()
-    val patternNormal = """^\d{2}\.\d{3}$""".toRegex()
-
-    val ctx = LocalContext.current
-    val patternZero = Regex("^0+")
-
-    val bringIntoViewRequester = remember { BringIntoViewRequester() }
-
-    OutlinedTextField(
-        value = textFieldValue,
-        onValueChange = { changed ->
-            if (changed.text.matches(patternZero)) {
-                Toast.makeText(ctx, "Leading 0 is not allowed.", Toast.LENGTH_SHORT).show()
-            }
-            else {
-                invalidScore = !(changed.text.matches(patternNormal) or changed.text.matches(patternPerfect))
-                textFieldValue = changed
-            }
-            onChange(changed.text)
-        },
-        modifier = Modifier
-            .bringIntoViewRequester(bringIntoViewRequester)
-            .focusRequester(focusRequester)
-            .fillMaxWidth()
-            .padding(10.dp),
-        label = { Text(label) },
-        isError = invalidScore,
-        supportingText = {
-            if (invalidScore) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = "Format: XX.XXX or 100.000",
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-        },
-        singleLine = singleLine,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number,
-            imeAction = ImeAction.Default
-        ),
-        trailingIcon = {
-            if (invalidScore) {
-                Icon(
-                    Icons.Default.Clear,
-                    contentDescription = "clear text",
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.clickable { textFieldValue = TextFieldValue("") }
-                )
-            } else {
-                Icon(
-                    Icons.Default.Clear,
-                    contentDescription = "clear text",
-                    modifier = Modifier.clickable { textFieldValue = TextFieldValue("") }
-                )
-            }
-        },
-    )
+fun getNumberOfDecimalPoints(str: String): Int {
+    return str.count { it == '.' }
 }
 
- */
+fun getIntegerPartOfScore(str: String): String {
+    val strArr = str.split(".").map { it.trim() }
+    return strArr[0]
+}
+
+fun getDecimalPartOfScore(str: String): String {
+    val strArr = str.split(".").map { it.trim() }
+    return strArr[1]
+}
+
+fun isValid(title: String, artist: String, score: String): Pair<Boolean, String> {
+    var valid = true
+    var message = ""
+
+    // タイトルやアーティスト名で問題になるのは空白ぐらい?
+    if (title.isBlank() || artist.isBlank()) {
+        valid = false
+        message += "Blank is not allowed. (except comment field)\n"
+    } else {
+        if (score.isBlank()) {
+            valid = false
+            message += "Blank is not allowed. (except comment field)\n"
+        } else {
+            // スコア欄固有のチェック
+            val numOfDecimalPoint = getNumberOfDecimalPoints(score)
+            if (numOfDecimalPoint != 1) {
+                valid = false
+                message += "[Score] Only 1 decimal point is allowed."
+            } else {
+                // 整数部、小数部をチェック
+                // 小数部は桁数が3桁に足りない場合は末尾に 0 を補充する
+                val strIntegerPart = getIntegerPartOfScore(score)
+                val integerPart: Int? = strIntegerPart.toIntOrNull()
+                val strDecimalPart: String = getDecimalPartOfScore(score)
+                val decimalPart: Int? = strDecimalPart.toIntOrNull()
+
+                if (integerPart != null && decimalPart != null) {
+                    // 100 点以上の扱い
+                    if ((integerPart > 100) || ((integerPart == 100) && (decimalPart != 0))) {
+                        valid = false
+                        message += "[Score] Too high score.\n"
+                    } else {
+                        // 99.4444 などの変な形の時
+                        if (strDecimalPart.length != 3) {
+                            valid = false
+                            message += "[Score] Format is invalid. The decimal part must have 3 digits."
+                        }
+                    }
+                } else {
+                    // .123 や ,.,,, みたいな形の時
+                    valid = false
+                    message += "[Score] There are some invalid characters."
+                }
+            }
+        }
+    }
+
+    return valid to message
+}
 
 @ExperimentalMaterial3Api
 @Composable
@@ -358,12 +341,14 @@ private fun getDefaultValuesBasedOnRoute(
         else -> Pair("", "")
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3Api
 @Composable
 fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao) {
-    var dialogOpened by remember { mutableStateOf(false) }
+    var screenOpened by remember { mutableStateOf(false) }
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    var errorDialogOpened by remember { mutableStateOf(false) }
 
     val (defaultArtist, defaultTitle) = getDefaultValuesBasedOnRoute(currentBackStackEntry, songDao)
     var newArtist by remember { mutableStateOf("") }
@@ -384,7 +369,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     val horizontalPaddingValue = 10
 
     FloatingActionButton(
-        onClick = { dialogOpened = true },
+        onClick = { screenOpened = true },
         modifier = Modifier
             .padding(16.dp),
         shape = RoundedCornerShape(16.dp),
@@ -397,9 +382,29 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
         )
     }
 
-    if (dialogOpened) {
+    if (errorDialogOpened) {
+        AlertDialog(
+            onDismissRequest = { },
+            confirmButton = {
+                TextButton(
+                    onClick = { errorDialogOpened = false }
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = null,
+            title = {
+                Text("Error")
+            },
+            text = {
+                Text(isValid(newTitle, newArtist, newScore).second)
+            }
+        )
+    }
+
+    if (screenOpened) {
         Dialog(
-            onDismissRequest = { dialogOpened = false },
+            onDismissRequest = { screenOpened = false },
             properties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
             Surface(
@@ -412,13 +417,14 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                             .fillMaxWidth()
                             .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp)
                     ) {
+                        // キャンセル (×) ボタン
                         IconButton(
                             onClick = {
                                 newScore = ""
                                 newKey = 0f
                                 newDate = LocalDate.now()
                                 newComment = ""
-                                dialogOpened = false
+                                screenOpened = false
                             },
                             modifier = Modifier.align(Alignment.CenterStart),
                         ) {
@@ -433,31 +439,38 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                     .size(16.dp)
                             )
                         }
+                        // Save ボタン
                         TextButton(
                             modifier = Modifier.align(Alignment.CenterEnd),
                             onClick = {
-                                val newSongId = songDao.insertSong(
-                                    Song(
-                                        title = newTitle,
-                                        artist = newArtist,
-                                        iconColor = Color.Black.toArgb()
+                                // タイトル、アーティスト、スコア欄のチェック
+                                if (!isValid(newTitle, newArtist, newScore).first) {
+                                    errorDialogOpened = true
+                                }
+                                else {
+                                    val newSongId = songDao.insertSong(
+                                        Song(
+                                            title = newTitle,
+                                            artist = newArtist,
+                                            iconColor = Color.Black.toArgb()
+                                        )
                                     )
-                                )
-                                songScoreDao.insertSongScore(
-                                    SongScore(
-                                        songId = newSongId,
-                                        date = newDate,
-                                        score = newScore.toFloat(),
-                                        key = newKey.roundToInt(),
-                                        comment = newComment
+                                    songScoreDao.insertSongScore(
+                                        SongScore(
+                                            songId = newSongId,
+                                            date = newDate,
+                                            score = newScore.toFloat(),
+                                            key = newKey.roundToInt(),
+                                            comment = newComment
+                                        )
                                     )
-                                )
-                                newScore = ""
-                                newKey = 0f
-                                newDate = LocalDate.now()
-                                newComment = ""
+                                    newScore = ""
+                                    newKey = 0f
+                                    newDate = LocalDate.now()
+                                    newComment = ""
 
-                                dialogOpened = false
+                                    screenOpened = false
+                                }
                             },
                         ) {
                             Text("Save")
