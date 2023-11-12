@@ -330,7 +330,7 @@ fun getLocalizedDate(): LocalDate {
                         modifier = Modifier.padding(start = 24.dp, end = 12.dp, top = 16.dp)
                     )
                 },
-                showModeToggle = false
+                showModeToggle = true
             )
         }
     }
