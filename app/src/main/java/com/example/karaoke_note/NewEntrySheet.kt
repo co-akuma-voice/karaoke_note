@@ -1,6 +1,6 @@
 package com.example.karaoke_note
 
-import android.widget.Toast
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.IconButton
@@ -50,8 +52,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -71,6 +71,75 @@ import java.time.LocalDate
 import java.time.ZoneId
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalFoundationApi::class)
+@ExperimentalMaterial3Api
+@Composable
+fun CommonTextField(
+    value: String,
+    label: String,
+    horizontalPaddingValue: Int,
+    verticalPaddingValue: Int,
+    invalidValueEnabled: Boolean,
+    singleLine: Boolean,
+    keyboardType: KeyboardType,
+    imeAction: ImeAction,
+    focusRequester: FocusRequester,
+    onChange: (String) -> Unit
+){
+    var textFieldValue by remember {
+        mutableStateOf(TextFieldValue(text = value))
+    }
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val invalidValue by remember { derivedStateOf { textFieldValue.text.isEmpty() } }
+
+    OutlinedTextField(
+        value = textFieldValue,
+        onValueChange = { changed -> textFieldValue = changed
+            onChange(changed.text)
+                        },
+        modifier = Modifier
+            .bringIntoViewRequester(bringIntoViewRequester)
+            .focusRequester(focusRequester)
+            .fillMaxWidth()
+            .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp)
+            .imePadding(),
+        label = { Text(label) },
+        isError = invalidValueEnabled && invalidValue,
+        supportingText = {
+            if (invalidValueEnabled && invalidValue) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "(Error) This field has no value.",
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        },
+        singleLine = singleLine,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = keyboardType,
+            imeAction = imeAction
+        ),
+        trailingIcon = {
+            if (invalidValueEnabled && invalidValue) {
+                Icon(
+                    Icons.Default.Clear,
+                    contentDescription = "clear",
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.clickable { textFieldValue = TextFieldValue("") }
+                )
+            } else {
+                Icon(
+                    Icons.Default.Clear,
+                    contentDescription = "clear",
+                    modifier = Modifier.clickable { textFieldValue = TextFieldValue("") }
+                )
+            }
+        },
+    )
+}
+
+/*
+@OptIn(ExperimentalFoundationApi::class)
 @ExperimentalMaterial3Api
 @Composable
 fun CustomScoreTextField(
@@ -95,6 +164,8 @@ fun CustomScoreTextField(
     val ctx = LocalContext.current
     val patternZero = Regex("^0+")
 
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+
     OutlinedTextField(
         value = textFieldValue,
         onValueChange = { changed ->
@@ -108,6 +179,7 @@ fun CustomScoreTextField(
             onChange(changed.text)
         },
         modifier = Modifier
+            .bringIntoViewRequester(bringIntoViewRequester)
             .focusRequester(focusRequester)
             .fillMaxWidth()
             .padding(10.dp),
@@ -145,6 +217,8 @@ fun CustomScoreTextField(
         },
     )
 }
+
+ */
 
 @ExperimentalMaterial3Api
 @Composable
@@ -294,14 +368,11 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     val (defaultArtist, defaultTitle) = getDefaultValuesBasedOnRoute(currentBackStackEntry, songDao)
     var newArtist by remember { mutableStateOf("") }
     var newTitle by remember { mutableStateOf("") }
-
     LaunchedEffect(key1 = defaultArtist, key2 = defaultTitle) {
         newArtist = defaultArtist
         newTitle = defaultTitle
     }
 
-    val invalidTitle by remember {derivedStateOf { newTitle.isEmpty() }}
-    val invalidArtist by remember {derivedStateOf { newArtist.isEmpty() }}
     var newScore by remember { mutableStateOf("") }
     var newKey by remember { mutableFloatStateOf(0f) }
     var newDate by remember { mutableStateOf(LocalDate.now()) }
@@ -309,9 +380,8 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
 
     val focusRequester = remember { FocusRequester() }
 
-    val verticalPaddingValue = 5
+    val verticalPaddingValue = 4
     val horizontalPaddingValue = 10
-
 
     FloatingActionButton(
         onClick = { dialogOpened = true },
@@ -399,104 +469,43 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                         verticalArrangement = Arrangement.spacedBy(verticalPaddingValue.dp)
                     ) {
                         item {
-                            OutlinedTextField(
+                            CommonTextField(
                                 value = newTitle,
-                                onValueChange = {
-                                    newTitle = it
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        horizontalPaddingValue.dp,
-                                        verticalPaddingValue.dp
-                                    ),
-                                label = { Text(text = "Song") },
+                                label = "Song",
+                                horizontalPaddingValue = horizontalPaddingValue,
+                                verticalPaddingValue = verticalPaddingValue,
+                                invalidValueEnabled = true,
                                 singleLine = true,
-                                isError = invalidTitle,
-                                supportingText = {
-                                    if (invalidTitle) {
-                                        Text(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            text = "Blank is not allowed.",
-                                            color = MaterialTheme.colorScheme.error
-                                        )
-                                    }
-                                },
-                                keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Text,
-                                    imeAction = ImeAction.Next
-                                ),
-                                trailingIcon = {
-                                    if (invalidTitle) {
-                                        Icon(
-                                            Icons.Default.Clear,
-                                            contentDescription = "clear text",
-                                            tint = MaterialTheme.colorScheme.error,
-                                            modifier = Modifier.clickable { newTitle = "" }
-                                        )
-                                    } else {
-                                        Icon(
-                                            Icons.Default.Clear,
-                                            contentDescription = "clear text",
-                                            modifier = Modifier.clickable { newTitle = "" }
-                                        )
-                                    }
-                                },
-                            )
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Default,
+                                focusRequester = focusRequester
+                            ) { changed -> newTitle = changed }
                         }
 
                         item {
-                            OutlinedTextField(
+                            CommonTextField(
                                 value = newArtist,
-                                onValueChange = {
-                                    newArtist = it
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        horizontalPaddingValue.dp,
-                                        verticalPaddingValue.dp
-                                    ),
-                                label = { Text(text = "Artist") },
+                                label = "Artist",
+                                horizontalPaddingValue = horizontalPaddingValue,
+                                verticalPaddingValue = verticalPaddingValue,
+                                invalidValueEnabled = true,
                                 singleLine = true,
-                                isError = invalidArtist,
-                                supportingText = {
-                                    if (invalidArtist) {
-                                        Text(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            text = "Blank is not allowed.",
-                                            color = MaterialTheme.colorScheme.error
-                                        )
-                                    }
-                                },
-                                keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Text,
-                                    imeAction = ImeAction.Next
-                                ),
-                                trailingIcon = {
-                                    if (invalidArtist) {
-                                        Icon(
-                                            Icons.Default.Clear,
-                                            contentDescription = "clear text",
-                                            tint = MaterialTheme.colorScheme.error,
-                                            modifier = Modifier.clickable { newArtist = "" }
-                                        )
-                                    } else {
-                                        Icon(
-                                            Icons.Default.Clear,
-                                            contentDescription = "clear text",
-                                            modifier = Modifier.clickable { newArtist = "" }
-                                        )
-                                    }
-                                },
-                            )
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Default,
+                                focusRequester = focusRequester
+                            ) { changed -> newArtist = changed }
                         }
 
                         item {
-                            CustomScoreTextField(
+                            CommonTextField(
                                 value = newScore,
                                 label = "Score",
+                                horizontalPaddingValue = horizontalPaddingValue,
+                                verticalPaddingValue = verticalPaddingValue,
+                                invalidValueEnabled = true,
                                 singleLine = true,
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Default,
                                 focusRequester = focusRequester
                             ) { changed -> newScore = changed }
                         }
@@ -561,30 +570,17 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                         }
 
                         item {
-                            OutlinedTextField(
+                            CommonTextField(
                                 value = newComment,
-                                onValueChange = { newComment = it },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        horizontalPaddingValue.dp,
-                                        verticalPaddingValue.dp
-                                    )
-                                    .imePadding(),
-                                label = { Text(text = "Comment") },
+                                label = "Comment",
+                                horizontalPaddingValue = horizontalPaddingValue,
+                                verticalPaddingValue = verticalPaddingValue,
+                                invalidValueEnabled = false,
                                 singleLine = false,
-                                keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Text,
-                                    imeAction = ImeAction.Default
-                                ),
-                                trailingIcon = {
-                                    Icon(
-                                        Icons.Default.Clear,
-                                        contentDescription = "clear text",
-                                        modifier = Modifier.clickable { newComment = "" }
-                                    )
-                                },
-                            )
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Default,
+                                focusRequester = focusRequester
+                            ) { changed -> newComment = changed }
                         }
                     }
                 }
@@ -593,28 +589,3 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     }
 }
 
-/*
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
-@ExperimentalAnimationApi
-@Composable
-fun AnimatedContentFABtoDiagram() {
-    var expanded by remember { mutableStateOf(false) }
-
-    Surface(
-        color = MaterialTheme.colorScheme.primary,
-        onClick = { expanded = !expanded }
-    ){
-        AnimatedContent(
-            targetState = expanded,
-        ) { targetExpanded ->
-            if (targetExpanded) {
-                NewEntryScreen()
-            }
-            else {
-                NewEntryButton()
-            }
-        }
-    }
-}
-
- */
