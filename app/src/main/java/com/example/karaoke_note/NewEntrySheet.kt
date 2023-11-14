@@ -184,6 +184,10 @@ fun isValid(title: String, artist: String, score: String): Pair<Boolean, String>
                     if ((integerPart > 100) || ((integerPart == 100) && (decimalPart != 0))) {
                         valid = false
                         message += "[Score] Too high score.\n"
+                    } else if ((integerPart < 0)) {
+                        // 負の数の扱い
+                        valid = false
+                        message += "[Score] Negative value is not allowed."
                     } else {
                         // 99.4444 などの変な形の時
                         if (strDecimalPart.length != 3) {
