@@ -1,20 +1,20 @@
 package com.example.karaoke_note
 
-import android.widget.Toast
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.IconButton
@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
@@ -52,8 +53,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -73,79 +72,139 @@ import java.time.LocalDate
 import java.time.ZoneId
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalFoundationApi::class)
 @ExperimentalMaterial3Api
 @Composable
-fun CustomScoreTextField(
+fun CommonTextField(
     value: String,
     label: String,
+    horizontalPaddingValue: Int,
+    verticalPaddingValue: Int,
+    invalidValueEnabled: Boolean,
     singleLine: Boolean,
+    keyboardType: KeyboardType,
+    imeAction: ImeAction,
     focusRequester: FocusRequester,
     onChange: (String) -> Unit
 ){
     var textFieldValue by remember {
-        mutableStateOf(
-            TextFieldValue(
-                text = value,
-                selection = TextRange(value.length)
-            )
-        )
+        mutableStateOf(TextFieldValue(text = value))
     }
-    var invalidScore by remember { mutableStateOf(true) }
-    val patternPerfect = "100\\.000".toRegex()
-    val patternNormal = """^\d{2}\.\d{3}$""".toRegex()
-
-    val ctx = LocalContext.current
-    val patternZero = Regex("^0+")
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val invalidValue by remember { derivedStateOf { textFieldValue.text.isEmpty() } }
 
     OutlinedTextField(
         value = textFieldValue,
-        onValueChange = { changed ->
-            if (changed.text.matches(patternZero)) {
-                Toast.makeText(ctx, "Leading 0 is not allowed.", Toast.LENGTH_SHORT).show()
-            }
-            else {
-                invalidScore = !(changed.text.matches(patternNormal) or changed.text.matches(patternPerfect))
-                textFieldValue = changed
-            }
+        onValueChange = { changed -> textFieldValue = changed
             onChange(changed.text)
-        },
+                        },
         modifier = Modifier
+            .bringIntoViewRequester(bringIntoViewRequester)
             .focusRequester(focusRequester)
             .fillMaxWidth()
-            .padding(10.dp),
+            .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp)
+            .imePadding(),
         label = { Text(label) },
-        isError = invalidScore,
+        isError = invalidValueEnabled && invalidValue,
         supportingText = {
-            if (invalidScore) {
+            if (invalidValueEnabled && invalidValue) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = "Format: XX.XXX or 100.000",
+                    text = "(Error) This field has no value.",
                     color = MaterialTheme.colorScheme.error
                 )
             }
         },
         singleLine = singleLine,
         keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number,
-            imeAction = ImeAction.Default
+            keyboardType = keyboardType,
+            imeAction = imeAction
         ),
         trailingIcon = {
-            if (invalidScore) {
+            if (invalidValueEnabled && invalidValue) {
                 Icon(
                     Icons.Default.Clear,
-                    contentDescription = "clear text",
+                    contentDescription = "clear",
                     tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.clickable { textFieldValue = TextFieldValue("") }
                 )
             } else {
                 Icon(
                     Icons.Default.Clear,
-                    contentDescription = "clear text",
+                    contentDescription = "clear",
                     modifier = Modifier.clickable { textFieldValue = TextFieldValue("") }
                 )
             }
         },
     )
+}
+
+fun getNumberOfDecimalPoints(str: String): Int {
+    return str.count { it == '.' }
+}
+
+fun getIntegerPartOfScore(str: String): String {
+    val strArr = str.split(".").map { it.trim() }
+    return strArr[0]
+}
+
+fun getDecimalPartOfScore(str: String): String {
+    val strArr = str.split(".").map { it.trim() }
+    return strArr[1]
+}
+
+fun isValid(title: String, artist: String, score: String): Pair<Boolean, String> {
+    var valid = true
+    var message = ""
+
+    // タイトルやアーティスト名で問題になるのは空白ぐらい?
+    if (title.isBlank() || artist.isBlank()) {
+        valid = false
+        message += "Blank is not allowed. (except comment field)\n"
+    } else {
+        if (score.isBlank()) {
+            valid = false
+            message += "Blank is not allowed. (except comment field)\n"
+        } else {
+            // スコア欄固有のチェック
+            val numOfDecimalPoint = getNumberOfDecimalPoints(score)
+            if (numOfDecimalPoint != 1) {
+                valid = false
+                message += "[Score] Only 1 decimal point is allowed."
+            } else {
+                // 整数部、小数部をチェック
+                // 小数部は桁数が3桁に足りない場合は末尾に 0 を補充する
+                val strIntegerPart = getIntegerPartOfScore(score)
+                val integerPart: Int? = strIntegerPart.toIntOrNull()
+                val strDecimalPart: String = getDecimalPartOfScore(score)
+                val decimalPart: Int? = strDecimalPart.toIntOrNull()
+
+                if (integerPart != null && decimalPart != null) {
+                    // 100 点以上の扱い
+                    if ((integerPart > 100) || ((integerPart == 100) && (decimalPart != 0))) {
+                        valid = false
+                        message += "[Score] Too high score.\n"
+                    } else if ((integerPart < 0)) {
+                        // 負の数の扱い
+                        valid = false
+                        message += "[Score] Negative value is not allowed."
+                    } else {
+                        // 99.4444 などの変な形の時
+                        if (strDecimalPart.length != 3) {
+                            valid = false
+                            message += "[Score] Format is invalid. The decimal part must have 3 digits."
+                        }
+                    }
+                } else {
+                    // .123 や ,.,,, みたいな形の時
+                    valid = false
+                    message += "[Score] There are some invalid characters."
+                }
+            }
+        }
+    }
+
+    return valid to message
 }
 
 @ExperimentalMaterial3Api
@@ -258,7 +317,7 @@ fun getLocalizedDate(): LocalDate {
                         modifier = Modifier.padding(start = 24.dp, end = 12.dp, top = 16.dp)
                     )
                 },
-                showModeToggle = false
+                showModeToggle = true
             )
         }
     }
@@ -286,24 +345,23 @@ private fun getDefaultValuesBasedOnRoute(
         else -> Pair("", "")
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3Api
 @Composable
 fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao) {
-    var dialogOpened by remember { mutableStateOf(false) }
+    var screenOpened by remember { mutableStateOf(false) }
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    var errorDialogOpened by remember { mutableStateOf(false) }
 
     val (defaultArtist, defaultTitle) = getDefaultValuesBasedOnRoute(currentBackStackEntry, songDao)
     var newArtist by remember { mutableStateOf("") }
     var newTitle by remember { mutableStateOf("") }
-
     LaunchedEffect(key1 = defaultArtist, key2 = defaultTitle) {
         newArtist = defaultArtist
         newTitle = defaultTitle
     }
 
-    val invalidTitle by remember {derivedStateOf { newTitle.isEmpty() }}
-    val invalidArtist by remember {derivedStateOf { newArtist.isEmpty() }}
     var newScore by remember { mutableStateOf("") }
     var newKey by remember { mutableFloatStateOf(0f) }
     var newDate by remember { mutableStateOf(LocalDate.now()) }
@@ -311,12 +369,11 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
 
     val focusRequester = remember { FocusRequester() }
 
-    val verticalPaddingValue = 5
+    val verticalPaddingValue = 4
     val horizontalPaddingValue = 10
 
-
     FloatingActionButton(
-        onClick = { dialogOpened = true },
+        onClick = { screenOpened = true },
         modifier = Modifier
             .padding(16.dp),
         shape = RoundedCornerShape(16.dp),
@@ -329,9 +386,29 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
         )
     }
 
-    if (dialogOpened) {
+    if (errorDialogOpened) {
+        AlertDialog(
+            onDismissRequest = { },
+            confirmButton = {
+                TextButton(
+                    onClick = { errorDialogOpened = false }
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = null,
+            title = {
+                Text("Error")
+            },
+            text = {
+                Text(isValid(newTitle, newArtist, newScore).second)
+            }
+        )
+    }
+
+    if (screenOpened) {
         Dialog(
-            onDismissRequest = { dialogOpened = false },
+            onDismissRequest = { screenOpened = false },
             properties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
             Surface(
@@ -344,13 +421,14 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                             .fillMaxWidth()
                             .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp)
                     ) {
+                        // キャンセル (×) ボタン
                         IconButton(
                             onClick = {
                                 newScore = ""
                                 newKey = 0f
                                 newDate = LocalDate.now()
                                 newComment = ""
-                                dialogOpened = false
+                                screenOpened = false
                             },
                             modifier = Modifier.align(Alignment.CenterStart),
                         ) {
@@ -365,31 +443,38 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                     .size(16.dp)
                             )
                         }
+                        // Save ボタン
                         TextButton(
                             modifier = Modifier.align(Alignment.CenterEnd),
                             onClick = {
-                                val newSongId = songDao.insertSong(
-                                    Song(
-                                        title = newTitle,
-                                        artist = newArtist,
-                                        iconColor = Color.Black.toArgb()
+                                // タイトル、アーティスト、スコア欄のチェック
+                                if (!isValid(newTitle, newArtist, newScore).first) {
+                                    errorDialogOpened = true
+                                }
+                                else {
+                                    val newSongId = songDao.insertSong(
+                                        Song(
+                                            title = newTitle,
+                                            artist = newArtist,
+                                            iconColor = Color.Black.toArgb()
+                                        )
                                     )
-                                )
-                                songScoreDao.insertSongScore(
-                                    SongScore(
-                                        songId = newSongId,
-                                        date = newDate,
-                                        score = newScore.toFloat(),
-                                        key = newKey.roundToInt(),
-                                        comment = newComment
+                                    songScoreDao.insertSongScore(
+                                        SongScore(
+                                            songId = newSongId,
+                                            date = newDate,
+                                            score = newScore.toFloat(),
+                                            key = newKey.roundToInt(),
+                                            comment = newComment
+                                        )
                                     )
-                                )
-                                newScore = ""
-                                newKey = 0f
-                                newDate = LocalDate.now()
-                                newComment = ""
+                                    newScore = ""
+                                    newKey = 0f
+                                    newDate = LocalDate.now()
+                                    newComment = ""
 
-                                dialogOpened = false
+                                    screenOpened = false
+                                }
                             },
                         ) {
                             Text("Save")
@@ -401,104 +486,43 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                         verticalArrangement = Arrangement.spacedBy(verticalPaddingValue.dp)
                     ) {
                         item {
-                            OutlinedTextField(
+                            CommonTextField(
                                 value = newTitle,
-                                onValueChange = {
-                                    newTitle = it
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        horizontalPaddingValue.dp,
-                                        verticalPaddingValue.dp
-                                    ),
-                                label = { Text(text = "Song") },
+                                label = "Song",
+                                horizontalPaddingValue = horizontalPaddingValue,
+                                verticalPaddingValue = verticalPaddingValue,
+                                invalidValueEnabled = true,
                                 singleLine = true,
-                                isError = invalidTitle,
-                                supportingText = {
-                                    if (invalidTitle) {
-                                        Text(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            text = "Blank is not allowed.",
-                                            color = MaterialTheme.colorScheme.error
-                                        )
-                                    }
-                                },
-                                keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Text,
-                                    imeAction = ImeAction.Next
-                                ),
-                                trailingIcon = {
-                                    if (invalidTitle) {
-                                        Icon(
-                                            Icons.Default.Clear,
-                                            contentDescription = "clear text",
-                                            tint = MaterialTheme.colorScheme.error,
-                                            modifier = Modifier.clickable { newTitle = "" }
-                                        )
-                                    } else {
-                                        Icon(
-                                            Icons.Default.Clear,
-                                            contentDescription = "clear text",
-                                            modifier = Modifier.clickable { newTitle = "" }
-                                        )
-                                    }
-                                },
-                            )
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Default,
+                                focusRequester = focusRequester
+                            ) { changed -> newTitle = changed }
                         }
 
                         item {
-                            OutlinedTextField(
+                            CommonTextField(
                                 value = newArtist,
-                                onValueChange = {
-                                    newArtist = it
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        horizontalPaddingValue.dp,
-                                        verticalPaddingValue.dp
-                                    ),
-                                label = { Text(text = "Artist") },
+                                label = "Artist",
+                                horizontalPaddingValue = horizontalPaddingValue,
+                                verticalPaddingValue = verticalPaddingValue,
+                                invalidValueEnabled = true,
                                 singleLine = true,
-                                isError = invalidArtist,
-                                supportingText = {
-                                    if (invalidArtist) {
-                                        Text(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            text = "Blank is not allowed.",
-                                            color = MaterialTheme.colorScheme.error
-                                        )
-                                    }
-                                },
-                                keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Text,
-                                    imeAction = ImeAction.Next
-                                ),
-                                trailingIcon = {
-                                    if (invalidArtist) {
-                                        Icon(
-                                            Icons.Default.Clear,
-                                            contentDescription = "clear text",
-                                            tint = MaterialTheme.colorScheme.error,
-                                            modifier = Modifier.clickable { newArtist = "" }
-                                        )
-                                    } else {
-                                        Icon(
-                                            Icons.Default.Clear,
-                                            contentDescription = "clear text",
-                                            modifier = Modifier.clickable { newArtist = "" }
-                                        )
-                                    }
-                                },
-                            )
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Default,
+                                focusRequester = focusRequester
+                            ) { changed -> newArtist = changed }
                         }
 
                         item {
-                            CustomScoreTextField(
+                            CommonTextField(
                                 value = newScore,
                                 label = "Score",
+                                horizontalPaddingValue = horizontalPaddingValue,
+                                verticalPaddingValue = verticalPaddingValue,
+                                invalidValueEnabled = true,
                                 singleLine = true,
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Default,
                                 focusRequester = focusRequester
                             ) { changed -> newScore = changed }
                         }
@@ -563,34 +587,17 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                         }
 
                         item {
-                            OutlinedTextField(
+                            CommonTextField(
                                 value = newComment,
-                                onValueChange = { newComment = it },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        horizontalPaddingValue.dp,
-                                        verticalPaddingValue.dp
-                                    )
-                                    .imePadding(),
-                                label = { Text(text = "Comment") },
+                                label = "Comment",
+                                horizontalPaddingValue = horizontalPaddingValue,
+                                verticalPaddingValue = verticalPaddingValue,
+                                invalidValueEnabled = false,
                                 singleLine = false,
-                                keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Text,
-                                    imeAction = ImeAction.Default
-                                ),
-                                trailingIcon = {
-                                    Icon(
-                                        Icons.Default.Clear,
-                                        contentDescription = "clear text",
-                                        modifier = Modifier.clickable { newComment = "" }
-                                    )
-                                },
-                            )
-                        }
-
-                        item {
-                            Spacer(modifier = Modifier.height(300.dp))
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Default,
+                                focusRequester = focusRequester
+                            ) { changed -> newComment = changed }
                         }
                     }
                 }
@@ -599,28 +606,3 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     }
 }
 
-/*
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
-@ExperimentalAnimationApi
-@Composable
-fun AnimatedContentFABtoDiagram() {
-    var expanded by remember { mutableStateOf(false) }
-
-    Surface(
-        color = MaterialTheme.colorScheme.primary,
-        onClick = { expanded = !expanded }
-    ){
-        AnimatedContent(
-            targetState = expanded,
-        ) { targetExpanded ->
-            if (targetExpanded) {
-                NewEntryScreen()
-            }
-            else {
-                NewEntryButton()
-            }
-        }
-    }
-}
-
- */
