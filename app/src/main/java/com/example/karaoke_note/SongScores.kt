@@ -32,7 +32,14 @@ import com.example.karaoke_note.data.SongScoreDao
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 
-
+fun deleteSongScore(songId: Long, scoreId: Long, scope: CoroutineScope, songDao: SongDao, songScoreDao: SongScoreDao) {
+    scope.launch {
+        songScoreDao.deleteSongScore(scoreId)
+        if (songScoreDao.countScoresForSong(songId) == 0) {
+            songDao.delete(songId)
+        }
+    }
+}
 
 @Composable
 fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: CoroutineScope) {
@@ -40,15 +47,6 @@ fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: 
     val scores by scoresFlow.collectAsState(initial = emptyList())
     val expanded = remember { mutableStateOf(false) }
     val selectedScoreId = remember { mutableStateOf<Long?>(null) }
-
-    fun deleteSongScore(scoreId: Long) {
-        scope.launch {
-            songScoreDao.deleteSongScore(scoreId)
-            if (songScoreDao.countScoresForSong(song.id) == 0) {
-                songDao.delete(song.id)
-            }
-        }
-    }
 
     val columns = listOf(
         TableColumn<SongScore>("日付",
@@ -93,7 +91,7 @@ fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: 
                         Text("編集")
                     }
                     DropdownMenuItem(onClick = {
-                        selectedScoreId.value?.let { deleteSongScore(it) }
+                        selectedScoreId.value?.let { deleteSongScore(song.id, it, scope, songDao, songScoreDao) }
                         expanded.value = false
                     }) {
                         Text("削除")
