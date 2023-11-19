@@ -28,10 +28,11 @@ interface SongScoreDao {
 
     @Query("""
         SELECT date FROM SongScore 
+        WHERE songId = :songId 
         ORDER BY date DESC 
         LIMIT 1
     """)
-    fun getMostRecentDate(): LocalDate?
+    fun getMostRecentDate(songId: Long): LocalDate?
 
     @Transaction
     fun insertSongScore(score: SongScore) {

@@ -26,7 +26,7 @@ fun convertToSongDataList(songScoreDao: SongScoreDao, songs: List<Song>): List<S
         songs.map { song ->
             async {
                 val highestScoreEntry = songScoreDao.getHighestScoreBySongId(song.id)
-                val lastDate = songScoreDao.getMostRecentDate()
+                val lastDate = songScoreDao.getMostRecentDate(song.id)
                 SongData(
                     id = song.id,
                     title = song.title,
