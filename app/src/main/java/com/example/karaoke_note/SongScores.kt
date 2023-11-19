@@ -9,13 +9,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.Icon
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Divider
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
@@ -34,6 +38,9 @@ import kotlinx.coroutines.CoroutineScope
 fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: CoroutineScope) {
     val scoresFlow = songScoreDao.getScoresForSong(song.id)
     val scores by scoresFlow.collectAsState(initial = emptyList())
+    val expanded = remember { mutableStateOf(false) }
+    val selectedScoreId = remember { mutableStateOf<Long?>(null) }
+
     fun deleteSongScore(scoreId: Long) {
         scope.launch {
             songScoreDao.deleteSongScore(scoreId)
@@ -67,10 +74,30 @@ fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: 
             compareBy{ it.comment.length },
             3f
         ),
-        TableColumn("削除",
-            {
-                IconButton(onClick = {deleteSongScore(it.id)}, modifier = Modifier.size(22.dp) ) {
-                    Icon(Icons.Filled.Delete, "delete", Modifier.size(22.dp))
+        TableColumn("",
+
+            { songScore ->
+                IconButton(onClick = {
+                    expanded.value = true
+                    selectedScoreId.value = songScore.id
+                }, modifier = Modifier.size(22.dp)) {
+                    Icon(Icons.Filled.MoreVert, "menu", Modifier.size(22.dp))
+                }
+                DropdownMenu(
+                    expanded = expanded.value,
+                    onDismissRequest = { expanded.value = false }
+                ) {
+                    DropdownMenuItem(onClick = {
+                        expanded.value = false
+                    }) {
+                        Text("編集")
+                    }
+                    DropdownMenuItem(onClick = {
+                        selectedScoreId.value?.let { deleteSongScore(it) }
+                        expanded.value = false
+                    }) {
+                        Text("削除")
+                    }
                 }
             },
             null,
