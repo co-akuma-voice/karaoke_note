@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SongDao {
@@ -20,7 +21,7 @@ interface SongDao {
     fun getSong(id: Long): Song?
 
     @Query("SELECT * FROM Song WHERE artist = :artist")
-    fun getSongsByArtist(artist: String): List<Song>
+    fun getSongsByArtist(artist: String): Flow<List<Song>>
 
     @Query("DELETE FROM Song WHERE id = :id")
     fun delete(id: Long)
