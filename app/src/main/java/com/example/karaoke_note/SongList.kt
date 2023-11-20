@@ -4,6 +4,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
@@ -39,7 +40,10 @@ fun convertToSongDataList(songScoreDao: SongScoreDao, songs: List<Song>): List<S
 }
 @Composable
 fun SongList(navController: NavController, artist: String, songDao: SongDao, songScoreDao: SongScoreDao) {
-    val songs = convertToSongDataList(songScoreDao, songDao.getSongsByArtist(artist))
+    val songsFlow = songDao.getSongsByArtist(artist)
+    val songs = songsFlow.collectAsState(initial = listOf()).value
+    val songDatum = convertToSongDataList(songScoreDao, songs)
+
     val columns = listOf(
         TableColumn<SongData>("タイトル",
             {
@@ -63,7 +67,7 @@ fun SongList(navController: NavController, artist: String, songDao: SongDao, son
     Column {
         Text(text = "${artist}の曲一覧", fontSize = 24.sp)
         Divider(color = Color.Gray, thickness = 1.dp)
-        SortableTable(items = songs, columns = columns) { item ->
+        SortableTable(items = songDatum, columns = columns) { item ->
             navController.navigate("song_data/${item.id}")
         }
     }
