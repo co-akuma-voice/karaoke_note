@@ -54,6 +54,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -89,11 +90,16 @@ fun CommonTextField(
     focusRequester: FocusRequester,
     onChange: (String) -> Unit
 ){
-    var textFieldValue by remember(value) {
+    var textFieldValue by remember {
         mutableStateOf(TextFieldValue(text = value))
     }
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val invalidValue by remember { derivedStateOf { textFieldValue.text.isEmpty() } }
+
+    LaunchedEffect(value) {
+        textFieldValue = TextFieldValue(text = value, selection = TextRange(value.length))
+    }
+
 
     OutlinedTextField(
         value = textFieldValue,
@@ -371,6 +377,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
 
     val (defaultArtist, defaultTitle) = getDefaultValuesBasedOnRoute(currentBackStackEntry, songDao)
     val defaultScore = editingSongScore?.score?.let { String.format("%.3f", it) } ?: ""
+    //val defaultScore = "12.345"
     val defaultKey = editingSongScore?.key?.toFloat() ?: 0f
     val defaultDate = editingSongScore?.date ?: LocalDate.now()
     val defaultComment = editingSongScore?.comment ?: ""
