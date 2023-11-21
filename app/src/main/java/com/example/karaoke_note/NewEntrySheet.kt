@@ -252,7 +252,7 @@ fun rememberCustomDatePickerState(
 fun getLocalizedDate(defaultDate: LocalDate): LocalDate {
     var showPicker by remember { mutableStateOf(false) }
     val (datePickerState, pendingDatePickerState) = rememberCustomDatePickerState(
-        initialSelectedDateMillis = Instant.now().toEpochMilli()
+        initialSelectedDateMillis = defaultDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
     )
     var localizedNullableSelectedDate: LocalDate?
     var localizedSelectedDate: LocalDate = defaultDate
@@ -354,30 +354,16 @@ private fun getDefaultValuesBasedOnRoute(
     }
 }
 
-private fun getSongId(
-    backStackEntry: NavBackStackEntry?,
-): Long? {
-    val currentRoute = backStackEntry?.destination?.route
-    return when {
-        currentRoute?.startsWith("song_data/") == true -> {
-            backStackEntry.arguments?.getString("songId")?.toLongOrNull()
-        }
-        else -> null
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3Api
 @Composable
 fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao, scope: CoroutineScope, screenOpened: MutableState<Boolean>, editingSongScoreState: MutableState<SongScore?>) {
     val editingSongScore = editingSongScoreState.value
-    val songScoreId = editingSongScore?.songId
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     var errorDialogOpened by remember { mutableStateOf(false) }
 
     val (defaultArtist, defaultTitle) = getDefaultValuesBasedOnRoute(currentBackStackEntry, songDao)
     val defaultScore = editingSongScore?.score?.let { String.format("%.3f", it) } ?: ""
-    //val defaultScore = "12.345"
     val defaultKey = editingSongScore?.key?.toFloat() ?: 0f
     val defaultDate = editingSongScore?.date ?: LocalDate.now()
     val defaultComment = editingSongScore?.comment ?: ""
@@ -397,7 +383,6 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
         newDate = defaultDate
         newComment = defaultComment
     }
-
 
     val focusRequester = remember { FocusRequester() }
 
@@ -486,13 +471,8 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 }
                                 else {
                                     // editから来た場合、古いデータを削除
-                                    songScoreId?.let {songScoreId ->
-                                        val songId = getSongId(currentBackStackEntry)
-                                        if (songId == null) {
-                                            songScoreDao.deleteSongScore(songScoreId)
-                                        } else {
-                                            deleteSongScore(songId, songScoreId, scope, songDao, songScoreDao)
-                                        }
+                                    editingSongScore?.let {
+                                        deleteSongScore(it.songId, it.id, scope, songDao, songScoreDao)
                                     }
                                     // データを登録
                                     val newSongId = songDao.insertSong(
