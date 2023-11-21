@@ -16,6 +16,7 @@ import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,10 +43,9 @@ fun deleteSongScore(songId: Long, scoreId: Long, scope: CoroutineScope, songDao:
 }
 
 @Composable
-fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: CoroutineScope) {
+fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: CoroutineScope, showEntrySheetDialog: MutableState<Boolean>, editingSongScore: MutableState<SongScore?>) {
     val scoresFlow = songScoreDao.getScoresForSong(song.id)
     val scores by scoresFlow.collectAsState(initial = emptyList())
-    val expanded = remember { mutableStateOf(false) }
     val selectedScoreId = remember { mutableStateOf<Long?>(null) }
 
     val columns = listOf(
@@ -73,8 +73,8 @@ fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: 
             3f
         ),
         TableColumn("",
-
             { songScore ->
+                val expanded = remember { mutableStateOf(false) }
                 IconButton(onClick = {
                     expanded.value = true
                     selectedScoreId.value = songScore.id
@@ -87,6 +87,8 @@ fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: 
                 ) {
                     DropdownMenuItem(onClick = {
                         expanded.value = false
+                        showEntrySheetDialog.value = true
+                        editingSongScore.value = songScore
                     }) {
                         Text("編集")
                     }
