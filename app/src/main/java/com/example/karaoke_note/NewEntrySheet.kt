@@ -39,6 +39,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -53,6 +54,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -67,6 +69,7 @@ import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
+import kotlinx.coroutines.CoroutineScope
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -92,6 +95,11 @@ fun CommonTextField(
     }
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val invalidValue by remember { derivedStateOf { textFieldValue.text.isEmpty() } }
+
+    LaunchedEffect(value) {
+        textFieldValue = TextFieldValue(text = value, selection = TextRange(value.length))
+    }
+
 
     OutlinedTextField(
         value = textFieldValue,
@@ -241,13 +249,13 @@ fun rememberCustomDatePickerState(
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3Api
 @Composable
-fun getLocalizedDate(): LocalDate {
+fun getLocalizedDate(defaultDate: LocalDate): LocalDate {
     var showPicker by remember { mutableStateOf(false) }
     val (datePickerState, pendingDatePickerState) = rememberCustomDatePickerState(
-        initialSelectedDateMillis = Instant.now().toEpochMilli()
+        initialSelectedDateMillis = defaultDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
     )
     var localizedNullableSelectedDate: LocalDate?
-    var localizedSelectedDate: LocalDate = LocalDate.now()
+    var localizedSelectedDate: LocalDate = defaultDate
 
     Box(
         modifier = Modifier
@@ -262,7 +270,7 @@ fun getLocalizedDate(): LocalDate {
             localizedNullableSelectedDate = datePickerState.selectedDateMillis?.let {
                 Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
             }
-            localizedSelectedDate = localizedNullableSelectedDate ?: LocalDate.now()
+            localizedSelectedDate = localizedNullableSelectedDate ?: defaultDate
 
             Text(
                 text = localizedSelectedDate.toString(),
@@ -329,7 +337,7 @@ fun getLocalizedDate(): LocalDate {
 private fun getDefaultValuesBasedOnRoute(
     backStackEntry: NavBackStackEntry?,
     songDao: SongDao
-): Pair<String, String> {
+):Pair<String, String> {
     val currentRoute = backStackEntry?.destination?.route
 
     return when {
@@ -349,23 +357,32 @@ private fun getDefaultValuesBasedOnRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3Api
 @Composable
-fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao) {
-    var screenOpened by remember { mutableStateOf(false) }
+fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao, scope: CoroutineScope, screenOpened: MutableState<Boolean>, editingSongScoreState: MutableState<SongScore?>) {
+    val editingSongScore = editingSongScoreState.value
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     var errorDialogOpened by remember { mutableStateOf(false) }
 
     val (defaultArtist, defaultTitle) = getDefaultValuesBasedOnRoute(currentBackStackEntry, songDao)
+    val defaultScore = editingSongScore?.score?.let { String.format("%.3f", it) } ?: ""
+    val defaultKey = editingSongScore?.key?.toFloat() ?: 0f
+    val defaultDate = editingSongScore?.date ?: LocalDate.now()
+    val defaultComment = editingSongScore?.comment ?: ""
+
     var newArtist by remember { mutableStateOf("") }
     var newTitle by remember { mutableStateOf("") }
-    LaunchedEffect(key1 = defaultArtist, key2 = defaultTitle) {
-        newArtist = defaultArtist
-        newTitle = defaultTitle
-    }
-
     var newScore by remember { mutableStateOf("") }
     var newKey by remember { mutableFloatStateOf(0f) }
     var newDate by remember { mutableStateOf(LocalDate.now()) }
     var newComment by remember { mutableStateOf("") }
+
+    LaunchedEffect(key1 = defaultArtist, key2 = defaultTitle, key3 = editingSongScore) {
+        newArtist = defaultArtist
+        newTitle = defaultTitle
+        newScore = defaultScore
+        newKey = defaultKey
+        newDate = defaultDate
+        newComment = defaultComment
+    }
 
     val focusRequester = remember { FocusRequester() }
 
@@ -373,7 +390,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     val horizontalPaddingValue = 10
 
     FloatingActionButton(
-        onClick = { screenOpened = true },
+        onClick = { screenOpened.value = true },
         modifier = Modifier
             .padding(16.dp),
         shape = RoundedCornerShape(16.dp),
@@ -406,9 +423,9 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
         )
     }
 
-    if (screenOpened) {
+    if (screenOpened.value) {
         Dialog(
-            onDismissRequest = { screenOpened = false },
+            onDismissRequest = { screenOpened.value = false },
             properties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
             Surface(
@@ -424,11 +441,12 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                         // キャンセル (×) ボタン
                         IconButton(
                             onClick = {
+                                editingSongScoreState.value = null
                                 newScore = ""
                                 newKey = 0f
                                 newDate = LocalDate.now()
                                 newComment = ""
-                                screenOpened = false
+                                screenOpened.value = false
                             },
                             modifier = Modifier.align(Alignment.CenterStart),
                         ) {
@@ -452,6 +470,11 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                     errorDialogOpened = true
                                 }
                                 else {
+                                    // editから来た場合、古いデータを削除
+                                    editingSongScore?.let {
+                                        deleteSongScore(it.songId, it.id, scope, songDao, songScoreDao)
+                                    }
+                                    // データを登録
                                     val newSongId = songDao.insertSong(
                                         Song(
                                             title = newTitle,
@@ -468,12 +491,13 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                             comment = newComment
                                         )
                                     )
+                                    editingSongScoreState.value = null
                                     newScore = ""
                                     newKey = 0f
                                     newDate = LocalDate.now()
                                     newComment = ""
 
-                                    screenOpened = false
+                                    screenOpened.value = false
                                 }
                             },
                         ) {
@@ -582,7 +606,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                     )
                             ) {
                                 Text(text = "Date")
-                                newDate = getLocalizedDate()
+                                newDate = getLocalizedDate(defaultDate)
                             }
                         }
 

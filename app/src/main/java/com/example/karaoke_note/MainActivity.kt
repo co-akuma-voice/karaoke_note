@@ -12,12 +12,15 @@ import androidx.compose.material.Surface
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.karaoke_note.data.AppDatabase
+import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.ui.theme.Karaoke_noteTheme
 
 class MainActivity : ComponentActivity() {
@@ -30,6 +33,8 @@ class MainActivity : ComponentActivity() {
         val songScoreDao = AppDatabase.getDatabase(this).songScoreDao()
         setContent {
             Karaoke_noteTheme {
+                val showDialog = remember { mutableStateOf(false) }
+                val editingSongScore = remember { mutableStateOf<SongScore?>(null) }
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -44,7 +49,7 @@ class MainActivity : ComponentActivity() {
                             BottomNavigationBar(navController)
                         },
                         floatingActionButton = {
-                            NewEntryScreen(navController, songDao, songScoreDao)
+                            NewEntryScreen(navController, songDao, songScoreDao, lifecycleScope, showDialog, editingSongScore)
                             //AnimatedContentFABtoDiagram()
                         },
                     ) { paddingValues ->
@@ -61,7 +66,7 @@ class MainActivity : ComponentActivity() {
                                 if (songId != null) {
                                     val song = songDao.getSong(songId)
                                     if (song != null) {
-                                        SongScores(song, songDao, songScoreDao, lifecycleScope)
+                                        SongScores(song, songDao, songScoreDao, lifecycleScope, showDialog, editingSongScore)
                                     }
                                 }
                             }
