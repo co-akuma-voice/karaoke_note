@@ -11,6 +11,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.karaoke_note.data.ArtistDao
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScoreDao
@@ -39,8 +40,8 @@ fun convertToSongDataList(songScoreDao: SongScoreDao, songs: List<Song>): List<S
     }
 }
 @Composable
-fun SongList(navController: NavController, artist: String, songDao: SongDao, songScoreDao: SongScoreDao) {
-    val songsFlow = songDao.getSongsByArtist(artist)
+fun SongList(navController: NavController, artistId: Long, songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao) {
+    val songsFlow = songDao.getSongsByArtist(artistId)
     val songs = songsFlow.collectAsState(initial = listOf()).value
     val songDatum = convertToSongDataList(songScoreDao, songs)
 
@@ -65,7 +66,8 @@ fun SongList(navController: NavController, artist: String, songDao: SongDao, son
         )
     )
     Column {
-        Text(text = "${artist}の曲一覧", fontSize = 24.sp)
+        val artistName = artistDao.getNameById(artistId) ?: ""
+        Text(text = "${artistName}の曲一覧", fontSize = 24.sp)
         Divider(color = Color.Gray, thickness = 1.dp)
         SortableTable(items = songDatum, columns = columns) { item ->
             navController.navigate("song_data/${item.id}")

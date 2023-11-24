@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.karaoke_note.data.ArtistDao
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
@@ -33,7 +34,7 @@ import com.example.karaoke_note.data.SongScoreDao
 
 @ExperimentalMaterial3Api
 @Composable
-fun Home(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao) {
+fun Home(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao) {
     Column {
         Box(modifier = Modifier.weight(8f)) {
             LazyColumn(
@@ -43,7 +44,10 @@ fun Home(navController: NavController, songDao: SongDao, songScoreDao: SongScore
                 items(songDataList) { songData ->
                     val song = songDao.getSong(songData.songId)
                     if (song != null) {
-                        LatestCard(song, songData, navController)
+                        val artist = artistDao.getNameById(song.artistId)
+                        if (artist != null) {
+                            LatestCard(song, songData, artist, navController)
+                        }
                     } else {
                         // データベースが壊れている
                     }
@@ -55,7 +59,7 @@ fun Home(navController: NavController, songDao: SongDao, songScoreDao: SongScore
 
 @ExperimentalMaterial3Api
 @Composable
-fun LatestCard(song: Song, songScore: SongScore, navController: NavController) {
+fun LatestCard(song: Song, songScore: SongScore, artist: String, navController: NavController) {
     remember { mutableStateOf(false) }
     var commentforcard = ""
     if (songScore.comment.isNotEmpty()) {
@@ -110,7 +114,7 @@ fun LatestCard(song: Song, songScore: SongScore, navController: NavController) {
                             overflow = TextOverflow.Ellipsis,
                         )
                         Text(
-                            text = song.artist,
+                            text = artist,
                             modifier = Modifier
                                 .padding(start = 20.dp, top = 4.dp, bottom = 4.dp)
                                 .align(Alignment.Start),
