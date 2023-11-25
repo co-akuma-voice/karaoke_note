@@ -50,7 +50,57 @@ fun AppBar(
             val selectedFolderUri = result.data?.data
             // ログに選択されたファイルのパスを表示
             Log.d("FolderPicker", "Selected folder: $selectedFolderUri")
-            export(songDao, songScoreDao, selectedFolderUri, navController.context)
+            //export(songDao, songScoreDao, selectedFolderUri, navController.context)
+            //private fun export(songDao: SongDao, songScoreDao: SongScoreDao, folderUri: Uri?, context: Context) {
+            val folderUri = selectedFolderUri
+            val context = navController.context
+            val songScores = songScoreDao.getAll()
+            val songs = songDao.getAllSongs()
+
+            // LocalDate型のカスタムシリアライザ
+            val localDateSerializer = JsonSerializer<LocalDate> { src, _, _ ->
+                Gson().toJsonTree(src.format(DateTimeFormatter.ISO_LOCAL_DATE))
+            }
+
+            // Gsonインスタンスの作成
+            val gson = GsonBuilder()
+                .registerTypeAdapter(LocalDate::class.java, localDateSerializer)
+                .create()
+
+            // エクスポートするデータ構造
+            val exportData = mapOf(
+                "version" to DATABASE_VERSION,
+                "songScores" to songScores,
+                "songs" to songs
+            )
+            val json = gson.toJson(exportData)
+
+            try {
+                val documentUri = DocumentsContract.buildDocumentUriUsingTree(
+                    folderUri,
+                    DocumentsContract.getTreeDocumentId(folderUri)
+                )
+
+                val jsonFileUri = DocumentsContract.createDocument(
+                    context.contentResolver,
+                    documentUri,
+                    "application/json",
+                    generateFileName()
+                )
+                if (jsonFileUri == null) {
+                    Log.e("FolderPicker", "Error creating JSON file")
+                } else {
+
+                    context.contentResolver.openOutputStream(jsonFileUri).use { outputStream ->
+                        BufferedWriter(OutputStreamWriter(outputStream)).use { writer ->
+                            writer.write(json)
+                        }
+                    }
+                }
+                Log.d("FolderPicker", "JSON file saved successfully")
+            } catch (e: Exception) {
+                Log.e("FolderPicker", "Error saving JSON file", e)
+            }
 
         }
     }
@@ -109,51 +159,5 @@ private fun generateFileName(): String {
 }
 
 private fun export(songDao: SongDao, songScoreDao: SongScoreDao, folderUri: Uri?, context: Context) {
-    val songScores = songScoreDao.getAll()
-    val songs = songDao.getAllSongs()
 
-    // LocalDate型のカスタムシリアライザ
-    val localDateSerializer = JsonSerializer<LocalDate> { src, _, _ ->
-        Gson().toJsonTree(src.format(DateTimeFormatter.ISO_LOCAL_DATE))
-    }
-
-    // Gsonインスタンスの作成
-    val gson = GsonBuilder()
-        .registerTypeAdapter(LocalDate::class.java, localDateSerializer)
-        .create()
-
-    // エクスポートするデータ構造
-    val exportData = mapOf(
-        "version" to DATABASE_VERSION,
-        "songScores" to songScores,
-        "songs" to songs
-    )
-    val json = gson.toJson(exportData)
-
-    try {
-        val documentUri = DocumentsContract.buildDocumentUriUsingTree(
-            folderUri,
-            DocumentsContract.getTreeDocumentId(folderUri)
-        )
-
-        val jsonFileUri = DocumentsContract.createDocument(
-            context.contentResolver,
-            documentUri,
-            "application/json",
-            generateFileName()
-        )
-        if (jsonFileUri == null) {
-            Log.e("FolderPicker", "Error creating JSON file")
-            return
-        }
-
-        context.contentResolver.openOutputStream(jsonFileUri).use { outputStream ->
-            BufferedWriter(OutputStreamWriter(outputStream)).use { writer ->
-                writer.write(json)
-            }
-        }
-        Log.d("FolderPicker", "JSON file saved successfully")
-    } catch (e: Exception) {
-        Log.e("FolderPicker", "Error saving JSON file", e)
-    }
 }
