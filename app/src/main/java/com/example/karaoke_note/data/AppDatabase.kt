@@ -7,7 +7,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.karaoke_note.data.migrations.MIGRATION_1_2
 
-@Database(entities = [Song::class, SongScore::class], version = 2, exportSchema = false)
+const val DATABASE_VERSION = 2
+@Database(entities = [Song::class, SongScore::class], version = DATABASE_VERSION, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun songScoreDao(): SongScoreDao
