@@ -18,14 +18,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.navigation.NavController
+import com.example.karaoke_note.data.DATABASE_VERSION
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScoreDao
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonSerializer
 import java.io.BufferedWriter
 import java.io.OutputStreamWriter
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
@@ -104,12 +108,28 @@ private fun generateFileName(): String {
     return "karaoke_note_backup_$date.json"
 }
 
-data class User(val name: String, val age: Int)
+private fun export(songDao: SongDao, songScoreDao: SongScoreDao, folderUri: Uri?, context: Context) {
+    val songScores = songScoreDao.getAll()
+    val songs = songDao.getAllSongs()
 
-private fun export(songDao: SongDao, songScoreDao: SongScoreDao, folderUri: Uri?, context: Context) {0
-    val user = User("koiking213", 18)
-    val gson = Gson()
-    val json = gson.toJson(user)
+    // LocalDate型のカスタムシリアライザ
+    val localDateSerializer = JsonSerializer<LocalDate> { src, _, _ ->
+        Gson().toJsonTree(src.format(DateTimeFormatter.ISO_LOCAL_DATE))
+    }
+
+    // Gsonインスタンスの作成
+    val gson = GsonBuilder()
+        .registerTypeAdapter(LocalDate::class.java, localDateSerializer)
+        .create()
+
+    // エクスポートするデータ構造
+    val exportData = mapOf(
+        "version" to DATABASE_VERSION,
+        "songScores" to songScores,
+        "songs" to songs
+    )
+    val json = gson.toJson(exportData)
+
     try {
         val documentUri = DocumentsContract.buildDocumentUriUsingTree(
             folderUri,

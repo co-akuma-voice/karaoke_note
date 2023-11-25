@@ -56,4 +56,7 @@ interface SongScoreDao {
 
     @Query("SELECT COUNT(*) FROM SongScore WHERE songId = :songId")
     suspend fun countScoresForSong(songId: Long): Int
+
+    @Query("SELECT * FROM SongScore")
+    fun getAll(): List<SongScore>
 }
