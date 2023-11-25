@@ -11,18 +11,23 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.navigation.NavController
 import com.example.karaoke_note.data.DATABASE_VERSION
+import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
+import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonDeserializer
 import com.google.gson.JsonSerializer
 import java.io.BufferedWriter
 import java.io.OutputStreamWriter
@@ -65,15 +70,9 @@ fun AppBar(
                 expanded = showMenu.value,
                 onDismissRequest = { showMenu.value = false }
             ) {
-                DropdownMenuItem(
-                    text = {
-                        Text("データのインポート")
-                    },
-                    onClick = {
-                        //import()
-                        showMenu.value = false
-                    }
-                )
+                ImportMenu(songDao, songScoreDao, navController.context) {
+                    showMenu.value = false
+                }
                 ExportMenu(songDao, songScoreDao, navController.context) {
                     showMenu.value = false
                 }
@@ -153,6 +152,98 @@ fun ExportMenu(songDao: SongDao, songScoreDao: SongScoreDao, context: Context, o
         onClick = {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
             filePickerLauncher.launch(intent)
+        }
+    )
+}
+
+@Composable
+fun ImportMenu(songDao: SongDao, songScoreDao: SongScoreDao, context: Context, onClick: () -> Unit = {}) {
+    val localDateDeserializer = JsonDeserializer { json, _, _ ->
+        LocalDate.parse(json.asJsonPrimitive.asString, DateTimeFormatter.ISO_LOCAL_DATE)
+    }
+
+    val gson = GsonBuilder()
+        .registerTypeAdapter(LocalDate::class.java, localDateDeserializer)
+        .create()
+
+    var showDialog by remember { mutableStateOf(false) }
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val selectedFileUri = result.data?.data
+            // ログに選択されたファイルのパスを表示
+            Log.d("FilePicker", "Selected file: $selectedFileUri")
+            try {
+                context.contentResolver.openInputStream(selectedFileUri!!).use { inputStream ->
+                    val json = inputStream?.bufferedReader().use { it?.readText() }
+                    Log.d("FilePicker", "JSON file loaded successfully")
+                    Log.d("FilePicker", json!!)
+                    data class JsonVersion(
+                        val version: Int
+                    )
+                    val versionInfo = gson.fromJson(json, JsonVersion::class.java)
+                    when (versionInfo.version) {
+                        2 -> {
+                            data class JsonDataV2(
+                                val version: Int,
+                                val songScores: List<SongScore>,
+                                val songs: List<Song>
+                            )
+                            val jsonDataV2 = gson.fromJson(json, JsonDataV2::class.java)
+
+                            // IDが混在するとおかしくなるのでデータベースをクリア
+                            songDao.clearAllSongs()
+                            songScoreDao.clearAllSongScores()
+
+                            // データベースにインポート
+                            songDao.insertAll(jsonDataV2.songs)
+                            songScoreDao.insertAll(jsonDataV2.songScores)
+                        }
+                        else -> {
+                            throw IllegalArgumentException("Unsupported version: ${versionInfo.version}")
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("FilePicker", "Error loading JSON file", e)
+            }
+        }
+        onClick()
+    }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("確認") },
+            text = { Text("すべてのデータは失われますがよろしいですか？") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDialog = false
+                        // ファイルピッカーを起動
+                        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                            type = "application/json"
+                        }
+                        filePickerLauncher.launch(intent)
+                    }
+                ) {
+                    Text("はい")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("いいえ")
+                }
+            }
+        )
+    }
+    DropdownMenuItem(
+        text = {
+            Text("データのインポート")
+        },
+        onClick = {
+            showDialog = true
         }
     )
 }
