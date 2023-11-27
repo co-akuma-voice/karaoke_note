@@ -2,6 +2,7 @@ package com.example.karaoke_note.data
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
@@ -56,4 +57,13 @@ interface SongScoreDao {
 
     @Query("SELECT COUNT(*) FROM SongScore WHERE songId = :songId")
     suspend fun countScoresForSong(songId: Long): Int
+
+    @Query("SELECT * FROM SongScore")
+    fun getAll(): List<SongScore>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll(songScores: List<SongScore>)
+
+    @Query("DELETE FROM SongScore")
+    fun clearAllSongScores()
 }

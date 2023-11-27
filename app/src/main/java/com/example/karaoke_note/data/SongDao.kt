@@ -2,6 +2,7 @@ package com.example.karaoke_note.data
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
@@ -33,4 +34,10 @@ interface SongDao {
 
     @Insert
     fun insertUniqueSong(song: Song): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll(songs: List<Song>)
+
+    @Query("DELETE FROM Song")
+    fun clearAllSongs()
 }
