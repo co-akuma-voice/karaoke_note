@@ -370,10 +370,11 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
         newTitle = defaultTitle
     }
 
-    val gamesList = arrayOf("(JOY) 全国採点GP", "(JOY) 分析採点AI+", "(JOY) 分析採点AI",
-        "(JOY) 分析採点マスター", "(DAM) ランキングバトル ONLINE", "(DAM) 精密採点Ai",
-        "(DAM) 精密採点DXミリオン", "(DAM) 精密採点DX-G", "(DAM) 精密採点DXデュエット",
-        "(DAM) 精密採点DX")
+    // 順序をどうするか。追加したときに番号が変わると DB で不都合が出そう。
+    val gamesList = arrayOf("[JOY] 全国採点GP", "[JOY] 分析採点AI+", "[JOY] 分析採点AI",
+        "[JOY] 分析採点マスター", "[DAM] ランキングバトルONLINE", "[DAM] 精密採点Ai",
+        "[DAM] 精密採点DXミリオン", "[DAM] 精密採点DX-G", "[DAM] 精密採点DXデュエット",
+        "[DAM] 精密採点DX")
     var expanded by remember { mutableStateOf(false) }
     val gameListFontSize = 10
 
@@ -392,8 +393,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
 
     FloatingActionButton(
         onClick = { screenOpened = true },
-        modifier = Modifier
-            .padding(16.dp),
+        modifier = Modifier.padding(16.dp),
         shape = RoundedCornerShape(16.dp),
         containerColor = MaterialTheme.colorScheme.primaryContainer,
     ) {
@@ -547,7 +547,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                             end = 0.dp,
                                             bottom = 0.dp
                                         )
-                                        .weight(3f)
+                                        .weight(5f)
                                 ) {
                                     ExposedDropdownMenuBox(
                                         expanded = expanded,
@@ -556,14 +556,17 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         TextField(
                                             value = newGame,
                                             onValueChange = {},
+                                            enabled = false,
                                             readOnly = true,
                                             textStyle = TextStyle(fontSize = gameListFontSize.sp),
                                             trailingIcon = {
                                                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                                             },
-                                            colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                                            modifier = Modifier
-                                                .menuAnchor()
+                                            colors = ExposedDropdownMenuDefaults.textFieldColors(
+                                                disabledTrailingIconColor = Color.Black,
+                                                disabledTextColor = Color.Black
+                                            ),
+                                            modifier = Modifier.menuAnchor()
                                         )
                                         ExposedDropdownMenu(
                                             expanded = expanded,
@@ -582,7 +585,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         }
                                     }
                                 }
-                                Box(modifier = Modifier.weight(2f)) {
+                                Box(modifier = Modifier.weight(4f)) {
                                     CommonTextField(
                                         value = newScore,
                                         label = "Score",
