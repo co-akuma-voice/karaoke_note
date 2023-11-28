@@ -371,8 +371,9 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     }
 
     val gamesList = arrayOf("(JOY) 全国採点GP", "(JOY) 分析採点AI+", "(JOY) 分析採点AI",
-        "(JOY) 分析採点マスター", "(DAM) 精密採点Ai", "(DAM) 精密採点DXミリオン",
-        "(DAM) 精密採点DX-G", "(DAM) 精密採点DXデュエット", "(DAM) 精密採点DX")
+        "(JOY) 分析採点マスター", "(DAM) ランキングバトル ONLINE", "(DAM) 精密採点Ai",
+        "(DAM) 精密採点DXミリオン", "(DAM) 精密採点DX-G", "(DAM) 精密採点DXデュエット",
+        "(DAM) 精密採点DX")
     var expanded by remember { mutableStateOf(false) }
     val gameListFontSize = 10
 
@@ -540,7 +541,12 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp + 4.dp)
+                                        .padding(
+                                            start = horizontalPaddingValue.dp,
+                                            top = verticalPaddingValue.dp + 4.dp,
+                                            end = 0.dp,
+                                            bottom = 0.dp
+                                        )
                                         .weight(3f)
                                 ) {
                                     ExposedDropdownMenuBox(
@@ -551,7 +557,6 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                             value = newGame,
                                             onValueChange = {},
                                             readOnly = true,
-                                            singleLine = true,
                                             textStyle = TextStyle(fontSize = gameListFontSize.sp),
                                             trailingIcon = {
                                                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
@@ -581,7 +586,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                     CommonTextField(
                                         value = newScore,
                                         label = "Score",
-                                        horizontalPaddingValue = 0,
+                                        horizontalPaddingValue = horizontalPaddingValue,
                                         verticalPaddingValue = 0,
                                         invalidValueEnabled = true,
                                         singleLine = true,
