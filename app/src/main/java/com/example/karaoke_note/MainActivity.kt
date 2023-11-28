@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     Scaffold(
                         topBar = {
-                            AppBar(navController, songDao, songScoreDao)
+                            AppBar(navController, songDao, songScoreDao, artistDao)
                         },
                         bottomBar = {
                             BottomNavigationBar(navController)

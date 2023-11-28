@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.navigation.NavController
+import com.example.karaoke_note.data.ArtistDao
 import com.example.karaoke_note.data.DATABASE_VERSION
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
@@ -43,6 +44,7 @@ fun AppBar(
     navController: NavController,
     songDao: SongDao,
     songScoreDao: SongScoreDao,
+    artistDao: ArtistDao,
 ) {
     val canPop = remember { mutableStateOf(false) }
     val showMenu = remember { mutableStateOf(false) }
@@ -73,7 +75,7 @@ fun AppBar(
                 ImportMenu(songDao, songScoreDao, navController.context) {
                     showMenu.value = false
                 }
-                ExportMenu(songDao, songScoreDao, navController.context) {
+                ExportMenu(songDao, songScoreDao, artistDao, navController.context) {
                     showMenu.value = false
                 }
            }
@@ -88,7 +90,7 @@ private fun generateFileName(): String {
 }
 
 @Composable
-fun ExportMenu(songDao: SongDao, songScoreDao: SongScoreDao, context: Context, onClick: () -> Unit = {}) {
+fun ExportMenu(songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao, context: Context, onClick: () -> Unit = {}) {
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -98,6 +100,7 @@ fun ExportMenu(songDao: SongDao, songScoreDao: SongScoreDao, context: Context, o
             Log.d("FolderPicker", "Selected folder: $selectedFolderUri")
             val songScores = songScoreDao.getAll()
             val songs = songDao.getAllSongs()
+            val artists = artistDao.getAllArtists()
 
             // LocalDate型のカスタムシリアライザ
             val localDateSerializer = JsonSerializer<LocalDate> { src, _, _ ->
@@ -113,7 +116,8 @@ fun ExportMenu(songDao: SongDao, songScoreDao: SongScoreDao, context: Context, o
             val exportData = mapOf(
                 "version" to DATABASE_VERSION,
                 "songScores" to songScores,
-                "songs" to songs
+                "songs" to songs,
+                "artists" to artists
             )
             val json = gson.toJson(exportData)
 
