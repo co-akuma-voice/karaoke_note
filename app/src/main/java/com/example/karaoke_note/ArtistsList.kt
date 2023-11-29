@@ -27,33 +27,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.karaoke_note.data.Song
-import com.example.karaoke_note.data.SongDao
-
-data class ArtistData(val name: String, val color: Color = Color.White)
-
-fun getUniqueArtistData(songs: List<Song>): List<ArtistData> {
-    val artistDataSet = mutableSetOf<ArtistData>()
-    for (song in songs) {
-        val color = Color(song.iconColor)
-        val artistData = ArtistData(song.artist, color)
-        artistDataSet.add(artistData)
-    }
-    return artistDataSet.toList()
-}
+import com.example.karaoke_note.data.Artist
+import com.example.karaoke_note.data.ArtistDao
 
 @ExperimentalMaterial3Api
 @Composable
-fun ArtistsPage(navController: NavController, songDao: SongDao) {
+fun ArtistsPage(navController: NavController, artistDao: ArtistDao) {
     Column {
-        // 実際にはデータベースから、artistをもとにデータを探す
-
         Box(modifier = Modifier.weight(0.5f)) {
             Spacer(modifier = Modifier)
         }
         Box(modifier = Modifier.weight(9f)) {
-            val songs = songDao.getAllSongs()
-            val artists = getUniqueArtistData(songs)
+            val artists = artistDao.getAllArtists()
             SortArtists(navController, artists)
         }
     }
@@ -61,7 +46,7 @@ fun ArtistsPage(navController: NavController, songDao: SongDao) {
 
 @ExperimentalMaterial3Api
 @Composable
-fun SortArtists(navController: NavController, artists: List<ArtistData>) {
+fun SortArtists(navController: NavController, artists: List<Artist>) {
     var sortedArtists by remember { mutableStateOf(artists) }
     var sortDirection by remember { mutableStateOf(SortDirection.Asc) }
 
@@ -70,8 +55,8 @@ fun SortArtists(navController: NavController, artists: List<ArtistData>) {
             sortDirection = newSortDirection
             sortedArtists = when (sortDirection) {
                 SortDirection.None -> artists
-                SortDirection.Asc -> artists.sortedBy(ArtistData::name)
-                SortDirection.Desc -> artists.sortedByDescending(ArtistData::name)
+                SortDirection.Asc -> artists.sortedBy(Artist::name)
+                SortDirection.Desc -> artists.sortedByDescending(Artist::name)
             }
         }
         Box(
@@ -116,10 +101,10 @@ fun ArtistsListHeader(sortDirection: SortDirection, onSortChanged: (SortDirectio
 
 @ExperimentalMaterial3Api
 @Composable
-fun ArtistsListDrawing(navController: NavController, artist: ArtistData) {
+fun ArtistsListDrawing(navController: NavController, artist: Artist) {
     Column (
         modifier = Modifier.clickable {
-            navController.navigate("song_list/${artist.name}")
+            navController.navigate("song_list/${artist.id}")
         }
     ){
         ListItem(
@@ -132,7 +117,7 @@ fun ArtistsListDrawing(navController: NavController, artist: ArtistData) {
             leadingContent = {
                 Icon(
                     imageVector = Icons.Filled.Person,
-                    tint = artist.color,
+                    tint = Color(artist.iconColor),
                     contentDescription = null
                 )
             }

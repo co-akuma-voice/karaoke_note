@@ -65,6 +65,8 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.karaoke_note.data.Artist
+import com.example.karaoke_note.data.ArtistDao
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
@@ -337,32 +339,36 @@ fun getLocalizedDate(defaultDate: LocalDate): LocalDate {
 private fun getDefaultValuesBasedOnRoute(
     backStackEntry: NavBackStackEntry?,
     songDao: SongDao
-):Pair<String, String> {
+):Pair<Long, String> {
     val currentRoute = backStackEntry?.destination?.route
 
     return when {
         currentRoute?.startsWith("song_data/") == true -> {
             val songId = backStackEntry.arguments?.getString("songId")?.toLongOrNull()
             val song = if (songId != null) songDao.getSong(songId) else null
-            Pair(song?.artist ?: "", song?.title ?: "")
+            Pair(song?.artistId ?: -1, song?.title ?: "")
         }
         currentRoute?.startsWith("song_list/") == true -> {
-            val artist = backStackEntry.arguments?.getString("artist").orEmpty()
-            Pair(artist, "")
+            val artistId = backStackEntry.arguments?.getString("artistId")?.toLongOrNull()
+            if (artistId == null) {
+                Pair(-1, "")
+            } else {
+                Pair(artistId, "")
+            }
         }
-        else -> Pair("", "")
+        else -> Pair(-1, "")
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3Api
 @Composable
-fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao, scope: CoroutineScope, screenOpened: MutableState<Boolean>, editingSongScoreState: MutableState<SongScore?>) {
+fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao, scope: CoroutineScope, screenOpened: MutableState<Boolean>, editingSongScoreState: MutableState<SongScore?>) {
     val editingSongScore = editingSongScoreState.value
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     var errorDialogOpened by remember { mutableStateOf(false) }
 
-    val (defaultArtist, defaultTitle) = getDefaultValuesBasedOnRoute(currentBackStackEntry, songDao)
+    val (defaultArtistId, defaultTitle) = getDefaultValuesBasedOnRoute(currentBackStackEntry, songDao)
     val defaultScore = editingSongScore?.score?.let { String.format("%.3f", it) } ?: ""
     val defaultKey = editingSongScore?.key?.toFloat() ?: 0f
     val defaultDate = editingSongScore?.date ?: LocalDate.now()
@@ -375,8 +381,8 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     var newDate by remember { mutableStateOf(LocalDate.now()) }
     var newComment by remember { mutableStateOf("") }
 
-    LaunchedEffect(key1 = defaultArtist, key2 = defaultTitle, key3 = editingSongScore) {
-        newArtist = defaultArtist
+    LaunchedEffect(key1 = defaultArtistId, key2 = defaultTitle, key3 = editingSongScore) {
+        newArtist = artistDao.getNameById(defaultArtistId) ?: ""
         newTitle = defaultTitle
         newScore = defaultScore
         newKey = defaultKey
@@ -475,11 +481,16 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         deleteSongScore(it.songId, it.id, scope, songDao, songScoreDao)
                                     }
                                     // データを登録
+                                    val newArtistId = artistDao.insert(
+                                        Artist(
+                                            name = newArtist,
+                                            iconColor = Color.Black.toArgb()
+                                        )
+                                    )
                                     val newSongId = songDao.insertSong(
                                         Song(
                                             title = newTitle,
-                                            artist = newArtist,
-                                            iconColor = Color.Black.toArgb()
+                                            artistId = newArtistId,
                                         )
                                     )
                                     songScoreDao.insertSongScore(

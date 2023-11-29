@@ -20,6 +20,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.navigation.NavController
+import com.example.karaoke_note.data.Artist
+import com.example.karaoke_note.data.ArtistDao
 import com.example.karaoke_note.data.DATABASE_VERSION
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
@@ -43,6 +45,7 @@ fun AppBar(
     navController: NavController,
     songDao: SongDao,
     songScoreDao: SongScoreDao,
+    artistDao: ArtistDao,
 ) {
     val canPop = remember { mutableStateOf(false) }
     val showMenu = remember { mutableStateOf(false) }
@@ -70,10 +73,10 @@ fun AppBar(
                 expanded = showMenu.value,
                 onDismissRequest = { showMenu.value = false }
             ) {
-                ImportMenu(songDao, songScoreDao, navController.context) {
+                ImportMenu(songDao, songScoreDao, artistDao, navController.context) {
                     showMenu.value = false
                 }
-                ExportMenu(songDao, songScoreDao, navController.context) {
+                ExportMenu(songDao, songScoreDao, artistDao, navController.context) {
                     showMenu.value = false
                 }
            }
@@ -88,7 +91,7 @@ private fun generateFileName(): String {
 }
 
 @Composable
-fun ExportMenu(songDao: SongDao, songScoreDao: SongScoreDao, context: Context, onClick: () -> Unit = {}) {
+fun ExportMenu(songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao, context: Context, onClick: () -> Unit = {}) {
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -98,6 +101,7 @@ fun ExportMenu(songDao: SongDao, songScoreDao: SongScoreDao, context: Context, o
             Log.d("FolderPicker", "Selected folder: $selectedFolderUri")
             val songScores = songScoreDao.getAll()
             val songs = songDao.getAllSongs()
+            val artists = artistDao.getAllArtists()
 
             // LocalDate型のカスタムシリアライザ
             val localDateSerializer = JsonSerializer<LocalDate> { src, _, _ ->
@@ -113,7 +117,8 @@ fun ExportMenu(songDao: SongDao, songScoreDao: SongScoreDao, context: Context, o
             val exportData = mapOf(
                 "version" to DATABASE_VERSION,
                 "songScores" to songScores,
-                "songs" to songs
+                "songs" to songs,
+                "artists" to artists
             )
             val json = gson.toJson(exportData)
 
@@ -157,7 +162,7 @@ fun ExportMenu(songDao: SongDao, songScoreDao: SongScoreDao, context: Context, o
 }
 
 @Composable
-fun ImportMenu(songDao: SongDao, songScoreDao: SongScoreDao, context: Context, onClick: () -> Unit = {}) {
+fun ImportMenu(songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao, context: Context, onClick: () -> Unit = {}) {
     val localDateDeserializer = JsonDeserializer { json, _, _ ->
         LocalDate.parse(json.asJsonPrimitive.asString, DateTimeFormatter.ISO_LOCAL_DATE)
     }
@@ -185,20 +190,27 @@ fun ImportMenu(songDao: SongDao, songScoreDao: SongScoreDao, context: Context, o
                     val versionInfo = gson.fromJson(json, JsonVersion::class.java)
                     when (versionInfo.version) {
                         2 -> {
-                            data class JsonDataV2(
+                            // TODO: V2からV3へのマイグレーション
+                            throw IllegalArgumentException("not implemented yet: migration from ${versionInfo.version} to V3")
+                        }
+                        3 -> {
+                            data class JsonDataV3(
                                 val version: Int,
                                 val songScores: List<SongScore>,
-                                val songs: List<Song>
+                                val songs: List<Song>,
+                                val artists: List<Artist>
                             )
-                            val jsonDataV2 = gson.fromJson(json, JsonDataV2::class.java)
+                            val jsonDataV3 = gson.fromJson(json, JsonDataV3::class.java)
 
                             // IDが混在するとおかしくなるのでデータベースをクリア
                             songDao.clearAllSongs()
                             songScoreDao.clearAllSongScores()
+                            artistDao.clearAllArtists()
 
                             // データベースにインポート
-                            songDao.insertAll(jsonDataV2.songs)
-                            songScoreDao.insertAll(jsonDataV2.songScores)
+                            songDao.insertAll(jsonDataV3.songs)
+                            songScoreDao.insertAll(jsonDataV3.songScores)
+                            artistDao.insertAll(jsonDataV3.artists)
                         }
                         else -> {
                             throw IllegalArgumentException("Unsupported version: ${versionInfo.version}")
