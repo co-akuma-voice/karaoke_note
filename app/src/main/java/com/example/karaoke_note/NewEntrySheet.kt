@@ -72,6 +72,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.karaoke_note.data.Artist
 import com.example.karaoke_note.data.ArtistDao
+import com.example.karaoke_note.data.GameKind
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
@@ -381,11 +382,9 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     val defaultKey = editingSongScore?.key?.toFloat() ?: 0f
     val defaultDate = editingSongScore?.date ?: LocalDate.now()
     val defaultComment = editingSongScore?.comment ?: ""
+    val defaultGameKind = editingSongScore?.gameKind ?: GameKind.JOY_NATIONAL_SCORING_GP
 
-    val gamesList = arrayOf("[JOY] 全国採点GP", "[JOY] 分析採点AI+", "[JOY] 分析採点AI",
-        "[JOY] 分析採点マスター", "[DAM] ランキングバトルONLINE", "[DAM] 精密採点Ai",
-        "[DAM] 精密採点DXミリオン", "[DAM] 精密採点DX-G", "[DAM] 精密採点DXデュエット",
-        "[DAM] 精密採点DX")
+    val gamesList = enumValues<GameKind>()
     var expanded by remember { mutableStateOf(false) }
     val gameListFontSize = 10
 
@@ -403,6 +402,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
         newKey = defaultKey
         newDate = defaultDate
         newComment = defaultComment
+        newGame = defaultGameKind
     }
 
     val focusRequester = remember { FocusRequester() }
@@ -515,7 +515,8 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                             date = newDate,
                                             score = newScore.toFloat(),
                                             key = newKey.roundToInt(),
-                                            comment = newComment
+                                            comment = newComment,
+                                            gameKind = newGame
                                         )
                                     )
                                     editingSongScoreState.value = null
@@ -587,7 +588,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         onExpandedChange = { expanded = !expanded },
                                     ) {
                                         TextField(
-                                            value = newGame,
+                                            value = newGame.displayName,
                                             onValueChange = {},
                                             enabled = false,
                                             readOnly = true,
@@ -612,7 +613,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                                         expanded = false
                                                     }
                                                 ) {
-                                                    Text(it, fontSize = gameListFontSize.sp)
+                                                    Text(it.displayName, fontSize = gameListFontSize.sp)
                                                 }
                                             }
                                         }

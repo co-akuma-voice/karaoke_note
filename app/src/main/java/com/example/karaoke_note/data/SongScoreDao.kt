@@ -16,8 +16,8 @@ interface SongScoreDao {
     @Query("SELECT * FROM SongScore ORDER BY date DESC LIMIT :limit")
     fun getLatestScores(limit: Int): List<SongScore>
 
-    @Query("SELECT * FROM SongScore WHERE songId = :songId AND date = :date AND score = :score AND \"key\" = :key AND comment = :comment")
-    fun findSongScore(songId: Long, date: LocalDate, score: Float, key: Int, comment: String): SongScore?
+    @Query("SELECT * FROM SongScore WHERE songId = :songId AND date = :date AND score = :score AND \"key\" = :key AND comment = :comment AND gameKind = :gameKind")
+    fun findSongScore(songId: Long, date: LocalDate, score: Float, key: Int, comment: String, gameKind: GameKind): SongScore?
 
     @Query("""
         SELECT * FROM SongScore 
@@ -42,7 +42,8 @@ interface SongScoreDao {
             score.date,
             score.score,
             score.key,
-            score.comment
+            score.comment,
+            score.gameKind
         )
         if (existingEntry == null) {
             insertUniqueSongScore(score)

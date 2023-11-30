@@ -189,11 +189,7 @@ fun ImportMenu(songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDa
                     )
                     val versionInfo = gson.fromJson(json, JsonVersion::class.java)
                     when (versionInfo.version) {
-                        2 -> {
-                            // TODO: V2からV3へのマイグレーション
-                            throw IllegalArgumentException("not implemented yet: migration from ${versionInfo.version} to V3")
-                        }
-                        3 -> {
+                        4 -> {
                             data class JsonDataV3(
                                 val version: Int,
                                 val songScores: List<SongScore>,

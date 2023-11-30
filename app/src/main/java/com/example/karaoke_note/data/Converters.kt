@@ -13,4 +13,10 @@ class Converters {
     fun toLocalDate(dateString: String?): LocalDate? {
         return dateString?.let { LocalDate.parse(it) }
     }
+
+    @TypeConverter
+    fun toGameKind(value: Int) = enumValues<GameKind>()[value]
+
+    @TypeConverter
+    fun fromGameKind(value: GameKind) = value.ordinal
 }

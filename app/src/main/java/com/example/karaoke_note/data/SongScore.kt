@@ -23,5 +23,6 @@ data class SongScore(
     @ColumnInfo(name = "date") val date: LocalDate,
     @ColumnInfo(name = "score") val score: Float,
     @ColumnInfo(name = "key") val key: Int,
-    @ColumnInfo(name = "comment") val comment: String
+    @ColumnInfo(name = "comment") val comment: String,
+    @ColumnInfo(name = "gameKind") val gameKind: GameKind,
 )

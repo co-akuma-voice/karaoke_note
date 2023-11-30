@@ -7,8 +7,9 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.karaoke_note.data.migrations.MIGRATION_1_2
 import com.example.karaoke_note.data.migrations.MIGRATION_2_3
+import com.example.karaoke_note.data.migrations.MIGRATION_3_4
 
-const val DATABASE_VERSION = 3
+const val DATABASE_VERSION = 4
 @Database(entities = [Song::class, SongScore::class, Artist::class], version = DATABASE_VERSION, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -26,6 +27,7 @@ abstract class AppDatabase : RoomDatabase() {
                         .allowMainThreadQueries()
                         .addMigrations(MIGRATION_1_2)
                         .addMigrations(MIGRATION_2_3)
+                        .addMigrations(MIGRATION_3_4)
                         .build()
                 }
         }
