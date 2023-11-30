@@ -58,8 +58,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -382,10 +382,6 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     val defaultDate = editingSongScore?.date ?: LocalDate.now()
     val defaultComment = editingSongScore?.comment ?: ""
 
-    var newArtist by remember { mutableStateOf("") }
-    var newTitle by remember { mutableStateOf("") }
-
-    // 順序をどうするか。追加したときに番号が変わると DB で不都合が出そう。
     val gamesList = arrayOf("[JOY] 全国採点GP", "[JOY] 分析採点AI+", "[JOY] 分析採点AI",
         "[JOY] 分析採点マスター", "[DAM] ランキングバトルONLINE", "[DAM] 精密採点Ai",
         "[DAM] 精密採点DXミリオン", "[DAM] 精密採点DX-G", "[DAM] 精密採点DXデュエット",
@@ -393,12 +389,13 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     var expanded by remember { mutableStateOf(false) }
     val gameListFontSize = 10
 
+    var newArtist by remember { mutableStateOf("") }
+    var newTitle by remember { mutableStateOf("") }
     var newGame by remember { mutableStateOf(gamesList[0]) }
     var newScore by remember { mutableStateOf("") }
     var newKey by remember { mutableFloatStateOf(0f) }
     var newDate by remember { mutableStateOf(LocalDate.now()) }
     var newComment by remember { mutableStateOf("") }
-
     LaunchedEffect(key1 = defaultArtistId, key2 = defaultTitle, key3 = editingSongScore) {
         newArtist = artistDao.getNameById(defaultArtistId) ?: ""
         newTitle = defaultTitle
@@ -412,7 +409,6 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
 
     val verticalPaddingValue = 4
     val horizontalPaddingValue = 10
-
     val fontSize = 16
 
     FloatingActionButton(
