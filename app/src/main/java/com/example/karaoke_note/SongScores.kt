@@ -9,13 +9,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.Icon
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Divider
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
@@ -28,20 +33,20 @@ import com.example.karaoke_note.data.SongScoreDao
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 
-
-
-@Composable
-fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: CoroutineScope) {
-    val scoresFlow = songScoreDao.getScoresForSong(song.id)
-    val scores by scoresFlow.collectAsState(initial = emptyList())
-    fun deleteSongScore(scoreId: Long) {
-        scope.launch {
-            songScoreDao.deleteSongScore(scoreId)
-            if (songScoreDao.countScoresForSong(song.id) == 0) {
-                songDao.delete(song.id)
-            }
+fun deleteSongScore(songId: Long, scoreId: Long, scope: CoroutineScope, songDao: SongDao, songScoreDao: SongScoreDao) {
+    scope.launch {
+        songScoreDao.deleteSongScore(scoreId)
+        if (songScoreDao.countScoresForSong(songId) == 0) {
+            songDao.delete(songId)
         }
     }
+}
+
+@Composable
+fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: CoroutineScope, showEntrySheetDialog: MutableState<Boolean>, editingSongScore: MutableState<SongScore?>) {
+    val scoresFlow = songScoreDao.getScoresForSong(song.id)
+    val scores by scoresFlow.collectAsState(initial = emptyList())
+    val selectedScoreId = remember { mutableStateOf<Long?>(null) }
 
     val columns = listOf(
         TableColumn<SongScore>("日付",
@@ -67,10 +72,32 @@ fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: 
             compareBy{ it.comment.length },
             3f
         ),
-        TableColumn("削除",
-            {
-                IconButton(onClick = {deleteSongScore(it.id)}, modifier = Modifier.size(22.dp) ) {
-                    Icon(Icons.Filled.Delete, "delete", Modifier.size(22.dp))
+        TableColumn("",
+            { songScore ->
+                val expanded = remember { mutableStateOf(false) }
+                IconButton(onClick = {
+                    expanded.value = true
+                    selectedScoreId.value = songScore.id
+                }, modifier = Modifier.size(22.dp)) {
+                    Icon(Icons.Filled.MoreVert, "menu", Modifier.size(22.dp))
+                }
+                DropdownMenu(
+                    expanded = expanded.value,
+                    onDismissRequest = { expanded.value = false }
+                ) {
+                    DropdownMenuItem(onClick = {
+                        expanded.value = false
+                        showEntrySheetDialog.value = true
+                        editingSongScore.value = songScore
+                    }) {
+                        Text("編集")
+                    }
+                    DropdownMenuItem(onClick = {
+                        selectedScoreId.value?.let { deleteSongScore(song.id, it, scope, songDao, songScoreDao) }
+                        expanded.value = false
+                    }) {
+                        Text("削除")
+                    }
                 }
             },
             null,

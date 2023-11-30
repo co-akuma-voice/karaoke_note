@@ -43,6 +43,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -58,6 +59,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -68,10 +70,13 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.karaoke_note.data.Artist
+import com.example.karaoke_note.data.ArtistDao
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
+import kotlinx.coroutines.CoroutineScope
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -98,6 +103,11 @@ fun CommonTextField(
     }
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val invalidValue by remember { derivedStateOf { textFieldValue.text.isEmpty() } }
+
+    LaunchedEffect(value) {
+        textFieldValue = TextFieldValue(text = value, selection = TextRange(value.length))
+    }
+
 
     OutlinedTextField(
         value = textFieldValue,
@@ -249,13 +259,13 @@ fun rememberCustomDatePickerState(
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3Api
 @Composable
-fun getLocalizedDate(): LocalDate {
+fun getLocalizedDate(defaultDate: LocalDate): LocalDate {
     var showPicker by remember { mutableStateOf(false) }
     val (datePickerState, pendingDatePickerState) = rememberCustomDatePickerState(
-        initialSelectedDateMillis = Instant.now().toEpochMilli()
+        initialSelectedDateMillis = defaultDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
     )
     var localizedNullableSelectedDate: LocalDate?
-    var localizedSelectedDate: LocalDate = LocalDate.now()
+    var localizedSelectedDate: LocalDate = defaultDate
 
     Box(
         modifier = Modifier
@@ -270,7 +280,7 @@ fun getLocalizedDate(): LocalDate {
             localizedNullableSelectedDate = datePickerState.selectedDateMillis?.let {
                 Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
             }
-            localizedSelectedDate = localizedNullableSelectedDate ?: LocalDate.now()
+            localizedSelectedDate = localizedNullableSelectedDate ?: defaultDate
 
             Text(
                 text = localizedSelectedDate.toString(),
@@ -337,38 +347,43 @@ fun getLocalizedDate(): LocalDate {
 private fun getDefaultValuesBasedOnRoute(
     backStackEntry: NavBackStackEntry?,
     songDao: SongDao
-): Pair<String, String> {
+):Pair<Long, String> {
     val currentRoute = backStackEntry?.destination?.route
 
     return when {
         currentRoute?.startsWith("song_data/") == true -> {
             val songId = backStackEntry.arguments?.getString("songId")?.toLongOrNull()
             val song = if (songId != null) songDao.getSong(songId) else null
-            Pair(song?.artist ?: "", song?.title ?: "")
+            Pair(song?.artistId ?: -1, song?.title ?: "")
         }
         currentRoute?.startsWith("song_list/") == true -> {
-            val artist = backStackEntry.arguments?.getString("artist").orEmpty()
-            Pair(artist, "")
+            val artistId = backStackEntry.arguments?.getString("artistId")?.toLongOrNull()
+            if (artistId == null) {
+                Pair(-1, "")
+            } else {
+                Pair(artistId, "")
+            }
         }
-        else -> Pair("", "")
+        else -> Pair(-1, "")
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3Api
 @Composable
-fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao) {
-    var screenOpened by remember { mutableStateOf(false) }
+fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao, scope: CoroutineScope, screenOpened: MutableState<Boolean>, editingSongScoreState: MutableState<SongScore?>) {
+    val editingSongScore = editingSongScoreState.value
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     var errorDialogOpened by remember { mutableStateOf(false) }
 
-    val (defaultArtist, defaultTitle) = getDefaultValuesBasedOnRoute(currentBackStackEntry, songDao)
+    val (defaultArtistId, defaultTitle) = getDefaultValuesBasedOnRoute(currentBackStackEntry, songDao)
+    val defaultScore = editingSongScore?.score?.let { String.format("%.3f", it) } ?: ""
+    val defaultKey = editingSongScore?.key?.toFloat() ?: 0f
+    val defaultDate = editingSongScore?.date ?: LocalDate.now()
+    val defaultComment = editingSongScore?.comment ?: ""
+
     var newArtist by remember { mutableStateOf("") }
     var newTitle by remember { mutableStateOf("") }
-    LaunchedEffect(key1 = defaultArtist, key2 = defaultTitle) {
-        newArtist = defaultArtist
-        newTitle = defaultTitle
-    }
 
     // 順序をどうするか。追加したときに番号が変わると DB で不都合が出そう。
     val gamesList = arrayOf("[JOY] 全国採点GP", "[JOY] 分析採点AI+", "[JOY] 分析採点AI",
@@ -384,6 +399,15 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     var newDate by remember { mutableStateOf(LocalDate.now()) }
     var newComment by remember { mutableStateOf("") }
 
+    LaunchedEffect(key1 = defaultArtistId, key2 = defaultTitle, key3 = editingSongScore) {
+        newArtist = artistDao.getNameById(defaultArtistId) ?: ""
+        newTitle = defaultTitle
+        newScore = defaultScore
+        newKey = defaultKey
+        newDate = defaultDate
+        newComment = defaultComment
+    }
+
     val focusRequester = remember { FocusRequester() }
 
     val verticalPaddingValue = 4
@@ -392,8 +416,9 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     val fontSize = 16
 
     FloatingActionButton(
-        onClick = { screenOpened = true },
-        modifier = Modifier.padding(16.dp),
+        onClick = { screenOpened.value = true },
+        modifier = Modifier
+            .padding(16.dp),
         shape = RoundedCornerShape(16.dp),
         containerColor = MaterialTheme.colorScheme.primaryContainer,
     ) {
@@ -424,9 +449,9 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
         )
     }
 
-    if (screenOpened) {
+    if (screenOpened.value) {
         Dialog(
-            onDismissRequest = { screenOpened = false },
+            onDismissRequest = { screenOpened.value = false },
             properties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
             Surface(
@@ -442,11 +467,12 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                         // キャンセル (×) ボタン
                         IconButton(
                             onClick = {
+                                editingSongScoreState.value = null
                                 newScore = ""
                                 newKey = 0f
                                 newDate = LocalDate.now()
                                 newComment = ""
-                                screenOpened = false
+                                screenOpened.value = false
                             },
                             modifier = Modifier.align(Alignment.CenterStart),
                         ) {
@@ -470,11 +496,21 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                     errorDialogOpened = true
                                 }
                                 else {
+                                    // editから来た場合、古いデータを削除
+                                    editingSongScore?.let {
+                                        deleteSongScore(it.songId, it.id, scope, songDao, songScoreDao)
+                                    }
+                                    // データを登録
+                                    val newArtistId = artistDao.insert(
+                                        Artist(
+                                            name = newArtist,
+                                            iconColor = Color.Black.toArgb()
+                                        )
+                                    )
                                     val newSongId = songDao.insertSong(
                                         Song(
                                             title = newTitle,
-                                            artist = newArtist,
-                                            iconColor = Color.Black.toArgb()
+                                            artistId = newArtistId,
                                         )
                                     )
                                     songScoreDao.insertSongScore(
@@ -486,12 +522,13 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                             comment = newComment
                                         )
                                     )
+                                    editingSongScoreState.value = null
                                     newScore = ""
                                     newKey = 0f
                                     newDate = LocalDate.now()
                                     newComment = ""
 
-                                    screenOpened = false
+                                    screenOpened.value = false
                                 }
                             },
                         ) {
@@ -657,7 +694,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                     )
                             ) {
                                 Text(text = "Date")
-                                newDate = getLocalizedDate()
+                                newDate = getLocalizedDate(defaultDate)
                             }
                         }
 
