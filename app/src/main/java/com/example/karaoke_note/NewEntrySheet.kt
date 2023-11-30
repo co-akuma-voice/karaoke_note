@@ -517,7 +517,8 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                             date = newDate,
                                             score = newScore.toFloat(),
                                             key = newKey.roundToInt(),
-                                            comment = newComment
+                                            comment = newComment,
+                                            gameKind = newGame
                                         )
                                     )
                                     editingSongScoreState.value = null
