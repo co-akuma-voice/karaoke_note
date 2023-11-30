@@ -17,6 +17,7 @@ import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.TextButton
@@ -31,12 +32,15 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -54,6 +58,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -87,6 +92,7 @@ fun CommonTextField(
     verticalPaddingValue: Int,
     invalidValueEnabled: Boolean,
     singleLine: Boolean,
+    fontSize: Int,
     keyboardType: KeyboardType,
     imeAction: ImeAction,
     focusRequester: FocusRequester,
@@ -105,9 +111,10 @@ fun CommonTextField(
 
     OutlinedTextField(
         value = textFieldValue,
-        onValueChange = { changed -> textFieldValue = changed
+        onValueChange = { changed ->
+            textFieldValue = changed
             onChange(changed.text)
-                        },
+        },
         modifier = Modifier
             .bringIntoViewRequester(bringIntoViewRequester)
             .focusRequester(focusRequester)
@@ -125,6 +132,7 @@ fun CommonTextField(
                 )
             }
         },
+        textStyle = TextStyle(fontSize = fontSize.sp),
         singleLine = singleLine,
         keyboardOptions = KeyboardOptions(
             keyboardType = keyboardType,
@@ -376,6 +384,16 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
 
     var newArtist by remember { mutableStateOf("") }
     var newTitle by remember { mutableStateOf("") }
+
+    // 順序をどうするか。追加したときに番号が変わると DB で不都合が出そう。
+    val gamesList = arrayOf("[JOY] 全国採点GP", "[JOY] 分析採点AI+", "[JOY] 分析採点AI",
+        "[JOY] 分析採点マスター", "[DAM] ランキングバトルONLINE", "[DAM] 精密採点Ai",
+        "[DAM] 精密採点DXミリオン", "[DAM] 精密採点DX-G", "[DAM] 精密採点DXデュエット",
+        "[DAM] 精密採点DX")
+    var expanded by remember { mutableStateOf(false) }
+    val gameListFontSize = 10
+
+    var newGame by remember { mutableStateOf(gamesList[0]) }
     var newScore by remember { mutableStateOf("") }
     var newKey by remember { mutableFloatStateOf(0f) }
     var newDate by remember { mutableStateOf(LocalDate.now()) }
@@ -394,6 +412,8 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
 
     val verticalPaddingValue = 4
     val horizontalPaddingValue = 10
+
+    val fontSize = 16
 
     FloatingActionButton(
         onClick = { screenOpened.value = true },
@@ -528,9 +548,10 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 verticalPaddingValue = verticalPaddingValue,
                                 invalidValueEnabled = true,
                                 singleLine = true,
+                                fontSize = fontSize,
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Default,
-                                focusRequester = focusRequester
+                                focusRequester = focusRequester,
                             ) { changed -> newTitle = changed }
                         }
 
@@ -542,24 +563,80 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 verticalPaddingValue = verticalPaddingValue,
                                 invalidValueEnabled = true,
                                 singleLine = true,
+                                fontSize = fontSize,
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Default,
-                                focusRequester = focusRequester
+                                focusRequester = focusRequester,
                             ) { changed -> newArtist = changed }
                         }
 
                         item {
-                            CommonTextField(
-                                value = newScore,
-                                label = "Score",
-                                horizontalPaddingValue = horizontalPaddingValue,
-                                verticalPaddingValue = verticalPaddingValue,
-                                invalidValueEnabled = true,
-                                singleLine = true,
-                                keyboardType = KeyboardType.Number,
-                                imeAction = ImeAction.Default,
-                                focusRequester = focusRequester
-                            ) { changed -> newScore = changed }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.Top
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(
+                                            start = horizontalPaddingValue.dp,
+                                            top = verticalPaddingValue.dp + 4.dp,
+                                            end = 0.dp,
+                                            bottom = 0.dp
+                                        )
+                                        .weight(5f)
+                                ) {
+                                    ExposedDropdownMenuBox(
+                                        expanded = expanded,
+                                        onExpandedChange = { expanded = !expanded },
+                                    ) {
+                                        TextField(
+                                            value = newGame,
+                                            onValueChange = {},
+                                            enabled = false,
+                                            readOnly = true,
+                                            textStyle = TextStyle(fontSize = gameListFontSize.sp),
+                                            trailingIcon = {
+                                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                                            },
+                                            colors = ExposedDropdownMenuDefaults.textFieldColors(
+                                                disabledTrailingIconColor = Color.Black,
+                                                disabledTextColor = Color.Black
+                                            ),
+                                            modifier = Modifier.menuAnchor()
+                                        )
+                                        ExposedDropdownMenu(
+                                            expanded = expanded,
+                                            onDismissRequest = { expanded = false }
+                                        ) {
+                                            gamesList.forEach {
+                                                DropdownMenuItem(
+                                                    onClick = {
+                                                        newGame = it
+                                                        expanded = false
+                                                    }
+                                                ) {
+                                                    Text(it, fontSize = gameListFontSize.sp)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                Box(modifier = Modifier.weight(4f)) {
+                                    CommonTextField(
+                                        value = newScore,
+                                        label = "Score",
+                                        horizontalPaddingValue = horizontalPaddingValue,
+                                        verticalPaddingValue = 0,
+                                        invalidValueEnabled = true,
+                                        singleLine = true,
+                                        fontSize = fontSize,
+                                        keyboardType = KeyboardType.Number,
+                                        imeAction = ImeAction.Default,
+                                        focusRequester = focusRequester,
+                                    ) { changed -> newScore = changed }
+                                }
+                            }
                         }
 
                         item {
@@ -571,7 +648,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                             start = (horizontalPaddingValue * 2).dp,
                                             top = verticalPaddingValue.dp
                                         ),
-                                    fontSize = 16.sp
+                                    fontSize = fontSize.sp
                                 )
                                 Box(
                                     modifier = Modifier
@@ -629,9 +706,10 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 verticalPaddingValue = verticalPaddingValue,
                                 invalidValueEnabled = false,
                                 singleLine = false,
+                                fontSize = fontSize,
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Default,
-                                focusRequester = focusRequester
+                                focusRequester = focusRequester,
                             ) { changed -> newComment = changed }
                         }
                     }
