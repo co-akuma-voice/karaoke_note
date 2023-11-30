@@ -4,11 +4,17 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 
 @Dao
 interface ArtistDao {
+    @Transaction
+    fun insert(artist: Artist): Long {
+        return getByName(artist.name)?.id ?: insertUnique(artist)
+    }
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(artist: Artist): Long
+    fun insertUnique(artist: Artist): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(artists: List<Artist>)
