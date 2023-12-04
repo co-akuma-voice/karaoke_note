@@ -58,7 +58,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -106,7 +105,9 @@ fun CommonTextField(
     val invalidValue by remember { derivedStateOf { textFieldValue.text.isEmpty() } }
 
     LaunchedEffect(value) {
-        textFieldValue = TextFieldValue(text = value, selection = TextRange(value.length))
+        if (textFieldValue.text != value) {
+            textFieldValue = textFieldValue.copy(text = value)
+        }
     }
 
 
