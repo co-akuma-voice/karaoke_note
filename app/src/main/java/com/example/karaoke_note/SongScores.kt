@@ -4,9 +4,12 @@ import SortableTable
 import TableColumn
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.Icon
@@ -14,15 +17,19 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Divider
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.TextField
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,6 +51,11 @@ fun deleteSongScore(songId: Long, scoreId: Long, scope: CoroutineScope, songDao:
 
 @Composable
 fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: CoroutineScope, showEntrySheetDialog: MutableState<Boolean>, editingSongScore: MutableState<SongScore?>) {
+    fun onUpdate(songId: Long, newTitle: String) {
+        scope.launch {
+            songDao.updateTitle(songId, newTitle)
+        }
+    }
     val scoresFlow = songScoreDao.getScoresForSong(song.id)
     val scores by scoresFlow.collectAsState(initial = emptyList())
     val selectedScoreId = remember { mutableStateOf<Long?>(null) }
@@ -105,8 +117,35 @@ fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: 
         )
     )
 
+
+    var text by remember { mutableStateOf(song.title) }
+    var isEditing by remember { mutableStateOf(false) }
     Column {
-        Text(text = "${song.title}のスコア一覧", fontSize = 24.sp)
+        Row {
+            if (isEditing) {
+                // テキストフィールド表示
+                TextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = {
+                        isEditing = false
+                        onUpdate(song.id, text)
+                    }),
+                    textStyle = TextStyle(fontSize = 24.sp),
+                    singleLine = true
+                )
+            } else {
+                // 通常のテキスト表示
+                Text(
+                    text = "${text}のスコア一覧",
+                    fontSize = 24.sp,
+                )
+            }
+            IconButton(onClick = { isEditing = true }) {
+                Icon(Icons.Filled.Edit, contentDescription = null)
+            }
+        }
         Divider(color = Color.Gray, thickness = 1.dp)
         SortableTable(items = scores, columns = columns)
     }

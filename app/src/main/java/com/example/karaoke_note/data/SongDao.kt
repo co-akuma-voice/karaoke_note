@@ -27,6 +27,9 @@ interface SongDao {
     @Query("DELETE FROM Song WHERE id = :id")
     fun delete(id: Long)
 
+    @Query("UPDATE Song SET title = :title WHERE id = :id")
+    fun updateTitle(id: Long, title: String)
+
     @Transaction
     fun insertSong(song: Song): Long {
         return getSongId(song.title, song.artistId) ?: insertUniqueSong(song)
