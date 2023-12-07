@@ -1,12 +1,21 @@
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,9 +50,13 @@ fun convertToSongDataList(songScoreDao: SongScoreDao, songs: List<Song>): List<S
 }
 @Composable
 fun SongList(navController: NavController, artistId: Long, songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao) {
+    fun onUpdate(artistId: Long, newTitle: String) {
+        artistDao.updateName(artistId, newTitle)
+    }
     val songsFlow = songDao.getSongsByArtist(artistId)
     val songs = songsFlow.collectAsState(initial = listOf()).value
     val songDatum = convertToSongDataList(songScoreDao, songs)
+    val artistName = artistDao.getNameById(artistId) ?: ""
 
     val columns = listOf(
         TableColumn<SongData>("タイトル",
@@ -65,9 +78,36 @@ fun SongList(navController: NavController, artistId: Long, songDao: SongDao, son
             2f
         )
     )
+
+    var text by remember { mutableStateOf(artistName) }
+    var isEditing by remember { mutableStateOf(false) }
+
     Column {
-        val artistName = artistDao.getNameById(artistId) ?: ""
-        Text(text = "${artistName}の曲一覧", fontSize = 24.sp)
+        Row {
+            if (isEditing) {
+                // テキストフィールド表示
+                TextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = {
+                        isEditing = false
+                        onUpdate(artistId, text)
+                    }),
+                    textStyle = TextStyle(fontSize = 24.sp),
+                    singleLine = true
+                )
+            } else {
+                // 通常のテキスト表示
+                Text(
+                    text = "${text}の曲一覧",
+                    fontSize = 24.sp,
+                )
+            }
+            IconButton(onClick = { isEditing = true }) {
+                Icon(Icons.Filled.Edit, contentDescription = null)
+            }
+        }
         Divider(color = Color.Gray, thickness = 1.dp)
         SortableTable(items = songDatum, columns = columns) { item ->
             navController.navigate("song_data/${item.id}")
