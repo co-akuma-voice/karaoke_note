@@ -31,6 +31,9 @@ interface ArtistDao {
     @Query("DELETE FROM Artist WHERE id = :id")
     fun delete(id: Long)
 
+    @Query("UPDATE Artist SET name = :name WHERE id = :id")
+    fun updateName(id: Long, name: String)
+
     @Query("DELETE FROM Artist")
     fun clearAllArtists()
 
