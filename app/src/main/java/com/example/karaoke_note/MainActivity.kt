@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
@@ -12,7 +13,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
@@ -44,7 +45,10 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     Scaffold(
                         topBar = {
-                            AppBar(navController, songDao, songScoreDao, artistDao)
+                            Column {
+                                AppBar(navController, songDao, songScoreDao, artistDao)
+                                Breadcrumbs(navController, songDao, artistDao)
+                            }
                         },
                         bottomBar = {
                             BottomNavigationBar(navController)
@@ -87,3 +91,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
