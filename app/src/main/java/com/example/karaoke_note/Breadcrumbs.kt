@@ -18,6 +18,10 @@ import com.example.karaoke_note.data.ArtistDao
 import com.example.karaoke_note.data.SongDao
 import kotlinx.coroutines.launch
 
+fun truncateText(text: String, maxLength: Int): String {
+    return if (text.length > maxLength) text.take(maxLength) + "..." else text
+}
+
 @Composable
 fun Breadcrumbs(navController: NavController, songDao: SongDao, artistDao: ArtistDao) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -61,12 +65,12 @@ fun Breadcrumbs(navController: NavController, songDao: SongDao, artistDao: Artis
         if (artistName != null) {
             Text(" > ")
             Text(
-                artistName!!,
+                truncateText(artistName!!, 10),
                 modifier = Modifier.clickable { navController.navigate("song_list/$artistId") })
         }
         if (songTitle != null) {
             Text(" > ")
-            Text(songTitle!!)
+            Text(truncateText(songTitle!!, 10))
         }
     }
 }
