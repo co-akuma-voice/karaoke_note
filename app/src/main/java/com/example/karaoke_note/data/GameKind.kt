@@ -1,5 +1,6 @@
 package com.example.karaoke_note.data
 
+
 enum class GameKind(val displayName: String) {
     JOY_NATIONAL_SCORING_GP("[JOY] 全国採点GP"),
     JOY_ANALYSIS_SCORING_AI_PLUS("[JOY] 分析採点AI+"),

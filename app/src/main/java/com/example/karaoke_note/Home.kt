@@ -1,5 +1,6 @@
 package com.example.karaoke_note
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,12 +23,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.karaoke_note.data.ArtistDao
+import com.example.karaoke_note.data.GameKind
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
@@ -57,6 +62,22 @@ fun Home(navController: NavController, songDao: SongDao, songScoreDao: SongScore
     }
 }
 
+fun getPainterResourceIdOfGameImage(gameName: String): Int {
+    val painterResourceId = when (gameName) {
+        GameKind.JOY_NATIONAL_SCORING_GP.name -> R.drawable.joy_zenkoku_saiten_grand_prix_gp
+        GameKind.JOY_ANALYSIS_SCORING_AI_PLUS.name -> R.drawable.joy_bunseki_saiten_ai_plus
+        GameKind.JOY_ANALYSIS_SCORING_AI.name -> R.drawable.joy_bunseki_saiten_ai
+        GameKind.JOY_ANALYSIS_SCORING_MASTER.name -> R.drawable.joy_bunseki_saiten_master
+        GameKind.DAM_RANKING_BATTLE_ONLINE.name -> R.drawable.dam_ranking_battle_online
+        GameKind.DAM_PRECISE_SCORING_AI.name -> R.drawable.dam_seimitsu_saiten_ai
+        GameKind.DAM_PRECISE_SCORING_DX_G.name -> R.drawable.dam_seimitsu_saiten_dx_g
+        GameKind.DAM_PRECISE_SCORING_DX_DUET.name -> R.drawable.dam_seimitsu_saiten_dx_duet
+        GameKind.DAM_PRECISE_SCORING_DX.name -> R.drawable.dam_seimitsu_saiten_dx
+        else -> R.drawable.unknown_game
+    }
+    return painterResourceId
+}
+
 @ExperimentalMaterial3Api
 @Composable
 fun LatestCard(song: Song, songScore: SongScore, artist: String, navController: NavController) {
@@ -85,9 +106,7 @@ fun LatestCard(song: Song, songScore: SongScore, artist: String, navController: 
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Box(
-                    modifier = Modifier
-                        .weight(3f),
-                    //.background(Color.Green)
+                    modifier = Modifier.weight(3f),
                 ) {
                     Column(
                         modifier = Modifier,
@@ -128,10 +147,26 @@ fun LatestCard(song: Song, songScore: SongScore, artist: String, navController: 
                 }
                 Box(
                     modifier = Modifier
+                        .width(50.dp)
+                        .height(60.dp)
+                        .padding(top = 12.dp),
+                        //.background(Color.Blue),
+                ){
+                    Image(
+                        painter = painterResource(id = getPainterResourceIdOfGameImage(songScore.gameKind.name)),
+                        contentDescription = "Selected Game",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .size(30.dp)
+                            .align(Alignment.TopCenter)
+                    )
+                }
+                Box(
+                    modifier = Modifier
                         .width(80.dp)
                         .height(80.dp)
                         .padding(top = 6.dp),
-                    //.background(Color.Yellow),
+                        //.background(Color.Green),
                     contentAlignment = Alignment.BottomEnd
                 ) {
                     Column(
