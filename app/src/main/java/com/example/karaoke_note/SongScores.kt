@@ -39,6 +39,7 @@ import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
+import java.time.format.DateTimeFormatter
 
 fun deleteSongScore(songId: Long, scoreId: Long, scope: CoroutineScope, songDao: SongDao, songScoreDao: SongScoreDao) {
     scope.launch {
@@ -59,27 +60,29 @@ fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: 
     val scoresFlow = songScoreDao.getScoresForSong(song.id)
     val scores by scoresFlow.collectAsState(initial = emptyList())
     val selectedScoreId = remember { mutableStateOf<Long?>(null) }
+    val formatter = DateTimeFormatter.ofPattern("yy/MM/dd")
+    val fontSize = 18.sp
 
     val columns = listOf(
         TableColumn<SongScore>("日付",
-            { Text(text = it.date.toString()) },
+            { Text(text = it.date.format(formatter), fontSize = fontSize)},
             compareBy{ it.date },
             2f
         ),
         TableColumn("点数",
-            { Text(text = String.format("%.3f", it.score), textAlign = TextAlign.End, modifier = Modifier.fillMaxWidth()) },
+            { Text(text = String.format("%.3f", it.score), textAlign = TextAlign.End, modifier = Modifier.fillMaxWidth(), fontSize = fontSize) },
             compareBy{ it.score },
             1.5f
         ),
         TableColumn("キー",
-            { Text(text = it.key.toString(), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()) },
+            { Text(text = it.key.toString(), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(), fontSize = fontSize) },
             compareBy{ it.key },
             1f
         ),
         TableColumn("コメント",
             {
                 val scrollState = rememberScrollState()
-                Text(text = it.comment, modifier = Modifier.horizontalScroll(scrollState))
+                Text(text = it.comment, modifier = Modifier.horizontalScroll(scrollState), fontSize = fontSize)
             },
             compareBy{ it.comment.length },
             3f
@@ -90,8 +93,8 @@ fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: 
                 IconButton(onClick = {
                     expanded.value = true
                     selectedScoreId.value = songScore.id
-                }, modifier = Modifier.size(22.dp)) {
-                    Icon(Icons.Filled.MoreVert, "menu", Modifier.size(22.dp))
+                }, modifier = Modifier.size(24.dp)) {
+                    Icon(Icons.Filled.MoreVert, "menu", Modifier.size(24.dp))
                 }
                 DropdownMenu(
                     expanded = expanded.value,

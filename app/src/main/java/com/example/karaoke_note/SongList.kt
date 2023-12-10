@@ -1,6 +1,7 @@
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -29,6 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
+import java.time.format.DateTimeFormatter
 
 data class SongData(val id: Long, val title: String, val highestScore: Float, val lastDate: LocalDate)
 
@@ -57,23 +59,25 @@ fun SongList(navController: NavController, artistId: Long, songDao: SongDao, son
     val songs = songsFlow.collectAsState(initial = listOf()).value
     val songDatum = convertToSongDataList(songScoreDao, songs)
     val artistName = artistDao.getNameById(artistId) ?: ""
+    val formatter = DateTimeFormatter.ofPattern("yy/MM/dd")
+    val fontSize = 18.sp
 
     val columns = listOf(
         TableColumn<SongData>("タイトル",
             {
                 val scrollState = rememberScrollState()
-                Text(text = it.title, modifier = Modifier.horizontalScroll(scrollState))
+                Text(text = it.title, modifier = Modifier.horizontalScroll(scrollState), fontSize = fontSize)
             } ,
             compareBy{ it.title },
             2f
         ),
         TableColumn<SongData>("最高スコア",
-            { Text(text = String.format("%.3f", it.highestScore), textAlign = TextAlign.Center) },
+            { Text(text = String.format("%.3f", it.highestScore), textAlign = TextAlign.End, modifier = Modifier.fillMaxWidth(), fontSize = fontSize) },
             compareBy{ it.highestScore },
             2f
         ),
         TableColumn<SongData>("最後に歌った日",
-            { Text(text = it.lastDate.toString(), textAlign = TextAlign.Center) },
+            { Text(text = it.lastDate.format(formatter), textAlign = TextAlign.End, modifier = Modifier.fillMaxWidth(), fontSize = fontSize) },
             compareBy { it.lastDate },
             2f
         )
