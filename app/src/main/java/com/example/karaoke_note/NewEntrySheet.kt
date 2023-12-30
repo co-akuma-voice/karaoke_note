@@ -263,8 +263,16 @@ fun rememberCustomDatePickerState(
 @Composable
 fun getLocalizedDate(defaultDate: LocalDate): LocalDate {
     var showPicker by remember { mutableStateOf(false) }
+    val defaultZone = ZoneId.systemDefault()
+    // UTC+0 とシステムデフォルトとの時差をミリ秒単位にしたもの
+    val mSecondFromUTC = defaultDate.atStartOfDay(defaultZone).offset.totalSeconds * 1000
     val (datePickerState, pendingDatePickerState) = rememberCustomDatePickerState(
-        initialSelectedDateMillis = defaultDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        // toInstant(): Java の Instant 型 (エポック秒 = UNIX 時間を保持する) に変換する。
+        //              ただし、表示形式は UNIX 時間ではない。
+        //              このとき、タイムゾーン情報が UTC+0 になる。
+        // toEpochMilli(): UNIX 時間形式 (ミリ秒) に変換する。
+        // mSecondFromUTC を足すことで無理やり Zoned 時刻にする
+        initialSelectedDateMillis = (defaultDate.atStartOfDay(defaultZone).toInstant().toEpochMilli() + mSecondFromUTC)
     )
     var localizedNullableSelectedDate: LocalDate?
     var localizedSelectedDate: LocalDate = defaultDate
