@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Transaction
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
@@ -35,23 +35,11 @@ interface SongScoreDao {
     """)
     fun getMostRecentDate(songId: Long): LocalDate?
 
-    @Transaction
-    fun insertSongScore(score: SongScore) {
-        val existingEntry = findSongScore(
-            score.songId,
-            score.date,
-            score.score,
-            score.key,
-            score.comment,
-            score.gameKind
-        )
-        if (existingEntry == null) {
-            insertUniqueSongScore(score)
-        }
-    }
+    @Update
+    fun update(songScore: SongScore): Int
 
     @Insert
-    fun insertUniqueSongScore(songScore: SongScore)
+    fun insert(songScore: SongScore)
 
     @Query("DELETE FROM SongScore WHERE id = :id")
     fun deleteSongScore(id: Long)

@@ -77,6 +77,7 @@ import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -501,10 +502,6 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                     errorDialogOpened = true
                                 }
                                 else {
-                                    // editから来た場合、古いデータを削除
-                                    editingSongScore?.let {
-                                        deleteSongScore(it.songId, it.id, scope, songDao, songScoreDao)
-                                    }
                                     // データを登録
                                     val newArtistId = artistDao.insert(
                                         Artist(
@@ -518,8 +515,8 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                             artistId = newArtistId,
                                         )
                                     )
-                                    songScoreDao.insertSongScore(
-                                        SongScore(
+                                    val newSongScore = SongScore(
+                                            id = editingSongScore?.id ?: 0L,
                                             songId = newSongId,
                                             date = newDate,
                                             score = newScore.toFloat(),
@@ -527,7 +524,17 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                             comment = newComment,
                                             gameKind = newGame
                                         )
-                                    )
+                                    scope.launch {
+                                        if (editingSongScore == null) {
+                                            songScoreDao.insert(newSongScore)
+                                        } else {
+                                            songScoreDao.update(newSongScore)
+                                            val oldSongId = editingSongScore.songId
+                                            if (songScoreDao.countScoresForSong(oldSongId) == 0) {
+                                                songDao.delete(oldSongId)
+                                            }
+                                        }
+                                    }
                                     editingSongScoreState.value = null
                                     newScore = ""
                                     newKey = 0f
