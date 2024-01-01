@@ -55,7 +55,7 @@ fun SongList(navController: NavController, artistId: Long, songDao: SongDao, son
     fun onUpdate(artistId: Long, newTitle: String) {
         artistDao.updateName(artistId, newTitle)
     }
-    val songsFlow = songDao.getSongsByArtist(artistId)
+    val songsFlow = songDao.getSongsWithScores(artistId)
     val songs = songsFlow.collectAsState(initial = listOf()).value
     val songDatum = convertToSongDataList(songScoreDao, songs)
     val artistName = artistDao.getNameById(artistId) ?: ""
