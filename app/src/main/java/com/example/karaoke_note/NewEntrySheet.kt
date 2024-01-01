@@ -529,10 +529,6 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                             songScoreDao.insert(newSongScore)
                                         } else {
                                             songScoreDao.update(newSongScore)
-                                            val oldSongId = editingSongScore.songId
-                                            if (songScoreDao.countScoresForSong(oldSongId) == 0) {
-                                                songDao.delete(oldSongId)
-                                            }
                                         }
                                     }
                                     editingSongScoreState.value = null
