@@ -47,29 +47,34 @@ fun ArtistsPage(navController: NavController, artistDao: ArtistDao) {
 @ExperimentalMaterial3Api
 @Composable
 fun SortArtists(navController: NavController, artists: List<Artist>) {
-    var sortedArtists by remember { mutableStateOf(artists) }
     var sortDirection by remember { mutableStateOf(SortDirection.Asc) }
+    var sortedArtists by remember(sortDirection) { mutableStateOf(getSortedArtists(sortDirection, artists)) }
 
     Column {
         ArtistsListHeader(sortDirection) { newSortDirection ->
             sortDirection = newSortDirection
-            sortedArtists = when (sortDirection) {
-                SortDirection.None -> artists
-                SortDirection.Asc -> artists.sortedBy(Artist::name)
-                SortDirection.Desc -> artists.sortedByDescending(Artist::name)
-            }
+            sortedArtists = getSortedArtists(sortDirection, artists)
         }
         Box(
             modifier = Modifier
         ) {
             LazyColumn {
-                itemsIndexed(sortedArtists) { index, artists ->
-                    ArtistsListDrawing(navController, artists)
+                itemsIndexed(sortedArtists) { index, artist ->
+                    ArtistsListDrawing(navController, artist)
                 }
             }
         }
     }
 }
+
+fun getSortedArtists(sortDirection: SortDirection, artists: List<Artist>): List<Artist> {
+    return when (sortDirection) {
+        SortDirection.None -> artists
+        SortDirection.Asc -> artists.sortedBy(Artist::name)
+        SortDirection.Desc -> artists.sortedByDescending(Artist::name)
+    }
+}
+
 
 @Composable
 fun ArtistsListHeader(sortDirection: SortDirection, onSortChanged: (SortDirection) -> Unit) {
