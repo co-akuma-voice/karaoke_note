@@ -39,4 +39,7 @@ interface ArtistDao {
 
     @Query("SELECT * FROM Artist")
     fun getAllArtists(): List<Artist>
+
+    @Query("SELECT Artist.* FROM Artist JOIN Song ON Artist.id = Song.artistId JOIN SongScore ON Song.id = SongScore.songId GROUP BY Artist.id HAVING COUNT(SongScore.id) > 0")
+    fun getArtistsWithSongs(): List<Artist>
 }

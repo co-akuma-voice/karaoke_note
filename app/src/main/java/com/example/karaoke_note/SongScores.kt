@@ -41,15 +41,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import java.time.format.DateTimeFormatter
 
-fun deleteSongScore(songId: Long, scoreId: Long, scope: CoroutineScope, songDao: SongDao, songScoreDao: SongScoreDao) {
-    scope.launch {
-        songScoreDao.deleteSongScore(scoreId)
-        if (songScoreDao.countScoresForSong(songId) == 0) {
-            songDao.delete(songId)
-        }
-    }
-}
-
 @Composable
 fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: CoroutineScope, showEntrySheetDialog: MutableState<Boolean>, editingSongScore: MutableState<SongScore?>) {
     fun onUpdate(songId: Long, newTitle: String) {
@@ -108,7 +99,7 @@ fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: 
                         Text("編集")
                     }
                     DropdownMenuItem(onClick = {
-                        selectedScoreId.value?.let { deleteSongScore(song.id, it, scope, songDao, songScoreDao) }
+                        selectedScoreId.value?.let { songScoreDao.deleteSongScore(it) }
                         expanded.value = false
                     }) {
                         Text("削除")

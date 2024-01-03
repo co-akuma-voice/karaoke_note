@@ -38,7 +38,7 @@ fun ArtistsPage(navController: NavController, artistDao: ArtistDao) {
             Spacer(modifier = Modifier)
         }
         Box(modifier = Modifier.weight(9f)) {
-            val artists = artistDao.getAllArtists()
+            val artists = artistDao.getArtistsWithSongs()
             SortArtists(navController, artists)
         }
     }
