@@ -44,6 +44,6 @@ interface SongDao {
     @Query("DELETE FROM Song")
     fun clearAllSongs()
 
-    @Query("SELECT Song.* FROM Song INNER JOIN SongScore ON Song.id = SongScore.songId WHERE Song.artistId = :artistId")
+    @Query("SELECT Song.* FROM Song INNER JOIN SongScore ON Song.id = SongScore.songId WHERE Song.artistId = :artistId GROUP BY Song.id")
     fun getSongsWithScores(artistId: Long): Flow<List<Song>>
 }
