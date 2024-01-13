@@ -111,7 +111,6 @@ fun CommonTextField(
         }
     }
 
-
     OutlinedTextField(
         value = textFieldValue,
         onValueChange = { changed ->
@@ -457,7 +456,10 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
 
     if (screenOpened.value) {
         Dialog(
-            onDismissRequest = { screenOpened.value = false },
+            onDismissRequest = {
+                screenOpened.value = false
+                editingSongScoreState.value = null
+            },
             properties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
             Surface(
