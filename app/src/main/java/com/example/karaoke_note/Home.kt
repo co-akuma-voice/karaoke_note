@@ -86,6 +86,7 @@ fun LatestCard(song: Song, songScore: SongScore, artist: String, navController: 
     if (songScore.comment.isNotEmpty()) {
         commentforcard = "..."
     }
+    val keyFormat = if (songScore.key != 0) { "%+d" } else { "%d" }
 
     Column(
         modifier = Modifier
@@ -182,7 +183,7 @@ fun LatestCard(song: Song, songScore: SongScore, artist: String, navController: 
                             fontSize = 12.sp,
                         )
                         Text(
-                            text = songScore.key.toString(),
+                            text = String.format(keyFormat, songScore.key),
                             modifier = Modifier
                                 .padding(top = 2.dp, end = 16.dp, bottom = 2.dp)
                                 .align(Alignment.End),
