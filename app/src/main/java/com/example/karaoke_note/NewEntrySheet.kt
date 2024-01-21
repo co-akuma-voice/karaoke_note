@@ -1,7 +1,6 @@
 package com.example.karaoke_note
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -87,7 +86,7 @@ import kotlin.math.roundToInt
 @ExperimentalMaterial3Api
 @Composable
 fun CommonTextField(
-    value: String,
+    initValue: String,
     label: String,
     horizontalPaddingValue: Int,
     verticalPaddingValue: Int,
@@ -97,25 +96,25 @@ fun CommonTextField(
     keyboardType: KeyboardType,
     imeAction: ImeAction,
     focusRequester: FocusRequester,
-    onChange: (String) -> Unit
-){
-    var textFieldValue by remember {
-        mutableStateOf(TextFieldValue(text = value))
-    }
+    onChange: (String) -> Unit,
+    onClear: () -> Unit
+) {
+    var textFieldValue by remember { mutableStateOf(TextFieldValue(initValue)) }
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val invalidValue by remember { derivedStateOf { textFieldValue.text.isEmpty() } }
+    val trailingIconSize = 16
 
-    LaunchedEffect(value) {
-        if (textFieldValue.text != value) {
-            textFieldValue = textFieldValue.copy(text = value)
+    LaunchedEffect(initValue) {
+        if (textFieldValue.text != initValue) {
+            textFieldValue = textFieldValue.copy(text = initValue)
         }
     }
 
     OutlinedTextField(
         value = textFieldValue,
-        onValueChange = { changed ->
-            textFieldValue = changed
-            onChange(changed.text)
+        onValueChange = { inputText ->
+            textFieldValue = inputText
+            onChange(inputText.text)
         },
         modifier = Modifier
             .bringIntoViewRequester(bringIntoViewRequester)
@@ -142,18 +141,32 @@ fun CommonTextField(
         ),
         trailingIcon = {
             if (invalidValueEnabled && invalidValue) {
-                Icon(
-                    Icons.Default.Clear,
-                    contentDescription = "clear",
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.clickable { textFieldValue = TextFieldValue("") }
-                )
+                IconButton(
+                    onClick = {
+                        textFieldValue = TextFieldValue("")
+                        onClear()
+                    }
+                ) {
+                    Icon(
+                        Icons.Default.Clear,
+                        contentDescription = "clear",
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(trailingIconSize.dp)
+                    )
+                }
             } else {
-                Icon(
-                    Icons.Default.Clear,
-                    contentDescription = "clear",
-                    modifier = Modifier.clickable { textFieldValue = TextFieldValue("") }
-                )
+                IconButton(
+                    onClick = {
+                        textFieldValue = TextFieldValue("")
+                        onClear()
+                    }
+                ) {
+                    Icon(
+                        Icons.Default.Clear,
+                        contentDescription = "clear",
+                        modifier = Modifier.size(trailingIconSize.dp)
+                    )
+                }
             }
         },
     )
@@ -553,7 +566,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                     ) {
                         item {
                             CommonTextField(
-                                value = newTitle,
+                                initValue = newTitle,
                                 label = "Song",
                                 horizontalPaddingValue = horizontalPaddingValue,
                                 verticalPaddingValue = verticalPaddingValue,
@@ -563,12 +576,14 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Default,
                                 focusRequester = focusRequester,
-                            ) { changed -> newTitle = changed }
+                                { inputText -> newTitle = inputText },
+                                { newTitle = "" }
+                            )
                         }
 
                         item {
                             CommonTextField(
-                                value = newArtist,
+                                initValue = newArtist,
                                 label = "Artist",
                                 horizontalPaddingValue = horizontalPaddingValue,
                                 verticalPaddingValue = verticalPaddingValue,
@@ -578,7 +593,9 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Default,
                                 focusRequester = focusRequester,
-                            ) { changed -> newArtist = changed }
+                                { inputText -> newArtist = inputText },
+                                { newArtist = "" }
+                            )
                         }
 
                         item {
@@ -635,7 +652,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 }
                                 Box(modifier = Modifier.weight(4f)) {
                                     CommonTextField(
-                                        value = newScore,
+                                        initValue = newScore,
                                         label = "Score",
                                         horizontalPaddingValue = horizontalPaddingValue,
                                         verticalPaddingValue = 0,
@@ -645,7 +662,9 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         keyboardType = KeyboardType.Number,
                                         imeAction = ImeAction.Default,
                                         focusRequester = focusRequester,
-                                    ) { changed -> newScore = changed }
+                                        { inputText -> newScore = inputText },
+                                        { newScore = "" }
+                                    )
                                 }
                             }
                         }
@@ -711,7 +730,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
 
                         item {
                             CommonTextField(
-                                value = newComment,
+                                initValue = newComment,
                                 label = "Comment",
                                 horizontalPaddingValue = horizontalPaddingValue,
                                 verticalPaddingValue = verticalPaddingValue,
@@ -721,7 +740,9 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Default,
                                 focusRequester = focusRequester,
-                            ) { changed -> newComment = changed }
+                                { inputText -> newComment = inputText },
+                                { newComment = "" }
+                            )
                         }
                     }
                 }
