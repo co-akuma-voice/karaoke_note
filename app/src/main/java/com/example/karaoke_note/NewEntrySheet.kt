@@ -102,6 +102,7 @@ fun CommonTextField(
     var textFieldValue by remember { mutableStateOf(TextFieldValue(initValue)) }
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val invalidValue by remember { derivedStateOf { textFieldValue.text.isEmpty() } }
+    val trailingIconSize = 16
 
     LaunchedEffect(initValue) {
         if (textFieldValue.text != initValue) {
@@ -150,7 +151,7 @@ fun CommonTextField(
                         Icons.Default.Clear,
                         contentDescription = "clear",
                         tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(trailingIconSize.dp)
                     )
                 }
             } else {
@@ -163,7 +164,7 @@ fun CommonTextField(
                     Icon(
                         Icons.Default.Clear,
                         contentDescription = "clear",
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(trailingIconSize.dp)
                     )
                 }
             }
