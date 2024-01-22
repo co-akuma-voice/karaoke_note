@@ -38,6 +38,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -394,7 +396,7 @@ private fun getDefaultValuesBasedOnRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3Api
 @Composable
-fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao, scope: CoroutineScope, screenOpened: MutableState<Boolean>, editingSongScoreState: MutableState<SongScore?>) {
+fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao, scope: CoroutineScope, screenOpened: MutableState<Boolean>, editingSongScoreState: MutableState<SongScore?>, snackBarHostState: SnackbarHostState) {
     val editingSongScore = editingSongScoreState.value
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     var errorDialogOpened by remember { mutableStateOf(false) }
@@ -515,8 +517,8 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 // タイトル、アーティスト、スコア欄のチェック
                                 if (!isValid(newTitle, newArtist, newScore).first) {
                                     errorDialogOpened = true
-                                }
-                                else {
+                                } else {
+                                    //callSnackBar = true
                                     // データを登録
                                     val newArtistId = artistDao.insert(
                                         Artist(
@@ -531,15 +533,24 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         )
                                     )
                                     val newSongScore = SongScore(
-                                            id = editingSongScore?.id ?: 0L,
-                                            songId = newSongId,
-                                            date = newDate,
-                                            score = newScore.toFloat(),
-                                            key = newKey.roundToInt(),
-                                            comment = newComment,
-                                            gameKind = newGame
-                                        )
+                                        id = editingSongScore?.id ?: 0L,
+                                        songId = newSongId,
+                                        date = newDate,
+                                        score = newScore.toFloat(),
+                                        key = newKey.roundToInt(),
+                                        comment = newComment,
+                                        gameKind = newGame
+                                    )
                                     scope.launch {
+                                        val snackBarResult = snackBarHostState.showSnackbar(
+                                            message = "rememberCoroutine",
+                                            actionLabel = "Cancel"
+                                        )
+                                        when(snackBarResult) {
+                                            SnackbarResult.ActionPerformed -> {}
+                                            SnackbarResult.Dismissed -> {}
+                                        }
+
                                         if (editingSongScore == null) {
                                             songScoreDao.insert(newSongScore)
                                         } else {
@@ -625,7 +636,9 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                             readOnly = true,
                                             textStyle = TextStyle(fontSize = gameListFontSize.sp),
                                             trailingIcon = {
-                                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                                                ExposedDropdownMenuDefaults.TrailingIcon(
+                                                    expanded = expanded
+                                                )
                                             },
                                             colors = ExposedDropdownMenuDefaults.textFieldColors(
                                                 disabledTrailingIconColor = Color.Black,
@@ -644,7 +657,10 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                                         expanded = false
                                                     }
                                                 ) {
-                                                    Text(it.displayName, fontSize = gameListFontSize.sp)
+                                                    Text(
+                                                        it.displayName,
+                                                        fontSize = gameListFontSize.sp
+                                                    )
                                                 }
                                             }
                                         }

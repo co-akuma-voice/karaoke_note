@@ -13,7 +13,9 @@ import androidx.compose.material.Surface
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.*
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
@@ -37,6 +39,7 @@ class MainActivity : ComponentActivity() {
             Karaoke_noteTheme {
                 val showDialog = remember { mutableStateOf(false) }
                 val editingSongScore = remember { mutableStateOf<SongScore?>(null) }
+                val snackBarHostState = remember { SnackbarHostState() }
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -54,9 +57,12 @@ class MainActivity : ComponentActivity() {
                             BottomNavigationBar(navController)
                         },
                         floatingActionButton = {
-                            NewEntryScreen(navController, songDao, songScoreDao, artistDao, lifecycleScope, showDialog, editingSongScore)
+                            NewEntryScreen(navController, songDao, songScoreDao, artistDao, lifecycleScope, showDialog, editingSongScore, snackBarHostState)
                             //AnimatedContentFABtoDiagram()
                         },
+                        snackbarHost = {
+                            SnackbarHost(snackBarHostState)
+                        }
                     ) { paddingValues ->
                         NavHost(
                             navController,
