@@ -38,6 +38,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
@@ -544,7 +545,9 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                     scope.launch {
                                         val snackBarResult = snackBarHostState.showSnackbar(
                                             message = "rememberCoroutine",
-                                            actionLabel = "Cancel"
+                                            actionLabel = "Cancel",
+                                            withDismissAction = true,
+                                            duration = SnackbarDuration.Short
                                         )
                                         when(snackBarResult) {
                                             SnackbarResult.ActionPerformed -> {}
