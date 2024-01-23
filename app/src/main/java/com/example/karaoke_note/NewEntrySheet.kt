@@ -1,8 +1,10 @@
 package com.example.karaoke_note
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +25,7 @@ import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
@@ -58,7 +61,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -92,10 +94,11 @@ fun CommonTextField(
     label: String,
     horizontalPaddingValue: Int,
     verticalPaddingValue: Int,
-    allowedEmpty: Boolean,      // TextField を空欄にすることを許可するかどうか
+    isEmptyAllowed: Boolean,      // TextField を空欄にすることを許可するかどうか
     singleLine: Boolean,
     fontSize: Int,
-    defaultSupportingText: String,
+    normalSupportingText: String,
+    errorSupportingText: String,
     keyboardType: KeyboardType,
     imeAction: ImeAction,
     focusRequester: FocusRequester,
@@ -105,7 +108,7 @@ fun CommonTextField(
     var textFieldValue by remember { mutableStateOf(TextFieldValue(initValue)) }
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val invalidValue by remember { derivedStateOf { textFieldValue.text.isEmpty() } }
-    val trailingIconSize = 16
+    val trailingIconSize = 20
 
     LaunchedEffect(initValue) {
         if (textFieldValue.text != initValue) {
@@ -126,13 +129,20 @@ fun CommonTextField(
             .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp)
             .imePadding(),
         label = { Text(label) },
-        isError = !allowedEmpty && invalidValue,
+        isError = !isEmptyAllowed && invalidValue,
         supportingText = {
-            if (!allowedEmpty && invalidValue) {
+            if (!isEmptyAllowed && invalidValue) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = "Blank is not available.",
+                    text = errorSupportingText,
                     color = MaterialTheme.colorScheme.error
+                )
+            }
+            else {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = normalSupportingText,
+                    color = MaterialTheme.colorScheme.background
                 )
             }
         },
@@ -143,7 +153,7 @@ fun CommonTextField(
             imeAction = imeAction
         ),
         trailingIcon = {
-            if (!allowedEmpty && invalidValue) {
+            if (!isEmptyAllowed && invalidValue) {
                 IconButton(
                     onClick = {
                         textFieldValue = TextFieldValue("")
@@ -151,8 +161,8 @@ fun CommonTextField(
                     }
                 ) {
                     Icon(
-                        Icons.Default.Clear,
-                        contentDescription = "clear",
+                        Icons.Default.Error,
+                        contentDescription = "error",
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(trailingIconSize.dp)
                     )
@@ -433,7 +443,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
 
     val focusRequester = remember { FocusRequester() }
 
-    val verticalPaddingValue = 4
+    val verticalPaddingValue = 1
     val horizontalPaddingValue = 10
     val fontSize = 16
 
@@ -581,10 +591,11 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 label = "Song",
                                 horizontalPaddingValue = horizontalPaddingValue,
                                 verticalPaddingValue = verticalPaddingValue,
-                                allowedEmpty = false,
+                                isEmptyAllowed = false,
                                 singleLine = true,
                                 fontSize = fontSize,
-                                defaultSupportingText = "*required",
+                                normalSupportingText = "",
+                                errorSupportingText = "Blank is not allowed.",
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Default,
                                 focusRequester = focusRequester,
@@ -599,10 +610,11 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 label = "Artist",
                                 horizontalPaddingValue = horizontalPaddingValue,
                                 verticalPaddingValue = verticalPaddingValue,
-                                allowedEmpty = false,
+                                isEmptyAllowed = false,
                                 singleLine = true,
                                 fontSize = fontSize,
-                                defaultSupportingText = "*required",
+                                normalSupportingText = "",
+                                errorSupportingText = "Blank is not allowed.",
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Default,
                                 focusRequester = focusRequester,
@@ -621,7 +633,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                     modifier = Modifier
                                         .padding(
                                             start = horizontalPaddingValue.dp,
-                                            top = verticalPaddingValue.dp + 4.dp,
+                                            top = (verticalPaddingValue + 6).dp,
                                             end = 0.dp,
                                             bottom = 0.dp
                                         )
@@ -668,16 +680,17 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         }
                                     }
                                 }
-                                Box(modifier = Modifier.weight(4f)) {
+                                Box(modifier = Modifier.weight(4f).background(color = Color.Cyan)) {
                                     CommonTextField(
                                         initValue = newScore,
                                         label = "Score",
                                         horizontalPaddingValue = horizontalPaddingValue,
                                         verticalPaddingValue = 0,
-                                        allowedEmpty = false,
+                                        isEmptyAllowed = false,
                                         singleLine = true,
                                         fontSize = fontSize,
-                                        defaultSupportingText = "",
+                                        normalSupportingText = "",
+                                        errorSupportingText = "Required if the reservation switch is off.",
                                         keyboardType = KeyboardType.Number,
                                         imeAction = ImeAction.Default,
                                         focusRequester = focusRequester,
@@ -689,60 +702,74 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                         }
 
                         item {
-                            Column {
-                                Text(
-                                    text = "Key",
-                                    modifier = Modifier
-                                        .padding(
-                                            start = (horizontalPaddingValue * 2).dp,
-                                            top = verticalPaddingValue.dp
-                                        ),
-                                    fontSize = fontSize.sp
-                                )
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                ) {
-                                    val sliderLength: Int =
-                                        LocalConfiguration.current.screenWidthDp
-                                    val newKeyText: String
-                                    val newKeyLabel = newKey.roundToInt()
-                                    newKeyText = if (newKeyLabel > 0) {
-                                        "+$newKeyLabel"
-                                    } else {
-                                        "$newKeyLabel"
-                                    }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.Top
+                            ) {
+                                Box {
                                     Text(
-                                        text = newKeyText,
+                                        text = "Key",
                                         modifier = Modifier
-                                            .align(Alignment.Center)
-                                            .offset(x = ((sliderLength - horizontalPaddingValue * 2) / 13 * newKey).dp)
+                                            .padding(
+                                                start = (horizontalPaddingValue * 2).dp,
+                                                top = (verticalPaddingValue).dp
+                                            ),
+                                        fontSize = fontSize.sp
                                     )
                                 }
-                                Slider(
-                                    value = newKey,
-                                    onValueChange = { newKey = it },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(
-                                            horizontal = (horizontalPaddingValue * 2).dp,
-                                            vertical = 0.dp
-                                        ),
-                                    valueRange = -6f..6f,
-                                    steps = 11,
-                                )
+                                Column {
+                                    BoxWithConstraints(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(
+                                                start = (horizontalPaddingValue * 2).dp,
+                                                top = verticalPaddingValue.dp,
+                                                end = (horizontalPaddingValue * 2).dp
+                                            )
+                                    ) {
+                                        val newKeyText: String
+                                        val newKeyLabel = newKey.roundToInt()
+                                        newKeyText = if (newKeyLabel > 0) {
+                                            "+$newKeyLabel"
+                                        } else {
+                                            "$newKeyLabel"
+                                        }
+                                        Text(
+                                            text = newKeyText,
+                                            modifier = Modifier
+                                                .align(Alignment.Center)
+                                                .offset(x = ((maxWidth / 13) * newKey)),
+                                            fontSize = fontSize.sp
+                                        )
+                                    }
+                                    Slider(
+                                        value = newKey,
+                                        onValueChange = { newKey = it },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(
+                                                horizontal = (horizontalPaddingValue * 2).dp,
+                                                vertical = 0.dp
+                                            ),
+                                        valueRange = -6f..6f,
+                                        steps = 11,
+                                    )
+                                }
                             }
                         }
 
                         item {
-                            Column(
+                            Row(
                                 modifier = Modifier
                                     .padding(
                                         start = (horizontalPaddingValue * 2).dp,
                                         top = verticalPaddingValue.dp
-                                    )
+                                    ),
+                                verticalAlignment = Alignment.Top
                             ) {
                                 Text(text = "Date")
+                                // 日付表示とカレンダーマーク
                                 newDate = getLocalizedDate(defaultDate)
                             }
                         }
@@ -753,10 +780,11 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 label = "Comment",
                                 horizontalPaddingValue = horizontalPaddingValue,
                                 verticalPaddingValue = verticalPaddingValue,
-                                allowedEmpty = true,
+                                isEmptyAllowed = true,
                                 singleLine = false,
                                 fontSize = fontSize,
-                                defaultSupportingText = "",
+                                normalSupportingText = "",
+                                errorSupportingText = "",
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Default,
                                 focusRequester = focusRequester,
