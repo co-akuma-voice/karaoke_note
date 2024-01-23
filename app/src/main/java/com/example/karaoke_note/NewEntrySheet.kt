@@ -40,7 +40,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -93,9 +92,10 @@ fun CommonTextField(
     label: String,
     horizontalPaddingValue: Int,
     verticalPaddingValue: Int,
-    invalidValueEnabled: Boolean,
+    allowedEmpty: Boolean,      // TextField を空欄にすることを許可するかどうか
     singleLine: Boolean,
     fontSize: Int,
+    defaultSupportingText: String,
     keyboardType: KeyboardType,
     imeAction: ImeAction,
     focusRequester: FocusRequester,
@@ -126,12 +126,12 @@ fun CommonTextField(
             .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp)
             .imePadding(),
         label = { Text(label) },
-        isError = invalidValueEnabled && invalidValue,
+        isError = !allowedEmpty && invalidValue,
         supportingText = {
-            if (invalidValueEnabled && invalidValue) {
+            if (!allowedEmpty && invalidValue) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = "(Error) This field has no value.",
+                    text = "Blank is not available.",
                     color = MaterialTheme.colorScheme.error
                 )
             }
@@ -143,7 +143,7 @@ fun CommonTextField(
             imeAction = imeAction
         ),
         trailingIcon = {
-            if (invalidValueEnabled && invalidValue) {
+            if (!allowedEmpty && invalidValue) {
                 IconButton(
                     onClick = {
                         textFieldValue = TextFieldValue("")
@@ -417,6 +417,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     var newTitle by remember { mutableStateOf("") }
     var newGame by remember { mutableStateOf(gamesList[0]) }
     var newScore by remember { mutableStateOf("") }
+    var isReserve by remember { mutableStateOf(false) }
     var newKey by remember { mutableFloatStateOf(0f) }
     var newDate by remember { mutableStateOf(LocalDate.now()) }
     var newComment by remember { mutableStateOf("") }
@@ -543,16 +544,12 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         gameKind = newGame
                                     )
                                     scope.launch {
-                                        val snackBarResult = snackBarHostState.showSnackbar(
+                                        snackBarHostState.showSnackbar(
                                             message = "rememberCoroutine",
-                                            actionLabel = "Cancel",
+                                            actionLabel = null,
                                             withDismissAction = true,
                                             duration = SnackbarDuration.Short
                                         )
-                                        when(snackBarResult) {
-                                            SnackbarResult.ActionPerformed -> {}
-                                            SnackbarResult.Dismissed -> {}
-                                        }
 
                                         if (editingSongScore == null) {
                                             songScoreDao.insert(newSongScore)
@@ -584,9 +581,10 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 label = "Song",
                                 horizontalPaddingValue = horizontalPaddingValue,
                                 verticalPaddingValue = verticalPaddingValue,
-                                invalidValueEnabled = true,
+                                allowedEmpty = false,
                                 singleLine = true,
                                 fontSize = fontSize,
+                                defaultSupportingText = "*required",
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Default,
                                 focusRequester = focusRequester,
@@ -601,9 +599,10 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 label = "Artist",
                                 horizontalPaddingValue = horizontalPaddingValue,
                                 verticalPaddingValue = verticalPaddingValue,
-                                invalidValueEnabled = true,
+                                allowedEmpty = false,
                                 singleLine = true,
                                 fontSize = fontSize,
+                                defaultSupportingText = "*required",
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Default,
                                 focusRequester = focusRequester,
@@ -675,9 +674,10 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         label = "Score",
                                         horizontalPaddingValue = horizontalPaddingValue,
                                         verticalPaddingValue = 0,
-                                        invalidValueEnabled = true,
+                                        allowedEmpty = false,
                                         singleLine = true,
                                         fontSize = fontSize,
+                                        defaultSupportingText = "",
                                         keyboardType = KeyboardType.Number,
                                         imeAction = ImeAction.Default,
                                         focusRequester = focusRequester,
@@ -753,9 +753,10 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 label = "Comment",
                                 horizontalPaddingValue = horizontalPaddingValue,
                                 verticalPaddingValue = verticalPaddingValue,
-                                invalidValueEnabled = false,
+                                allowedEmpty = true,
                                 singleLine = false,
                                 fontSize = fontSize,
+                                defaultSupportingText = "",
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Default,
                                 focusRequester = focusRequester,
