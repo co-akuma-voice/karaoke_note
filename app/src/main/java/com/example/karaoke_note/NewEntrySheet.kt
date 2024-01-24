@@ -421,7 +421,10 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     var errorDialogOpened by remember { mutableStateOf(false) }
 
-    val (defaultArtistId, defaultTitle) = getDefaultValuesBasedOnRoute(currentBackStackEntry, songDao)
+    val (defaultArtistId, defaultTitle) = getDefaultValuesBasedOnRoute(
+        currentBackStackEntry,
+        songDao
+    )
     val defaultScore = editingSongScore?.score?.let { String.format("%.3f", it) } ?: ""
     val defaultKey = editingSongScore?.key?.toFloat() ?: 0f
     val defaultDate = editingSongScore?.date ?: LocalDate.now()
@@ -538,8 +541,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 // タイトル、アーティスト、スコア欄のチェック
                                 if (!isValid(newTitle, newArtist, newScore, isPlanning).first) {
                                     errorDialogOpened = true
-                                }
-                                else {
+                                } else {
                                     // データを登録
                                     val newArtistId = artistDao.insert(
                                         Artist(
@@ -636,7 +638,6 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
 
                         item {
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.Top
                             ) {
@@ -648,7 +649,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                             end = 0.dp,
                                             bottom = 0.dp
                                         )
-                                        .weight(5f)
+                                        .weight(2f)
                                 ) {
                                     ExposedDropdownMenuBox(
                                         expanded = expanded,
@@ -667,6 +668,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                                 )
                                             },
                                             colors = ExposedDropdownMenuDefaults.textFieldColors(
+                                                disabledContainerColor = Color.White,
                                                 disabledTrailingIconColor = Color.Black,
                                                 disabledTextColor = Color.Black
                                             ),
@@ -675,7 +677,8 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         // Menu ととして出てくる部分
                                         ExposedDropdownMenu(
                                             expanded = expanded,
-                                            onDismissRequest = { expanded = false }
+                                            onDismissRequest = { expanded = false },
+                                            modifier = Modifier.fillMaxWidth()
                                         ) {
                                             gamesList.forEach {
                                                 DropdownMenuItem(
@@ -688,14 +691,42 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                                         it.displayName,
                                                         fontSize = gameListFontSize.sp
                                                     )
+                                                    /*
+                                                    Image(
+                                                        painter = painterResource(
+                                                            // ゲーム名の頭3文字がブランド名
+                                                            getPainterResourceIdOfBrandImage(
+                                                                it.name.take(3)
+                                                            )
+                                                        ),
+                                                        contentDescription = "Brand icon",
+                                                        modifier = Modifier
+                                                            .size(48.dp)    // 48.dp は Text field の標準サイズ
+                                                            .padding(4.dp)
+                                                    )
+                                                    Image(
+                                                        painter = painterResource(
+                                                            getPainterResourceIdOfGameImage(
+                                                                it.name
+                                                            )
+                                                        ),
+                                                        contentDescription = "Game icon",
+                                                        modifier = Modifier
+                                                            .size(48.dp)
+                                                            .padding(4.dp)
+                                                            .background(Color.Red)
+                                                    )
+                                                     */
                                                 }
                                             }
                                         }
                                     }
                                 }
-                                Box(modifier = Modifier
-                                    .weight(4f)
-                                    .background(color = Color.Cyan)) {
+                                Box(
+                                    modifier = Modifier
+                                        .weight(3f)
+                                        .background(color = Color.Cyan)
+                                ) {
                                     CommonTextField(
                                         initValue = newScore,
                                         label = "Score",

@@ -1,5 +1,15 @@
 package com.example.karaoke_note.data
 
+enum class BrandKind(val displayName: String) {
+    JOY("JOY"),
+    DAM("DAM");
+
+    companion object {
+        fun fromDisplayName(displayName: String): BrandKind? {
+            return values().firstOrNull { it.displayName == displayName }
+        }
+    }
+}
 
 enum class GameKind(val displayName: String) {
     JOY_NATIONAL_SCORING_GP("[JOY] 全国採点GP"),
