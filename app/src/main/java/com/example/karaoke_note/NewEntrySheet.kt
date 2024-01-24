@@ -43,6 +43,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -57,6 +58,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -99,6 +101,7 @@ fun CommonTextField(
     fontSize: Int,
     normalSupportingText: String,
     errorSupportingText: String,
+    isEnabled: Boolean,
     keyboardType: KeyboardType,
     imeAction: ImeAction,
     focusRequester: FocusRequester,
@@ -129,9 +132,9 @@ fun CommonTextField(
             .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp)
             .imePadding(),
         label = { Text(label) },
-        isError = !isEmptyAllowed && invalidValue,
+        isError = isEnabled && !isEmptyAllowed && invalidValue,
         supportingText = {
-            if (!isEmptyAllowed && invalidValue) {
+            if (isEnabled && !isEmptyAllowed && textFieldValue.text.isEmpty()) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = errorSupportingText,
@@ -146,6 +149,7 @@ fun CommonTextField(
                 )
             }
         },
+        enabled = isEnabled,
         textStyle = TextStyle(fontSize = fontSize.sp),
         singleLine = singleLine,
         keyboardOptions = KeyboardOptions(
@@ -153,21 +157,15 @@ fun CommonTextField(
             imeAction = imeAction
         ),
         trailingIcon = {
-            if (!isEmptyAllowed && invalidValue) {
-                IconButton(
-                    onClick = {
-                        textFieldValue = TextFieldValue("")
-                        onClear()
-                    }
-                ) {
-                    Icon(
-                        Icons.Default.Error,
-                        contentDescription = "error",
-                        tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(trailingIconSize.dp)
-                    )
-                }
-            } else {
+            if (isEnabled && !isEmptyAllowed && textFieldValue.text.isEmpty()) {
+                Icon(
+                    Icons.Default.Error,
+                    contentDescription = "error",
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(trailingIconSize.dp)
+                )
+            }
+            else {
                 IconButton(
                     onClick = {
                         textFieldValue = TextFieldValue("")
@@ -199,25 +197,33 @@ fun getDecimalPartOfScore(str: String): String {
     return strArr[1]
 }
 
-fun isValid(title: String, artist: String, score: String): Pair<Boolean, String> {
+fun isValid(title: String, artist: String, score: String, isPlanning: Boolean): Pair<Boolean, String> {
     var valid = true
     var message = ""
 
     // タイトルやアーティスト名で問題になるのは空白ぐらい?
-    if (title.isBlank() || artist.isBlank()) {
+    if (title.isBlank()) {
         valid = false
-        message += "Blank is not allowed. (except comment field)\n"
-    } else {
+        message += "[Title] Blank is not allowed.\n"
+    }
+    if (artist.isBlank()) {
+        valid = false
+        message += "[Artist] Blank is not allowed.\n"
+    }
+    // スコア欄は予約フラグとの兼ね合いがある
+    if (!isPlanning) {
         if (score.isBlank()) {
             valid = false
-            message += "Blank is not allowed. (except comment field)\n"
-        } else {
+            message += "[Score] Blank is not allowed.\n"
+        }
+        else {
             // スコア欄固有のチェック
             val numOfDecimalPoint = getNumberOfDecimalPoints(score)
             if (numOfDecimalPoint != 1) {
                 valid = false
                 message += "[Score] Only 1 decimal point is allowed."
-            } else {
+            }
+            else {
                 // 整数部、小数部をチェック
                 // 小数部は桁数が3桁に足りない場合は末尾に 0 を補充する
                 val strIntegerPart = getIntegerPartOfScore(score)
@@ -230,18 +236,21 @@ fun isValid(title: String, artist: String, score: String): Pair<Boolean, String>
                     if ((integerPart > 100) || ((integerPart == 100) && (decimalPart != 0))) {
                         valid = false
                         message += "[Score] Too high score.\n"
-                    } else if ((integerPart < 0)) {
+                    }
+                    else if ((integerPart < 0)) {
                         // 負の数の扱い
                         valid = false
                         message += "[Score] Negative value is not allowed."
-                    } else {
+                    }
+                    else {
                         // 99.4444 などの変な形の時
                         if (strDecimalPart.length != 3) {
                             valid = false
-                            message += "[Score] Format is invalid. The decimal part must have 3 digits."
+                            message += "[Score] The decimal part must have 3 digits."
                         }
                     }
-                } else {
+                }
+                else {
                     // .123 や ,.,,, みたいな形の時
                     valid = false
                     message += "[Score] There are some invalid characters."
@@ -427,7 +436,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     var newTitle by remember { mutableStateOf("") }
     var newGame by remember { mutableStateOf(gamesList[0]) }
     var newScore by remember { mutableStateOf("") }
-    var isReserve by remember { mutableStateOf(false) }
+    var isPlanning by remember { mutableStateOf(false) }
     var newKey by remember { mutableFloatStateOf(0f) }
     var newDate by remember { mutableStateOf(LocalDate.now()) }
     var newComment by remember { mutableStateOf("") }
@@ -476,7 +485,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                 Text("Error")
             },
             text = {
-                Text(isValid(newTitle, newArtist, newScore).second)
+                Text(isValid(newTitle, newArtist, newScore, isPlanning).second)
             }
         )
     }
@@ -527,10 +536,10 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                             modifier = Modifier.align(Alignment.CenterEnd),
                             onClick = {
                                 // タイトル、アーティスト、スコア欄のチェック
-                                if (!isValid(newTitle, newArtist, newScore).first) {
+                                if (!isValid(newTitle, newArtist, newScore, isPlanning).first) {
                                     errorDialogOpened = true
-                                } else {
-                                    //callSnackBar = true
+                                }
+                                else {
                                     // データを登録
                                     val newArtistId = artistDao.insert(
                                         Artist(
@@ -596,6 +605,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 fontSize = fontSize,
                                 normalSupportingText = "",
                                 errorSupportingText = "Blank is not allowed.",
+                                isEnabled = true,
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Default,
                                 focusRequester = focusRequester,
@@ -615,6 +625,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 fontSize = fontSize,
                                 normalSupportingText = "",
                                 errorSupportingText = "Blank is not allowed.",
+                                isEnabled = true,
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Default,
                                 focusRequester = focusRequester,
@@ -643,6 +654,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         expanded = expanded,
                                         onExpandedChange = { expanded = !expanded },
                                     ) {
+                                        // 最初からあるテキストボックス
                                         TextField(
                                             value = newGame.displayName,
                                             onValueChange = {},
@@ -660,6 +672,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                             ),
                                             modifier = Modifier.menuAnchor()
                                         )
+                                        // Menu ととして出てくる部分
                                         ExposedDropdownMenu(
                                             expanded = expanded,
                                             onDismissRequest = { expanded = false }
@@ -680,7 +693,9 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         }
                                     }
                                 }
-                                Box(modifier = Modifier.weight(4f).background(color = Color.Cyan)) {
+                                Box(modifier = Modifier
+                                    .weight(4f)
+                                    .background(color = Color.Cyan)) {
                                     CommonTextField(
                                         initValue = newScore,
                                         label = "Score",
@@ -690,7 +705,8 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         singleLine = true,
                                         fontSize = fontSize,
                                         normalSupportingText = "",
-                                        errorSupportingText = "Required if the reservation switch is off.",
+                                        errorSupportingText = "Required",
+                                        isEnabled = !isPlanning,
                                         keyboardType = KeyboardType.Number,
                                         imeAction = ImeAction.Default,
                                         focusRequester = focusRequester,
@@ -698,6 +714,24 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         { newScore = "" }
                                     )
                                 }
+                            }
+                        }
+
+                        item {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Entry for plans",
+                                    fontSize = (fontSize * 0.6).sp
+                                )
+                                Switch(
+                                    checked = isPlanning,
+                                    onCheckedChange = { isPlanning = it },
+                                    modifier = Modifier.scale(0.5f)
+                                )
                             }
                         }
 
@@ -785,6 +819,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 fontSize = fontSize,
                                 normalSupportingText = "",
                                 errorSupportingText = "",
+                                isEnabled = true,
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Default,
                                 focusRequester = focusRequester,
