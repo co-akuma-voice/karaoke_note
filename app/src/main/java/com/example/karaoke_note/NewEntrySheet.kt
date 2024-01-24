@@ -1,7 +1,6 @@
 package com.example.karaoke_note
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -541,7 +540,11 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 // タイトル、アーティスト、スコア欄のチェック
                                 if (!isValid(newTitle, newArtist, newScore, isPlanning).first) {
                                     errorDialogOpened = true
-                                } else {
+                                }
+                                else {
+                                    // 予約モードが true ならスコアを 0 とする。
+                                    newScore = "0.000"
+
                                     // データを登録
                                     val newArtistId = artistDao.insert(
                                         Artist(
@@ -649,7 +652,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                             end = 0.dp,
                                             bottom = 0.dp
                                         )
-                                        .weight(2f)
+                                        .weight(1f)
                                 ) {
                                     ExposedDropdownMenuBox(
                                         expanded = expanded,
@@ -723,9 +726,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                     }
                                 }
                                 Box(
-                                    modifier = Modifier
-                                        .weight(3f)
-                                        .background(color = Color.Cyan)
+                                    modifier = Modifier.weight(1f)
                                 ) {
                                     CommonTextField(
                                         initValue = newScore,
@@ -804,7 +805,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                             text = newKeyText,
                                             modifier = Modifier
                                                 .align(Alignment.Center)
-                                                .offset(x = ((maxWidth / 13) * newKey)),
+                                                .offset(x = ((maxWidth / 15) * newKey)),
                                             fontSize = fontSize.sp
                                         )
                                     }
@@ -817,8 +818,8 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                                 horizontal = (horizontalPaddingValue * 2).dp,
                                                 vertical = 0.dp
                                             ),
-                                        valueRange = -6f..6f,
-                                        steps = 11,
+                                        valueRange = -7f..7f,
+                                        steps = 13,
                                     )
                                 }
                             }
