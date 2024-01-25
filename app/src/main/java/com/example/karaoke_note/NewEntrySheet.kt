@@ -1,6 +1,7 @@
 package com.example.karaoke_note
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -62,6 +64,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -433,6 +436,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     val gamesList = enumValues<GameKind>()
     var expanded by remember { mutableStateOf(false) }
     val gameListFontSize = 10
+    val gameListHeight = 56
 
     var newArtist by remember { mutableStateOf("") }
     var newTitle by remember { mutableStateOf("") }
@@ -665,22 +669,51 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                     ) {
                                         // 最初からあるテキストボックス
                                         TextField(
-                                            value = newGame.displayName,
+                                            value = "",//newGame.displayName,
                                             onValueChange = {},
                                             enabled = false,
                                             readOnly = true,
                                             textStyle = TextStyle(fontSize = gameListFontSize.sp),
+                                            leadingIcon = {
+                                                Row(
+                                                    modifier = Modifier
+                                                        .padding(start = horizontalPaddingValue.dp),
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                ) {
+                                                    Image(
+                                                        painter = painterResource(
+                                                            getPainterResourceIdOfBrandImage(
+                                                                newGame.name.take(3)
+                                                            )
+                                                        ),
+                                                        contentDescription = null,
+                                                        modifier = Modifier
+                                                    )
+                                                    Image(
+                                                        painter = painterResource(
+                                                            getPainterResourceIdOfGameImage(
+                                                                newGame.name
+                                                            )
+                                                        ),
+                                                        contentDescription = null,
+                                                        modifier = Modifier
+                                                            .padding(start = horizontalPaddingValue.dp)
+                                                    )
+                                                }
+                                            },
                                             trailingIcon = {
                                                 ExposedDropdownMenuDefaults.TrailingIcon(
                                                     expanded = expanded
                                                 )
                                             },
                                             colors = ExposedDropdownMenuDefaults.textFieldColors(
-                                                disabledContainerColor = Color.White,
+                                                disabledContainerColor = MaterialTheme.colorScheme.background,
                                                 disabledTrailingIconColor = Color.Black,
                                                 disabledTextColor = Color.Black
                                             ),
-                                            modifier = Modifier.menuAnchor()
+                                            modifier = Modifier
+                                                .height(gameListHeight.dp)
+                                                .menuAnchor()
                                         )
                                         // Menu ととして出てくる部分
                                         ExposedDropdownMenu(
@@ -695,36 +728,39 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                                         expanded = false
                                                     }
                                                 ) {
-                                                    Text(
-                                                        it.displayName,
-                                                        fontSize = gameListFontSize.sp
-                                                    )
-                                                    /*
-                                                    Image(
-                                                        painter = painterResource(
-                                                            // ゲーム名の頭3文字がブランド名
-                                                            getPainterResourceIdOfBrandImage(
-                                                                it.name.take(3)
-                                                            )
-                                                        ),
-                                                        contentDescription = "Brand icon",
+                                                    Row(
                                                         modifier = Modifier
-                                                            .size(48.dp)    // 48.dp は Text field の標準サイズ
-                                                            .padding(4.dp)
-                                                    )
-                                                    Image(
-                                                        painter = painterResource(
-                                                            getPainterResourceIdOfGameImage(
-                                                                it.name
-                                                            )
-                                                        ),
-                                                        contentDescription = "Game icon",
-                                                        modifier = Modifier
-                                                            .size(48.dp)
-                                                            .padding(4.dp)
-                                                            .background(Color.Red)
-                                                    )
-                                                     */
+                                                            .fillMaxWidth()
+                                                            .height(gameListHeight.dp),
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Image(
+                                                            painter = painterResource(
+                                                                getPainterResourceIdOfBrandImage(
+                                                                    it.name.take(3)
+                                                                )
+                                                            ),
+                                                            contentDescription = "Bland logo",
+                                                            modifier = Modifier
+                                                                .padding(4.dp)
+                                                        )
+                                                        Image(
+                                                            painter = painterResource(
+                                                                getPainterResourceIdOfGameImage(
+                                                                    it.name
+                                                                )
+                                                            ),
+                                                            contentDescription = "Game logo",
+                                                            modifier = Modifier
+                                                                .padding(4.dp)
+                                                        )
+                                                        Text(
+                                                            text = "(" + it.displayName + ")",
+                                                            fontSize = gameListFontSize.sp,
+                                                            modifier = Modifier
+                                                                .padding(start = horizontalPaddingValue.dp)
+                                                        )
+                                                    }
                                                 }
                                             }
                                         }
