@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.karaoke_note.data.ArtistDao
+import com.example.karaoke_note.data.BrandKind
 import com.example.karaoke_note.data.GameKind
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
@@ -62,6 +63,14 @@ fun Home(navController: NavController, songDao: SongDao, songScoreDao: SongScore
     }
 }
 
+fun getPainterResourceIdOfBrandImage(brandName: String): Int {
+    val painterResourceId = when (brandName) {
+        BrandKind.JOY.name -> R.drawable.joysound
+        BrandKind.DAM.name -> R.drawable.dam
+        else -> R.drawable.unknown_game
+    }
+    return painterResourceId
+}
 fun getPainterResourceIdOfGameImage(gameName: String): Int {
     val painterResourceId = when (gameName) {
         GameKind.JOY_NATIONAL_SCORING_GP.name -> R.drawable.joy_zenkoku_saiten_grand_prix_gp
