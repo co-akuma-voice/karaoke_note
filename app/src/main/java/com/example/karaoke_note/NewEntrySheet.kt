@@ -568,8 +568,13 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         gameKind = newGame
                                     )
                                     scope.launch {
+                                        val snackBarMessage = if (isPlanning) {
+                                            "Saved as plans."
+                                        } else {
+                                            "Saved."
+                                        }
                                         snackBarHostState.showSnackbar(
-                                            message = "rememberCoroutine",
+                                            message = snackBarMessage,
                                             actionLabel = null,
                                             withDismissAction = true,
                                             duration = SnackbarDuration.Short
@@ -756,7 +761,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Entry for plans",
+                                    text = "Entry as plans",
                                     fontSize = (fontSize * 0.6).sp
                                 )
                                 Switch(
