@@ -24,19 +24,23 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.DisplayMode
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -46,7 +50,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -64,6 +67,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -185,20 +189,139 @@ fun CommonTextField(
     )
 }
 
+@Composable
+fun ExposedGameSelectorBox(
+    initialGameKind: GameKind,
+    height: Int,
+    modifier: Modifier,    // Card の Modifier
+    isExpanded: Boolean,
+    startPaddingValue: Int,
+){
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Bottom
+    ) {
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.background
+            ),
+            shape = RoundedCornerShape(
+                topStart = 4.dp,
+                topEnd = 4.dp,
+                bottomStart = 0.dp,
+                bottomEnd = 0.dp
+            ),
+            modifier = modifier
+                .fillMaxWidth()
+                .height(height.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Row(
+                    modifier = Modifier.padding(start = startPaddingValue.dp),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(
+                            getPainterResourceIdOfBrandImage(
+                                initialGameKind.name.take(3)
+                            )
+                        ),
+                        contentDescription = null,
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
+                    Image(
+                        painter = painterResource(
+                            getPainterResourceIdOfGameImage(
+                                initialGameKind.name
+                            )
+                        ),
+                        contentDescription = null,
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                ) {
+                    // Trailing icon の代わり
+                    val arrowIcon: ImageVector = if (isExpanded) {
+                        Icons.Filled.ArrowDropUp
+                    } else {
+                        Icons.Filled.ArrowDropDown
+                    }
+                    Icon(
+                        imageVector = arrowIcon,
+                        contentDescription = null,
+                    )
+                }
+            }
+        }
+        // TextField っぽく見せるために下枠のみ線を入れる
+        Divider(
+            modifier = Modifier.fillMaxWidth(),
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.outline
+        )
+    }
+}
+
+@Composable
+fun ExposedGameSelectorItem(
+    gameKind: GameKind,
+    height: Int,
+    textSize: Int,
+    textHorizontalPaddingValues: Int,
+    onClick: () -> Unit
+){
+    DropdownMenuItem(
+        onClick = { onClick() }
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(height.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(
+                    getPainterResourceIdOfBrandImage(
+                        gameKind.name.take(3)
+                    )
+                ),
+                contentDescription = null,
+                modifier = Modifier.padding(horizontal = 4.dp)
+            )
+            Image(
+                painter = painterResource(
+                    getPainterResourceIdOfGameImage(gameKind.name)
+                ),
+                contentDescription = null,
+                modifier = Modifier.padding(horizontal = 4.dp)
+            )
+            Text(
+                text = "(" + gameKind.displayName + ")",
+                fontSize = textSize.sp,
+                modifier = Modifier.padding(start = textHorizontalPaddingValues.dp)
+            )
+        }
+    }
+}
+
 fun getNumberOfDecimalPoints(str: String): Int {
     return str.count { it == '.' }
 }
-
 fun getIntegerPartOfScore(str: String): String {
     val strArr = str.split(".").map { it.trim() }
     return strArr[0]
 }
-
 fun getDecimalPartOfScore(str: String): String {
     val strArr = str.split(".").map { it.trim() }
     return strArr[1]
 }
-
 fun isValid(title: String, artist: String, score: String, isPlanning: Boolean): Pair<Boolean, String> {
     var valid = true
     var message = ""
@@ -329,11 +452,13 @@ fun getLocalizedDate(defaultDate: LocalDate): LocalDate {
             }
             localizedSelectedDate = localizedNullableSelectedDate ?: defaultDate
 
+            // 現在設定されている日付を描画する
             Text(
                 text = localizedSelectedDate.toString(),
                 modifier = Modifier
                     .padding(end = 20.dp)
             )
+            // カレンダーボタン
             IconButton(
                 onClick = { showPicker = true }
             ) {
@@ -667,100 +792,29 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         expanded = expanded,
                                         onExpandedChange = { expanded = !expanded },
                                     ) {
-                                        // 最初からあるテキストボックス
-                                        TextField(
-                                            value = "",//newGame.displayName,
-                                            onValueChange = {},
-                                            enabled = false,
-                                            readOnly = true,
-                                            textStyle = TextStyle(fontSize = gameListFontSize.sp),
-                                            leadingIcon = {
-                                                Row(
-                                                    modifier = Modifier
-                                                        .padding(start = horizontalPaddingValue.dp),
-                                                    verticalAlignment = Alignment.CenterVertically,
-                                                ) {
-                                                    Image(
-                                                        painter = painterResource(
-                                                            getPainterResourceIdOfBrandImage(
-                                                                newGame.name.take(3)
-                                                            )
-                                                        ),
-                                                        contentDescription = null,
-                                                        modifier = Modifier
-                                                    )
-                                                    Image(
-                                                        painter = painterResource(
-                                                            getPainterResourceIdOfGameImage(
-                                                                newGame.name
-                                                            )
-                                                        ),
-                                                        contentDescription = null,
-                                                        modifier = Modifier
-                                                            .padding(start = horizontalPaddingValue.dp)
-                                                    )
-                                                }
-                                            },
-                                            trailingIcon = {
-                                                ExposedDropdownMenuDefaults.TrailingIcon(
-                                                    expanded = expanded
-                                                )
-                                            },
-                                            colors = ExposedDropdownMenuDefaults.textFieldColors(
-                                                disabledContainerColor = MaterialTheme.colorScheme.background,
-                                                disabledTrailingIconColor = Color.Black,
-                                                disabledTextColor = Color.Black
-                                            ),
-                                            modifier = Modifier
-                                                .height(gameListHeight.dp)
-                                                .menuAnchor()
+                                        // 現在設定値の表示部分
+                                        ExposedGameSelectorBox(
+                                            initialGameKind = newGame,
+                                            height = gameListHeight,
+                                            modifier = Modifier.menuAnchor(),
+                                            isExpanded = expanded,
+                                            startPaddingValue = 16    // もっと理屈で表せないかな？
                                         )
-                                        // Menu ととして出てくる部分
+                                        // Menu として出てくる部分
                                         ExposedDropdownMenu(
                                             expanded = expanded,
                                             onDismissRequest = { expanded = false },
                                             modifier = Modifier.fillMaxWidth()
                                         ) {
                                             gamesList.forEach {
-                                                DropdownMenuItem(
-                                                    onClick = {
-                                                        newGame = it
-                                                        expanded = false
-                                                    }
-                                                ) {
-                                                    Row(
-                                                        modifier = Modifier
-                                                            .fillMaxWidth()
-                                                            .height(gameListHeight.dp),
-                                                        verticalAlignment = Alignment.CenterVertically
-                                                    ) {
-                                                        Image(
-                                                            painter = painterResource(
-                                                                getPainterResourceIdOfBrandImage(
-                                                                    it.name.take(3)
-                                                                )
-                                                            ),
-                                                            contentDescription = "Bland logo",
-                                                            modifier = Modifier
-                                                                .padding(4.dp)
-                                                        )
-                                                        Image(
-                                                            painter = painterResource(
-                                                                getPainterResourceIdOfGameImage(
-                                                                    it.name
-                                                                )
-                                                            ),
-                                                            contentDescription = "Game logo",
-                                                            modifier = Modifier
-                                                                .padding(4.dp)
-                                                        )
-                                                        Text(
-                                                            text = "(" + it.displayName + ")",
-                                                            fontSize = gameListFontSize.sp,
-                                                            modifier = Modifier
-                                                                .padding(start = horizontalPaddingValue.dp)
-                                                        )
-                                                    }
+                                                ExposedGameSelectorItem(
+                                                    gameKind = it,
+                                                    height = gameListHeight,
+                                                    textSize = gameListFontSize,
+                                                    textHorizontalPaddingValues = horizontalPaddingValue,
+                                                ){
+                                                    newGame = it
+                                                    expanded = false
                                                 }
                                             }
                                         }
