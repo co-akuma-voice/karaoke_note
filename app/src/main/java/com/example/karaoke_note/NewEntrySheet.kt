@@ -672,7 +672,9 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 }
                                 else {
                                     // 予約モードが true ならスコアを 0 とする。
-                                    newScore = "0.000"
+                                    if (isPlanning) {
+                                        newScore = "0.000"
+                                    }
 
                                     // データを登録
                                     val newArtistId = artistDao.insert(
