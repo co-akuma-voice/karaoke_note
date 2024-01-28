@@ -81,6 +81,9 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             }
+                            composable("plans"){
+                                PlansPage(navController, songDao, songScoreDao, artistDao)
+                            }
                             composable("list"){
                                 ArtistsPage(navController, artistDao)
                             }
