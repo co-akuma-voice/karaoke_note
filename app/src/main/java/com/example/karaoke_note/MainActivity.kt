@@ -66,11 +66,11 @@ class MainActivity : ComponentActivity() {
                     ) { paddingValues ->
                         NavHost(
                             navController,
-                            startDestination = "home",
+                            startDestination = "latest",
                             Modifier.padding(paddingValues)
                         ) {
-                            composable("home") {
-                                Home(navController, songDao, songScoreDao, artistDao)
+                            composable("latest") {
+                                LatestPage(navController, songDao, songScoreDao, artistDao)
                             }
                             composable("song_data/{songId}") {backStackEntry ->
                                 val songId = backStackEntry.arguments?.getString("songId")?.toLongOrNull()
@@ -80,6 +80,9 @@ class MainActivity : ComponentActivity() {
                                         SongScores(song, songDao, songScoreDao, lifecycleScope, showDialog, editingSongScore)
                                     }
                                 }
+                            }
+                            composable("plans"){
+                                PlansPage(navController, songDao, songScoreDao, artistDao)
                             }
                             composable("list"){
                                 ArtistsPage(navController, artistDao)
