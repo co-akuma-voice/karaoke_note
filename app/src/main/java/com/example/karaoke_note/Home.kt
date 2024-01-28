@@ -40,7 +40,7 @@ import com.example.karaoke_note.data.SongScoreDao
 
 @ExperimentalMaterial3Api
 @Composable
-fun Home(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao) {
+fun LatestPage(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao) {
     Column {
         Box(modifier = Modifier.weight(8f)) {
             LazyColumn(

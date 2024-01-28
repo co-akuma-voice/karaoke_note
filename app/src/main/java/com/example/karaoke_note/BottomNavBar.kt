@@ -1,8 +1,9 @@
 package com.example.karaoke_note
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -25,9 +26,14 @@ data class BottomNavItem(
 fun BottomNavigationBar(navController: NavController) {
     val bottomNavItems = listOf(
         BottomNavItem(
-            name = "Home",
-            route = "home",
-            icon = Icons.Filled.Home,
+            name = "Latest",
+            route = "latest",
+            icon = Icons.Filled.Schedule,
+        ),
+        BottomNavItem(
+            name = "Plans",
+            route = "plans",
+            icon = Icons.Filled.ShoppingCart,
         ),
         BottomNavItem(
             name = "List",
