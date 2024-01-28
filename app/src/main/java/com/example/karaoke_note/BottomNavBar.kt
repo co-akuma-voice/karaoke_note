@@ -2,8 +2,8 @@ package com.example.karaoke_note
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -33,7 +33,7 @@ fun BottomNavigationBar(navController: NavController) {
         BottomNavItem(
             name = "Plans",
             route = "plans",
-            icon = Icons.Filled.ShoppingCart,
+            icon = Icons.Filled.PlaylistAdd,
         ),
         BottomNavItem(
             name = "List",
