@@ -515,15 +515,12 @@ fun getLocalizedDate(defaultDate: LocalDate): LocalDate {
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3Api
 @Composable
-fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao, scope: CoroutineScope, screenOpened: MutableState<Boolean>, editingSongScoreState: MutableState<SongScore?>, snackBarHostState: SnackbarHostState) {
+fun NewEntryScreen(songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao, scope: CoroutineScope, screenOpened: MutableState<Boolean>, editingSongScoreState: MutableState<SongScore?>, snackBarHostState: SnackbarHostState) {
     val editingSongScore = editingSongScoreState.value
-    val currentBackStackEntry by navController.currentBackStackEntryAsState()
     var errorDialogOpened by remember { mutableStateOf(false) }
 
-    val (defaultArtistId, defaultTitle) = getDefaultValuesBasedOnRoute(
-        currentBackStackEntry,
-        songDao
-    )
+    val defaultArtistId = editingSongScore?.songId?.let { songDao.getSong(it)?.artistId } ?: -1
+    val defaultTitle = editingSongScore?.songId?.let { songDao.getSong(it)?.title } ?: ""
     val defaultScore = editingSongScore?.score?.let { String.format("%.3f", it) } ?: ""
     val defaultKey = editingSongScore?.key?.toFloat() ?: 0f
     val defaultDate = editingSongScore?.date ?: LocalDate.now()
