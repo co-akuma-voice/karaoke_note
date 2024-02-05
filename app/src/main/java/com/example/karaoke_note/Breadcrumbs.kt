@@ -68,13 +68,13 @@ fun Breadcrumbs(navController: NavController, songDao: SongDao, artistDao: Artis
             // Top ページの表示を削除するならこれも不要
             //Text(" > ")
             Text(
-                truncateText(artistName!!, 10),
+                truncateText(artistName!!, 8),
                 modifier = Modifier.clickable { navController.navigate("song_list/$artistId") }
             )
         }
         if (songTitle != null) {
             Text(" > ")
-            Text(truncateText(songTitle!!, 10))
+            Text(truncateText(songTitle!!, 8))
         }
     }
 }
