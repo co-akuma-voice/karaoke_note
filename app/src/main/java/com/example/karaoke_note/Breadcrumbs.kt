@@ -62,9 +62,11 @@ fun Breadcrumbs(navController: NavController, songDao: SongDao, artistDao: Artis
 
     // パンくずリストの表示
     Row(modifier = Modifier.padding(16.dp)) {
-        Text("Latest", modifier = Modifier.clickable { navController.navigate("latest") })
+        // BottomNavBar があるので Top ページに戻る部分は不要？
+        //Text("Latest", modifier = Modifier.clickable { navController.navigate("latest") })
         if (artistName != null) {
-            Text(" > ")
+            // Top ページの表示を削除するならこれも不要
+            //Text(" > ")
             Text(
                 truncateText(artistName!!, 10),
                 modifier = Modifier.clickable { navController.navigate("song_list/$artistId") }
