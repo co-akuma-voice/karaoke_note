@@ -6,10 +6,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.*
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -61,16 +62,19 @@ fun Breadcrumbs(navController: NavController, songDao: SongDao, artistDao: Artis
 
     // パンくずリストの表示
     Row(modifier = Modifier.padding(16.dp)) {
-        Text("Home", modifier = Modifier.clickable { navController.navigate("home") })
+        // BottomNavBar があるので Top ページに戻る部分は不要？
+        //Text("Latest", modifier = Modifier.clickable { navController.navigate("latest") })
         if (artistName != null) {
-            Text(" > ")
+            // Top ページの表示を削除するならこれも不要
+            //Text(" > ")
             Text(
-                truncateText(artistName!!, 10),
-                modifier = Modifier.clickable { navController.navigate("song_list/$artistId") })
+                truncateText(artistName!!, 8),
+                modifier = Modifier.clickable { navController.navigate("song_list/$artistId") }
+            )
         }
         if (songTitle != null) {
             Text(" > ")
-            Text(truncateText(songTitle!!, 10))
+            Text(truncateText(songTitle!!, 8))
         }
     }
 }
