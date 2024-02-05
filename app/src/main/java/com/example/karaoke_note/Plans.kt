@@ -14,6 +14,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -24,16 +25,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.example.karaoke_note.data.ArtistDao
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
+import java.time.LocalDate
 
 @ExperimentalMaterial3Api
 @Composable
-fun PlansPage(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao) {
+fun PlansPage(songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao, showEntrySheetDialog: MutableState<Boolean>, editingSongScore: MutableState<SongScore?>) {
     Column {
         Box(
             modifier = Modifier.weight(8f)
@@ -47,7 +48,7 @@ fun PlansPage(navController: NavController, songDao: SongDao, songScoreDao: Song
                     if (song != null) {
                         val artist = artistDao.getNameById(song.artistId)
                         if (artist != null) {
-                            PlansCard(song, songData, artist, navController)
+                            PlansCard(song, songData, artist, showEntrySheetDialog, editingSongScore)
                         }
                     } else {
                         // データベースが壊れている
@@ -60,7 +61,7 @@ fun PlansPage(navController: NavController, songDao: SongDao, songScoreDao: Song
 
 @ExperimentalMaterial3Api
 @Composable
-fun PlansCard(song: Song, songScore: SongScore, artist: String, navController: NavController) {
+fun PlansCard(song: Song, songScore: SongScore, artist: String, showEntrySheetDialog: MutableState<Boolean>, editingSongScore: MutableState<SongScore?>) {
     remember { mutableStateOf(false) }
     val keyFormat = if (songScore.key != 0) { "%+d" } else { "%d" }
 
@@ -69,7 +70,8 @@ fun PlansCard(song: Song, songScore: SongScore, artist: String, navController: N
     ) {
         Card(
             onClick = {
-                navController.navigate("song_data/${song.id}")
+                editingSongScore.value = songScore.copy(date = LocalDate.now())
+                showEntrySheetDialog.value = true
                       },
             shape = MaterialTheme.shapes.small,
             modifier = Modifier.fillMaxWidth(),
