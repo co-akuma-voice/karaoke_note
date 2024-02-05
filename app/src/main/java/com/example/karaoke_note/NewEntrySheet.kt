@@ -77,6 +77,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.karaoke_note.data.Artist
 import com.example.karaoke_note.data.ArtistDao
 import com.example.karaoke_note.data.GameKind
@@ -512,15 +515,48 @@ fun getLocalizedDate(defaultDate: LocalDate): LocalDate {
     return localizedSelectedDate
 }
 
+private fun getDefaultValuesBasedOnRoute(
+    backStackEntry: NavBackStackEntry?,
+    songDao: SongDao
+):Pair<Long, String> {
+    val currentRoute = backStackEntry?.destination?.route
+
+    return when {
+        currentRoute?.startsWith("song_data/") == true -> {
+            val songId = backStackEntry.arguments?.getString("songId")?.toLongOrNull()
+            val song = if (songId != null) songDao.getSong(songId) else null
+            Pair(song?.artistId ?: -1, song?.title ?: "")
+        }
+        currentRoute?.startsWith("song_list/") == true -> {
+            val artistId = backStackEntry.arguments?.getString("artistId")?.toLongOrNull()
+            if (artistId == null) {
+                Pair(-1, "")
+            } else {
+                Pair(artistId, "")
+            }
+        }
+        else -> Pair(-1, "")
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3Api
 @Composable
-fun NewEntryScreen(songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao, scope: CoroutineScope, screenOpened: MutableState<Boolean>, editingSongScoreState: MutableState<SongScore?>, snackBarHostState: SnackbarHostState) {
+fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao, scope: CoroutineScope, screenOpened: MutableState<Boolean>, editingSongScoreState: MutableState<SongScore?>, snackBarHostState: SnackbarHostState) {
     val editingSongScore = editingSongScoreState.value
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
     var errorDialogOpened by remember { mutableStateOf(false) }
 
-    val defaultArtistId = editingSongScore?.songId?.let { songDao.getSong(it)?.artistId } ?: -1
-    val defaultTitle = editingSongScore?.songId?.let { songDao.getSong(it)?.title } ?: ""
+    val (defaultArtistId, defaultTitle) = if (editingSongScore == null) {
+        // +ボタンによる新規登録
+        getDefaultValuesBasedOnRoute(currentBackStackEntry, songDao)
+    } else {
+        // 既存スコア or 予定スコアの編集
+        val artistId = editingSongScore.songId.let { songDao.getSong(it)?.artistId } ?: -1
+        val title = editingSongScore.songId.let { songDao.getSong(it)?.title } ?: ""
+        Pair(artistId, title)
+    }
+
     val defaultScore = editingSongScore?.score?.let { String.format("%.3f", it) } ?: ""
     val defaultKey = editingSongScore?.key?.toFloat() ?: 0f
     val defaultDate = editingSongScore?.date ?: LocalDate.now()
