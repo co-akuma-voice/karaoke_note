@@ -10,7 +10,7 @@ import java.time.LocalDate
 
 @Dao
 interface SongScoreDao {
-    @Query("SELECT * FROM SongScore WHERE songId = :songId")
+    @Query("SELECT * FROM SongScore WHERE songId = :songId AND score != 0.0")
     fun getScoresForSong(songId: Long): Flow<List<SongScore>>
 
     @Query("SELECT * FROM SongScore ORDER BY date DESC, id DESC LIMIT :limit")
@@ -55,4 +55,7 @@ interface SongScoreDao {
 
     @Query("DELETE FROM SongScore")
     fun clearAllSongScores()
+
+    @Query("SELECT * FROM SongScore WHERE score = 0.0")
+    fun getAll0Scores(): List<SongScore>
 }

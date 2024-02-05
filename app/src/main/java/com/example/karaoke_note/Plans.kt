@@ -41,7 +41,7 @@ fun PlansPage(navController: NavController, songDao: SongDao, songScoreDao: Song
             LazyColumn(
                 modifier = Modifier
             ) {
-                val songDataList = songScoreDao.getLatestScores(10)
+                val songDataList = songScoreDao.getAll0Scores()
                 items(songDataList) { songData ->
                     val song = songDao.getSong(songData.songId)
                     if (song != null) {
