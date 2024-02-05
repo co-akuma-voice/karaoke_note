@@ -77,9 +77,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.karaoke_note.data.Artist
 import com.example.karaoke_note.data.ArtistDao
 import com.example.karaoke_note.data.GameKind
@@ -513,31 +510,6 @@ fun getLocalizedDate(defaultDate: LocalDate): LocalDate {
     }
 
     return localizedSelectedDate
-}
-
-
-private fun getDefaultValuesBasedOnRoute(
-    backStackEntry: NavBackStackEntry?,
-    songDao: SongDao
-):Pair<Long, String> {
-    val currentRoute = backStackEntry?.destination?.route
-
-    return when {
-        currentRoute?.startsWith("song_data/") == true -> {
-            val songId = backStackEntry.arguments?.getString("songId")?.toLongOrNull()
-            val song = if (songId != null) songDao.getSong(songId) else null
-            Pair(song?.artistId ?: -1, song?.title ?: "")
-        }
-        currentRoute?.startsWith("song_list/") == true -> {
-            val artistId = backStackEntry.arguments?.getString("artistId")?.toLongOrNull()
-            if (artistId == null) {
-                Pair(-1, "")
-            } else {
-                Pair(artistId, "")
-            }
-        }
-        else -> Pair(-1, "")
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
