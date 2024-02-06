@@ -515,7 +515,6 @@ fun getLocalizedDate(defaultDate: LocalDate): LocalDate {
     return localizedSelectedDate
 }
 
-
 private fun getDefaultValuesBasedOnRoute(
     backStackEntry: NavBackStackEntry?,
     songDao: SongDao
@@ -548,10 +547,16 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     var errorDialogOpened by remember { mutableStateOf(false) }
 
-    val (defaultArtistId, defaultTitle) = getDefaultValuesBasedOnRoute(
-        currentBackStackEntry,
-        songDao
-    )
+    val (defaultArtistId, defaultTitle) = if (editingSongScore == null) {
+        // +ボタンによる新規登録
+        getDefaultValuesBasedOnRoute(currentBackStackEntry, songDao)
+    } else {
+        // 既存スコア or 予定スコアの編集
+        val artistId = editingSongScore.songId.let { songDao.getSong(it)?.artistId } ?: -1
+        val title = editingSongScore.songId.let { songDao.getSong(it)?.title } ?: ""
+        Pair(artistId, title)
+    }
+
     val defaultScore = editingSongScore?.score?.let { String.format("%.3f", it) } ?: ""
     val defaultKey = editingSongScore?.key?.toFloat() ?: 0f
     val defaultDate = editingSongScore?.date ?: LocalDate.now()
