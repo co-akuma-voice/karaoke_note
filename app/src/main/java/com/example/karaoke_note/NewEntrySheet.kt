@@ -595,8 +595,6 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
 
     FloatingActionButton(
         onClick = { screenOpened.value = true },
-        modifier = Modifier
-            .padding(16.dp),
         shape = RoundedCornerShape(16.dp),
         containerColor = MaterialTheme.colorScheme.primaryContainer,
     ) {
