@@ -545,6 +545,7 @@ private fun getDefaultValuesBasedOnRoute(
 fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao, scope: CoroutineScope, screenOpened: MutableState<Boolean>, editingSongScoreState: MutableState<SongScore?>, snackBarHostState: SnackbarHostState) {
     val editingSongScore = editingSongScoreState.value
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val parentPage: String? = currentBackStackEntry?.destination?.route
     var errorDialogOpened by remember { mutableStateOf(false) }
 
     val (defaultArtistId, defaultTitle) = if (editingSongScore == null) {
@@ -572,7 +573,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     var newTitle by remember { mutableStateOf("") }
     var newGame by remember { mutableStateOf(gamesList[0]) }
     var newScore by remember { mutableStateOf("") }
-    var isPlanning by remember { mutableStateOf(false) }
+    var isPlanning by remember(parentPage, editingSongScore) { mutableStateOf(parentPage == "plans" && editingSongScore == null) }
     var newKey by remember { mutableFloatStateOf(0f) }
     var newDate by remember { mutableStateOf(LocalDate.now()) }
     var newComment by remember { mutableStateOf("") }

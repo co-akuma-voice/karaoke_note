@@ -58,7 +58,6 @@ class MainActivity : ComponentActivity() {
                         },
                         floatingActionButton = {
                             NewEntryScreen(navController, songDao, songScoreDao, artistDao, lifecycleScope, showDialog, editingSongScore, snackBarHostState)
-                            //AnimatedContentFABtoDiagram()
                         },
                         snackbarHost = {
                             SnackbarHost(snackBarHostState)
