@@ -1,7 +1,9 @@
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -52,7 +54,11 @@ fun <T> SortableTable(
             sortDirection = newSortDirection
         }
         Divider(color = Color.Gray, thickness = 1.dp)
-        LazyColumn {
+
+        LazyColumn(
+            // FAB Specs によると、FAB の下余白 16, FAB の高さ 56
+            contentPadding = PaddingValues(bottom = (16+56+16).dp)
+        ) {
             itemsIndexed(sortedItems) { index, item ->
                 val color = if (index % 2 == 0) Color.Gray.copy(alpha = 0.4f) else Color.Gray.copy(alpha = 0.2f)
                 DataRow(columns, item, color) {
