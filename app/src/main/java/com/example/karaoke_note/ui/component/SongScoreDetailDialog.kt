@@ -18,7 +18,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.getPainterResourceIdOfGameImage
 import java.time.format.DateTimeFormatter
@@ -29,7 +28,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun SongScoreDetailDialog(
     onDismissRequest: () -> Unit,
-    song: Song,
+    //song: Song,
     //artist: Artist,
     songScore: SongScore
 ){

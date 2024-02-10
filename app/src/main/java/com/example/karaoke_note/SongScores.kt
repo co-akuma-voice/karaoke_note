@@ -117,7 +117,6 @@ fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: 
         )
     )
 
-
     var text by remember { mutableStateOf(song.title) }
     var isEditing by remember { mutableStateOf(false) }
     Column {
@@ -148,7 +147,7 @@ fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: 
         }
         Divider(color = Color.Gray, thickness = 1.dp)
         //SortableTable(items = scores, columns = columns)
-        SortableTable(items = scores, columns = columns) {
+        SortableTable(items = scores, columns = columns) { item ->
             openDetailDialog = true
         }
     }
@@ -156,8 +155,9 @@ fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: 
     if (openDetailDialog) {
         SongScoreDetailDialog(
             onDismissRequest = { openDetailDialog = false },
-            song = song,
-            songScore = scores[0]   // どれでも一緒
+            //song = song,
+            songScore = scores[0],  // 仮の処置
         )
     }
 }
+
