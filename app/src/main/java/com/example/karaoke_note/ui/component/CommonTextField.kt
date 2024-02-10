@@ -64,7 +64,7 @@ fun CommonTextField(
     var isDropdownExpanded by remember { mutableStateOf(false) }
     val trailingIconSize = 20
     val filteredAutoCompleteSuggestions = remember(textFieldValue.text) {
-        autoCompleteSuggestions.filter { it.contains(textFieldValue.text, ignoreCase = true) }
+        autoCompleteSuggestions.filter { it.startsWith(textFieldValue.text, ignoreCase = true) }
     }
     var isFocused by remember { mutableStateOf(false) }
 
