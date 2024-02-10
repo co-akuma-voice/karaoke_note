@@ -38,6 +38,7 @@ import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
+import com.example.karaoke_note.ui.component.SongScoreDetailDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
@@ -54,6 +55,7 @@ fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: 
     val selectedScoreId = remember { mutableStateOf<Long?>(null) }
     val formatter = DateTimeFormatter.ofPattern("yy/MM/dd")
     val fontSize = 18.sp
+    var openDetailDialog by remember { mutableStateOf(false) }
 
     val columns = listOf(
         TableColumn<SongScore>("日付",
@@ -145,6 +147,17 @@ fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: 
             }
         }
         Divider(color = Color.Gray, thickness = 1.dp)
-        SortableTable(items = scores, columns = columns)
+        //SortableTable(items = scores, columns = columns)
+        SortableTable(items = scores, columns = columns) {
+            openDetailDialog = true
+        }
+    }
+    
+    if (openDetailDialog) {
+        SongScoreDetailDialog(
+            onDismissRequest = { openDetailDialog = false },
+            song = song,
+            songScore = scores[0]   // どれでも一緒
+        )
     }
 }
