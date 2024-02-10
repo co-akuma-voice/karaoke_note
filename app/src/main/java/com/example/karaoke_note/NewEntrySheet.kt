@@ -1,6 +1,5 @@
 package com.example.karaoke_note
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,15 +9,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
@@ -28,7 +23,6 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -44,7 +38,6 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -53,7 +46,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -64,15 +56,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -87,107 +76,13 @@ import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
+import com.example.karaoke_note.ui.component.CommonTextField
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import kotlin.math.roundToInt
-
-@OptIn(ExperimentalFoundationApi::class)
-@ExperimentalMaterial3Api
-@Composable
-fun CommonTextField(
-    initValue: String,
-    label: String,
-    horizontalPaddingValue: Int,
-    verticalPaddingValue: Int,
-    isEmptyAllowed: Boolean,      // TextField を空欄にすることを許可するかどうか
-    singleLine: Boolean,
-    fontSize: Int,
-    normalSupportingText: String,
-    errorSupportingText: String,
-    isEnabled: Boolean,
-    keyboardType: KeyboardType,
-    imeAction: ImeAction,
-    focusRequester: FocusRequester,
-    onChange: (String) -> Unit,
-    onClear: () -> Unit
-) {
-    var textFieldValue by remember { mutableStateOf(TextFieldValue(initValue)) }
-    val bringIntoViewRequester = remember { BringIntoViewRequester() }
-    val invalidValue by remember { derivedStateOf { textFieldValue.text.isEmpty() } }
-    val trailingIconSize = 20
-
-    LaunchedEffect(initValue) {
-        if (textFieldValue.text != initValue) {
-            textFieldValue = textFieldValue.copy(text = initValue)
-        }
-    }
-
-    OutlinedTextField(
-        value = textFieldValue,
-        onValueChange = { inputText ->
-            textFieldValue = inputText
-            onChange(inputText.text)
-        },
-        modifier = Modifier
-            .bringIntoViewRequester(bringIntoViewRequester)
-            .focusRequester(focusRequester)
-            .fillMaxWidth()
-            .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp)
-            .imePadding(),
-        label = { Text(label) },
-        isError = isEnabled && !isEmptyAllowed && invalidValue,
-        supportingText = {
-            if (isEnabled && !isEmptyAllowed && textFieldValue.text.isEmpty()) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = errorSupportingText,
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-            else {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = normalSupportingText,
-                    color = MaterialTheme.colorScheme.background
-                )
-            }
-        },
-        enabled = isEnabled,
-        textStyle = TextStyle(fontSize = fontSize.sp),
-        singleLine = singleLine,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = keyboardType,
-            imeAction = imeAction
-        ),
-        trailingIcon = {
-            if (isEnabled && !isEmptyAllowed && textFieldValue.text.isEmpty()) {
-                Icon(
-                    Icons.Default.Error,
-                    contentDescription = "error",
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(trailingIconSize.dp)
-                )
-            }
-            else {
-                IconButton(
-                    onClick = {
-                        textFieldValue = TextFieldValue("")
-                        onClear()
-                    }
-                ) {
-                    Icon(
-                        Icons.Default.Clear,
-                        contentDescription = "clear",
-                        modifier = Modifier.size(trailingIconSize.dp)
-                    )
-                }
-            }
-        },
-    )
-}
 
 @Composable
 fun ExposedGameSelectorBox(
