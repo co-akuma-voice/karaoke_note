@@ -600,6 +600,12 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         gameKind = newGame
                                     )
                                     scope.launch {
+                                        if (editingSongScore == null) {
+                                            songScoreDao.insert(newSongScore)
+                                        } else {
+                                            songScoreDao.update(newSongScore)
+                                        }
+
                                         val snackBarMessage = if (isPlanning) {
                                             "Saved as plans."
                                         } else {
@@ -611,12 +617,6 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                             withDismissAction = true,
                                             duration = SnackbarDuration.Short
                                         )
-
-                                        if (editingSongScore == null) {
-                                            songScoreDao.insert(newSongScore)
-                                        } else {
-                                            songScoreDao.update(newSongScore)
-                                        }
                                     }
                                     editingSongScoreState.value = null
                                     newScore = ""
