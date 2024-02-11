@@ -13,8 +13,8 @@ interface SongScoreDao {
     @Query("SELECT * FROM SongScore WHERE songId = :songId AND score != 0.0")
     fun getScoresForSong(songId: Long): Flow<List<SongScore>>
 
-    @Query("SELECT * FROM SongScore WHERE score != 0.0 ORDER BY date DESC, id DESC LIMIT :limit")
-    fun getLatestScores(limit: Int): List<SongScore>
+    @Query("SELECT * FROM SongScore WHERE score != 0.0 ORDER BY date DESC, id DESC LIMIT :limit OFFSET :offset")
+    fun getLatestScores(limit: Int, offset: Int = 0): List<SongScore>
 
     @Query("SELECT * FROM SongScore WHERE songId = :songId AND date = :date AND score = :score AND \"key\" = :key AND comment = :comment AND gameKind = :gameKind")
     fun findSongScore(songId: Long, date: LocalDate, score: Float, key: Int, comment: String, gameKind: GameKind): SongScore?
