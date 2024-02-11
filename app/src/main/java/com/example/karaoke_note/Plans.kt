@@ -15,8 +15,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,6 +37,8 @@ import java.time.LocalDate
 @ExperimentalMaterial3Api
 @Composable
 fun PlansPage(songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao, showEntrySheetDialog: MutableState<Boolean>, editingSongScore: MutableState<SongScore?>) {
+    val songDataFlow = songScoreDao.getAll0Scores()
+    val songDataList by songDataFlow.collectAsState(initial = listOf())
     Column {
         Box(
             modifier = Modifier.weight(8f)
@@ -42,7 +46,6 @@ fun PlansPage(songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao
             LazyColumn(
                 modifier = Modifier
             ) {
-                val songDataList = songScoreDao.getAll0Scores()
                 items(songDataList) { songData ->
                     val song = songDao.getSong(songData.songId)
                     if (song != null) {

@@ -57,5 +57,5 @@ interface SongScoreDao {
     fun clearAllSongScores()
 
     @Query("SELECT * FROM SongScore WHERE score = 0.0")
-    fun getAll0Scores(): List<SongScore>
+    fun getAll0Scores(): Flow<List<SongScore>>
 }
