@@ -442,6 +442,8 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val parentPage: String? = currentBackStackEntry?.destination?.route
     var errorDialogOpened by remember { mutableStateOf(false) }
+    val allArtists = artistDao.getAllArtists()
+    val allSongs = songDao.getAllSongs()
 
     val (defaultArtistId, defaultTitle) = if (editingSongScore == null) {
         // +ボタンによる新規登録
@@ -649,8 +651,9 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Default,
                                 focusRequester = focusRequester,
+                                autoCompleteSuggestions = allSongs.map { it.title },
                                 { inputText -> newTitle = inputText },
-                                { newTitle = "" }
+                                { newTitle = "" },
                             )
                         }
 
@@ -669,6 +672,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Default,
                                 focusRequester = focusRequester,
+                                autoCompleteSuggestions = allArtists.map { it.name },
                                 { inputText -> newArtist = inputText },
                                 { newArtist = "" }
                             )
@@ -738,6 +742,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         keyboardType = KeyboardType.Number,
                                         imeAction = ImeAction.Default,
                                         focusRequester = focusRequester,
+                                        autoCompleteSuggestions = emptyList(),
                                         { inputText -> newScore = inputText },
                                         { newScore = "" }
                                     )
@@ -851,6 +856,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Default,
                                 focusRequester = focusRequester,
+                                autoCompleteSuggestions = emptyList(),
                                 { inputText -> newComment = inputText },
                                 { newComment = "" }
                             )
