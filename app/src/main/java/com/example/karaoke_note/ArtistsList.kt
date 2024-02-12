@@ -179,7 +179,7 @@ fun ArtistsListDrawing(navController: NavController, artist: Artist, artistDao: 
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                for (index in 0..7) { // 7色
+                for (index in 0..7) { // 8色
                     IconButton(
                         onClick = {
                             onUpdate(artist.id, getARGB(index).toArgb())
