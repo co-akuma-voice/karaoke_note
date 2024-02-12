@@ -116,7 +116,6 @@ fun ArtistsListHeader(sortDirection: SortDirection, onSortChanged: (SortDirectio
 
 fun getARGB(colorNumber: Int): Color {
     var argb: Color = Color.Black
-
     when (colorNumber) {
         0 -> argb = Color.Black
         1 -> argb = Color.Red
