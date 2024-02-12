@@ -35,6 +35,9 @@ interface ArtistDao {
     @Query("UPDATE Artist SET name = :name WHERE id = :id")
     fun updateName(id: Long, name: String)
 
+    @Query("UPDATE Artist SET icon_color = :iconColor WHERE id = :id")
+    fun updateIconColor(id: Long, iconColor: Int)
+
     @Query("DELETE FROM Artist")
     fun clearAllArtists()
 

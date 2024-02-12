@@ -1,7 +1,10 @@
 package com.example.karaoke_note
 
 import SortDirection
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,9 +14,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +30,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -41,14 +49,14 @@ fun ArtistsPage(navController: NavController, artistDao: ArtistDao) {
         Box(modifier = Modifier.weight(9f)) {
             val artistsFlow = artistDao.getArtistsWithSongs()
             val artists by artistsFlow.collectAsState(initial = emptyList())
-            SortArtists(navController, artists)
+            SortArtists(navController, artists, artistDao)
         }
     }
 }
 
 @ExperimentalMaterial3Api
 @Composable
-fun SortArtists(navController: NavController, artists: List<Artist>) {
+fun SortArtists(navController: NavController, artists: List<Artist>, artistDao: ArtistDao) {
     var sortDirection by remember { mutableStateOf(SortDirection.Asc) }
     var sortedArtists by remember(sortDirection, artists) { mutableStateOf(getSortedArtists(sortDirection, artists)) }
 
@@ -61,8 +69,8 @@ fun SortArtists(navController: NavController, artists: List<Artist>) {
             modifier = Modifier
         ) {
             LazyColumn {
-                itemsIndexed(sortedArtists) { index, artist ->
-                    ArtistsListDrawing(navController, artist)
+                itemsIndexed(sortedArtists) { _, artist ->
+                    ArtistsListDrawing(navController, artist, artistDao)
                 }
             }
         }
@@ -106,9 +114,32 @@ fun ArtistsListHeader(sortDirection: SortDirection, onSortChanged: (SortDirectio
     }
 }
 
+fun getARGB(colorNumber: Int): Color {
+    var argb: Color = Color.Black
+
+    when (colorNumber) {
+        0 -> argb = Color.Black
+        1 -> argb = Color.Red
+        2 -> argb = Color(0xffff8000)
+        3 -> argb = Color.Yellow
+        4 -> argb = Color.Green
+        5 -> argb = Color(0xff00ffff)
+        6 -> argb = Color.Blue
+        7 -> argb = Color(0xff800080)
+    }
+    return argb
+}
+
+@OptIn(ExperimentalFoundationApi::class)
 @ExperimentalMaterial3Api
 @Composable
-fun ArtistsListDrawing(navController: NavController, artist: Artist) {
+fun ArtistsListDrawing(navController: NavController, artist: Artist, artistDao: ArtistDao) {
+    fun onUpdate(artistId: Long, iconColor: Int) {
+        artistDao.updateIconColor(artistId, iconColor)
+    }
+    val haptics = LocalHapticFeedback.current
+    var iconColorSelectorOpened by remember { mutableStateOf(false) }
+
     Column (
         modifier = Modifier.clickable {
             navController.navigate("song_list/${artist.id}")
@@ -125,10 +156,46 @@ fun ArtistsListDrawing(navController: NavController, artist: Artist) {
                 Icon(
                     imageVector = Icons.Filled.Person,
                     tint = Color(artist.iconColor),
-                    contentDescription = null
+                    contentDescription = null,
+                    modifier = Modifier.combinedClickable(
+                        onClick = {},
+                        onLongClick = {
+                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                            iconColorSelectorOpened = true
+                        }
+                    )
                 )
             }
         )
         Divider(color = Color.Gray, thickness = 1.dp)
+    }
+
+    if (iconColorSelectorOpened) {
+        Card(
+            modifier = Modifier.fillMaxWidth()
+        ){
+            Row(
+                modifier = Modifier,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                for (index in 0..7) { // 7色
+                    IconButton(
+                        onClick = {
+                            onUpdate(artist.id, getARGB(index).toArgb())
+                            iconColorSelectorOpened = false
+                        },
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Person,
+                            contentDescription = null,
+                            modifier = Modifier,
+                            tint = getARGB(index)
+                        )
+                    }
+                }
+            }
+        }
     }
 }
