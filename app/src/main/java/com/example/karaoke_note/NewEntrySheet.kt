@@ -46,6 +46,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -442,7 +443,8 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val parentPage: String? = currentBackStackEntry?.destination?.route
     var errorDialogOpened by remember { mutableStateOf(false) }
-    val allArtists = artistDao.getAllArtists()
+    val allArtistFlow = artistDao.getAllArtists()
+    val allArtists by allArtistFlow.collectAsState(initial = emptyList())
     val allSongs = songDao.getAllSongs()
 
     val (defaultArtistId, defaultTitle) = if (editingSongScore == null) {
@@ -600,6 +602,12 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         gameKind = newGame
                                     )
                                     scope.launch {
+                                        if (editingSongScore == null) {
+                                            songScoreDao.insert(newSongScore)
+                                        } else {
+                                            songScoreDao.update(newSongScore)
+                                        }
+
                                         val snackBarMessage = if (isPlanning) {
                                             "Saved as plans."
                                         } else {
@@ -611,12 +619,6 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                             withDismissAction = true,
                                             duration = SnackbarDuration.Short
                                         )
-
-                                        if (editingSongScore == null) {
-                                            songScoreDao.insert(newSongScore)
-                                        } else {
-                                            songScoreDao.update(newSongScore)
-                                        }
                                     }
                                     editingSongScoreState.value = null
                                     newScore = ""

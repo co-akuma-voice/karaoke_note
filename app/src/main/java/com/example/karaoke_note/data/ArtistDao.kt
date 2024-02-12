@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ArtistDao {
@@ -38,8 +39,8 @@ interface ArtistDao {
     fun clearAllArtists()
 
     @Query("SELECT * FROM Artist")
-    fun getAllArtists(): List<Artist>
+    fun getAllArtists(): Flow<List<Artist>>
 
     @Query("SELECT Artist.* FROM Artist JOIN Song ON Artist.id = Song.artistId JOIN SongScore ON Song.id = SongScore.songId GROUP BY Artist.id HAVING COUNT(SongScore.id) > 0")
-    fun getArtistsWithSongs(): List<Artist>
+    fun getArtistsWithSongs(): Flow<List<Artist>>
 }

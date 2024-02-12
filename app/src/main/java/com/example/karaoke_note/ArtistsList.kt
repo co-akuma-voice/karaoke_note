@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,7 +39,8 @@ fun ArtistsPage(navController: NavController, artistDao: ArtistDao) {
             Spacer(modifier = Modifier)
         }
         Box(modifier = Modifier.weight(9f)) {
-            val artists = artistDao.getArtistsWithSongs()
+            val artistsFlow = artistDao.getArtistsWithSongs()
+            val artists by artistsFlow.collectAsState(initial = emptyList())
             SortArtists(navController, artists)
         }
     }
@@ -48,7 +50,7 @@ fun ArtistsPage(navController: NavController, artistDao: ArtistDao) {
 @Composable
 fun SortArtists(navController: NavController, artists: List<Artist>) {
     var sortDirection by remember { mutableStateOf(SortDirection.Asc) }
-    var sortedArtists by remember(sortDirection) { mutableStateOf(getSortedArtists(sortDirection, artists)) }
+    var sortedArtists by remember(sortDirection, artists) { mutableStateOf(getSortedArtists(sortDirection, artists)) }
 
     Column {
         ArtistsListHeader(sortDirection) { newSortDirection ->
