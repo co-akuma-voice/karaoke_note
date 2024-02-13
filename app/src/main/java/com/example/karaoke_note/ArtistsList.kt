@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
@@ -169,9 +170,10 @@ fun ArtistsListDrawing(navController: NavController, artist: Artist, artistDao: 
         Divider(color = Color.Gray, thickness = 1.dp)
     }
 
-    if (iconColorSelectorOpened) {
+    if (iconColorSelectorOpened) { // これもできれば切り出したいな
         Card(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(4.dp)
         ){
             Row(
                 modifier = Modifier,
@@ -184,7 +186,9 @@ fun ArtistsListDrawing(navController: NavController, artist: Artist, artistDao: 
                             onUpdate(artist.id, getARGB(index).toArgb())
                             iconColorSelectorOpened = false
                         },
-                        modifier = Modifier.align(Alignment.CenterVertically)
+                        modifier = Modifier
+                            .weight(1f)   // 均等に
+                            .align(Alignment.CenterVertically)
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Person,
