@@ -12,17 +12,23 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,10 +46,13 @@ import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
+import kotlinx.coroutines.launch
 
 @ExperimentalMaterial3Api
 @Composable
 fun LatestPage(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao) {
+    val coroutineScope = rememberCoroutineScope()
+    val listState = rememberLazyListState()
     val songScoreList = remember { mutableStateListOf<SongScore>() }
     val isLoading = remember { mutableStateOf(false) }
     val pageSize = 10  // 1回のロードで取得するアイテム数
@@ -66,7 +75,8 @@ fun LatestPage(navController: NavController, songDao: SongDao, songScoreDao: Son
     Column {
         Box(modifier = Modifier.weight(8f)) {
             LazyColumn(
-                modifier = Modifier
+                modifier = Modifier,
+                state = listState
             ) {
                 itemsIndexed(songScoreList) { index, songScore ->
                     // 各アイテムの表示
@@ -97,6 +107,23 @@ fun LatestPage(navController: NavController, songDao: SongDao, songScoreDao: Son
                         }
                     }
                 }
+            }
+
+            // Scroll to Top ボタン
+            SmallFloatingActionButton(
+                onClick = {
+                    coroutineScope.launch {
+                        listState.animateScrollToItem(index = 0)
+                    }
+                },
+                modifier = Modifier,
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer
+            ){
+                Icon(
+                    imageVector = Icons.Rounded.ArrowUpward,
+                    contentDescription = "Scroll to Top",
+                    tint = Color.White
+                )
             }
         }
     }
