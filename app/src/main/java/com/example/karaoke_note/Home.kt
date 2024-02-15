@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -14,17 +16,20 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowUpward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,9 +58,11 @@ import kotlinx.coroutines.launch
 fun LatestPage(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao) {
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
+    val firstVisibleListItem by remember { derivedStateOf { listState.firstVisibleItemIndex } }
     val songScoreList = remember { mutableStateListOf<SongScore>() }
     val isLoading = remember { mutableStateOf(false) }
     val pageSize = 10  // 1回のロードで取得するアイテム数
+    val middleFABSize = 56
 
     // 初回および追加データのロードを行う関数
     fun loadSongs(offset: Int) {
@@ -110,20 +117,31 @@ fun LatestPage(navController: NavController, songDao: SongDao, songScoreDao: Son
             }
 
             // Scroll to Top ボタン
-            SmallFloatingActionButton(
-                onClick = {
-                    coroutineScope.launch {
-                        listState.animateScrollToItem(index = 0)
+            if ( firstVisibleListItem > 0) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .offset(y = -(middleFABSize * 1.25).dp),
+                    contentAlignment = Alignment.BottomEnd
+                ) {
+                    IconButton(
+                        onClick = {
+                            coroutineScope.launch {
+                                listState.animateScrollToItem(index = 0)
+                            }
+                        },
+                        modifier = Modifier,
+                        colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowUpward,
+                            contentDescription = "Scroll to Top",
+                            tint = Color.White,
+                            modifier = Modifier
+                        )
                     }
-                },
-                modifier = Modifier,
-                containerColor = MaterialTheme.colorScheme.tertiaryContainer
-            ){
-                Icon(
-                    imageVector = Icons.Rounded.ArrowUpward,
-                    contentDescription = "Scroll to Top",
-                    tint = Color.White
-                )
+                }
             }
         }
     }
