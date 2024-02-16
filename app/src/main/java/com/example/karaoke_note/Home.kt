@@ -1,5 +1,8 @@
 package com.example.karaoke_note
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -51,6 +55,7 @@ import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterial3Api
@@ -62,7 +67,6 @@ fun LatestPage(navController: NavController, songDao: SongDao, songScoreDao: Son
     val songScoreList = remember { mutableStateListOf<SongScore>() }
     val isLoading = remember { mutableStateOf(false) }
     val pageSize = 10  // 1回のロードで取得するアイテム数
-    val middleFABSize = 56
 
     // 初回および追加データのロードを行う関数
     fun loadSongs(offset: Int) {
@@ -117,31 +121,51 @@ fun LatestPage(navController: NavController, songDao: SongDao, songScoreDao: Son
             }
 
             // Scroll to Top ボタン
-            if ( firstVisibleListItem > 0) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp)
-                        .offset(y = -(middleFABSize * 1.25).dp),
-                    contentAlignment = Alignment.BottomEnd
-                ) {
-                    IconButton(
-                        onClick = {
-                            coroutineScope.launch {
-                                listState.animateScrollToItem(index = 0)
-                            }
-                        },
-                        modifier = Modifier,
-                        colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowUpward,
-                            contentDescription = "Scroll to Top",
-                            tint = Color.White,
-                            modifier = Modifier
-                        )
-                    }
+            AnimatedScrollUpButton(
+                isVisible = (firstVisibleListItem > 0),
+                coroutineScope = coroutineScope,
+                listState = listState
+            ){
+                coroutineScope.launch {
+                    listState.animateScrollToItem(index = 0)
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun AnimatedScrollUpButton(
+    isVisible: Boolean,
+    coroutineScope: CoroutineScope,
+    listState: LazyListState,
+    onClick: () -> Unit
+){
+    val middleFABSize = 56
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .offset(y = -(middleFABSize * 1.25).dp),
+        contentAlignment = Alignment.BottomEnd
+    ) {
+        AnimatedVisibility(
+            visible = isVisible,
+            enter = slideInHorizontally(initialOffsetX = { it * 2 }),
+            exit = slideOutHorizontally(targetOffsetX = { it * 2 }),
+        ) {
+            IconButton(
+                onClick = { onClick() },
+                modifier = Modifier,
+                colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowUpward,
+                    contentDescription = "Scroll to Top",
+                    tint = Color.White,
+                    modifier = Modifier
+                )
             }
         }
     }
