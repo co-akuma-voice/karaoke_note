@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -55,7 +54,6 @@ import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterial3Api
@@ -123,8 +121,6 @@ fun LatestPage(navController: NavController, songDao: SongDao, songScoreDao: Son
             // Scroll to Top ボタン
             AnimatedScrollUpButton(
                 isVisible = (firstVisibleListItem > 0),
-                coroutineScope = coroutineScope,
-                listState = listState
             ){
                 coroutineScope.launch {
                     listState.animateScrollToItem(index = 0)
@@ -137,8 +133,6 @@ fun LatestPage(navController: NavController, songDao: SongDao, songScoreDao: Son
 @Composable
 fun AnimatedScrollUpButton(
     isVisible: Boolean,
-    coroutineScope: CoroutineScope,
-    listState: LazyListState,
     onClick: () -> Unit
 ){
     val middleFABSize = 56
