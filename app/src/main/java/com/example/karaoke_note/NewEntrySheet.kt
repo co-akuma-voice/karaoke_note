@@ -94,7 +94,7 @@ private fun getDefaultValuesBasedOnRoute(
     }
 }
 
-// Save ボタンを押したときに無効データがないかどうかチェックする
+// データに無効値がないか判定する
 fun isValid(
     titleErrorSupportingText: String,
     artistErrorSupportingText: String,
