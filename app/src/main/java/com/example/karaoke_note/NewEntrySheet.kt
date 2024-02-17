@@ -207,17 +207,6 @@ fun ExposedGameSelectorItem(
     }
 }
 
-fun getNumberOfDecimalPoints(str: String): Int {
-    return str.count { it == '.' }
-}
-fun getIntegerPartOfScore(str: String): String {
-    val strArr = str.split(".").map { it.trim() }
-    return strArr[0]
-}
-fun getDecimalPartOfScore(str: String): String {
-    val strArr = str.split(".").map { it.trim() }
-    return strArr[1]
-}
 fun isValid(title: String, artist: String, score: String, isPlanning: Boolean): Pair<Boolean, String> {
     var valid = true
     var message = ""
@@ -230,54 +219,6 @@ fun isValid(title: String, artist: String, score: String, isPlanning: Boolean): 
     if (artist.isBlank()) {
         valid = false
         message += "[Artist] Blank is not allowed.\n"
-    }
-    // スコア欄は予約フラグとの兼ね合いがある
-    if (!isPlanning) {
-        if (score.isBlank()) {
-            valid = false
-            message += "[Score] Blank is not allowed.\n"
-        }
-        else {
-            // スコア欄固有のチェック
-            val numOfDecimalPoint = getNumberOfDecimalPoints(score)
-            if (numOfDecimalPoint != 1) {
-                valid = false
-                message += "[Score] Only 1 decimal point is allowed."
-            }
-            else {
-                // 整数部、小数部をチェック
-                // 小数部は桁数が3桁に足りない場合は末尾に 0 を補充する
-                val strIntegerPart = getIntegerPartOfScore(score)
-                val integerPart: Int? = strIntegerPart.toIntOrNull()
-                val strDecimalPart: String = getDecimalPartOfScore(score)
-                val decimalPart: Int? = strDecimalPart.toIntOrNull()
-
-                if (integerPart != null && decimalPart != null) {
-                    // 100 点以上の扱い
-                    if ((integerPart > 100) || ((integerPart == 100) && (decimalPart != 0))) {
-                        valid = false
-                        message += "[Score] Too high score.\n"
-                    }
-                    else if ((integerPart < 0)) {
-                        // 負の数の扱い
-                        valid = false
-                        message += "[Score] Negative value is not allowed."
-                    }
-                    else {
-                        // 99.4444 などの変な形の時
-                        if (strDecimalPart.length != 3) {
-                            valid = false
-                            message += "[Score] The decimal part must have 3 digits."
-                        }
-                    }
-                }
-                else {
-                    // .123 や ,.,,, みたいな形の時
-                    valid = false
-                    message += "[Score] There are some invalid characters."
-                }
-            }
-        }
     }
 
     return valid to message
@@ -647,7 +588,6 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 isEmptyAllowed = false,
                                 singleLine = true,
                                 fontSize = fontSize,
-                                normalSupportingText = "",
                                 errorSupportingText = "Blank is not allowed.",
                                 isEnabled = true,
                                 keyboardType = KeyboardType.Text,
@@ -668,7 +608,6 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 isEmptyAllowed = false,
                                 singleLine = true,
                                 fontSize = fontSize,
-                                normalSupportingText = "",
                                 errorSupportingText = "Blank is not allowed.",
                                 isEnabled = true,
                                 keyboardType = KeyboardType.Text,
@@ -738,7 +677,6 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         isEmptyAllowed = false,
                                         singleLine = true,
                                         fontSize = fontSize,
-                                        normalSupportingText = "",
                                         errorSupportingText = "Required",
                                         isEnabled = !isPlanning,
                                         keyboardType = KeyboardType.Number,
@@ -852,7 +790,6 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 isEmptyAllowed = true,
                                 singleLine = false,
                                 fontSize = fontSize,
-                                normalSupportingText = "",
                                 errorSupportingText = "",
                                 isEnabled = true,
                                 keyboardType = KeyboardType.Text,
