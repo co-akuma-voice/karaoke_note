@@ -22,7 +22,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +39,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.PopupProperties
 
 
+// タイトル欄とアーティスト欄をチェックするための関数
+fun getErrorSupportingTextForTitleAndArtistField(text: String): String {
+    return if (text.isBlank()) { "Required." }
+    else { "" }
+}
+
 // スコア欄をチェックするための関数
 fun getNumberOfDecimalPoints(str: String): Int {
     return str.count { it == '.' }
@@ -52,10 +57,7 @@ fun getDecimalPartOfScore(str: String): String {
     val strArr = str.split(".").map { it.trim() }
     return strArr[1]
 }
-fun getSupportingTextForScoreField(
-    score: String,
-    isPlanning: Boolean,
-): String {
+fun getErrorSupportingTextForScoreField(score: String, isPlanning: Boolean): String {
     var message = ""
 
     // スコア欄は予約フラグとの兼ね合いがある
@@ -127,13 +129,13 @@ fun CommonTextField(
 ) {
     var textFieldValue by remember { mutableStateOf(TextFieldValue(initValue)) }
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
-    val invalidValue by remember { derivedStateOf { textFieldValue.text.isEmpty() } }
     var isDropdownExpanded by remember { mutableStateOf(false) }
     val trailingIconSize = 20
     val filteredAutoCompleteSuggestions = remember(textFieldValue.text) {
         autoCompleteSuggestions.filter { it.startsWith(textFieldValue.text, ignoreCase = true) }
     }
     var isFocused by remember { mutableStateOf(false) }
+    val isError = isEnabled && !isEmptyAllowed && errorSupportingText.isNotBlank()
 
     LaunchedEffect(initValue) {
         if (textFieldValue.text != initValue) {
@@ -142,6 +144,7 @@ fun CommonTextField(
     }
 
     Column {
+        // 基本部分
         OutlinedTextField(
             value = textFieldValue,
             onValueChange = { inputText ->
@@ -162,9 +165,9 @@ fun CommonTextField(
                 .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp)
                 .imePadding(),
             label = { Text(label) },
-            isError = isEnabled && !isEmptyAllowed && invalidValue,
+            isError = isError,
             supportingText = {
-                if (isEnabled && !isEmptyAllowed && textFieldValue.text.isEmpty()) {
+                if (isError) {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
                         text = errorSupportingText,
@@ -204,6 +207,7 @@ fun CommonTextField(
             },
         )
 
+        // サジェスト機能
         val alreadyComplete = filteredAutoCompleteSuggestions.size == 1 && filteredAutoCompleteSuggestions[0] == textFieldValue.text
         if (isFocused && filteredAutoCompleteSuggestions.isNotEmpty() && !alreadyComplete) {
             DropdownMenu(
@@ -227,5 +231,6 @@ fun CommonTextField(
                 }
             }
         }
+
     }
 }
