@@ -1,6 +1,5 @@
 package com.example.karaoke_note
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -8,31 +7,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDefaults
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DatePickerState
-import androidx.compose.material3.DisplayMode
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.FloatingActionButton
@@ -51,7 +36,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,8 +43,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -78,279 +60,15 @@ import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
 import com.example.karaoke_note.ui.component.CommonTextField
+import com.example.karaoke_note.ui.component.ExposedGameSelectorBox
+import com.example.karaoke_note.ui.component.ExposedGameSelectorItem
+import com.example.karaoke_note.ui.component.getErrorSupportingTextForScoreField
+import com.example.karaoke_note.ui.component.getErrorSupportingTextForTitleAndArtistField
+import com.example.karaoke_note.ui.component.getLocalizedDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
 import kotlin.math.roundToInt
-
-@Composable
-fun ExposedGameSelectorBox(
-    initialGameKind: GameKind,
-    height: Int,
-    modifier: Modifier,    // Card の Modifier
-    isExpanded: Boolean,
-    startPaddingValue: Int,
-){
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Bottom
-    ) {
-        Card(
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.background
-            ),
-            shape = RoundedCornerShape(
-                topStart = 4.dp,
-                topEnd = 4.dp,
-                bottomStart = 0.dp,
-                bottomEnd = 0.dp
-            ),
-            modifier = modifier
-                .fillMaxWidth()
-                .height(height.dp),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Row(
-                    modifier = Modifier.padding(start = startPaddingValue.dp),
-                    horizontalArrangement = Arrangement.SpaceAround,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = painterResource(
-                            getPainterResourceIdOfBrandImage(
-                                initialGameKind.name.take(3)
-                            )
-                        ),
-                        contentDescription = null,
-                        modifier = Modifier.padding(horizontal = 4.dp)
-                    )
-                    Image(
-                        painter = painterResource(
-                            getPainterResourceIdOfGameImage(
-                                initialGameKind.name
-                            )
-                        ),
-                        contentDescription = null,
-                        modifier = Modifier.padding(horizontal = 4.dp)
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                ) {
-                    // Trailing icon の代わり
-                    val arrowIcon: ImageVector = if (isExpanded) {
-                        Icons.Filled.ArrowDropUp
-                    } else {
-                        Icons.Filled.ArrowDropDown
-                    }
-                    Icon(
-                        imageVector = arrowIcon,
-                        contentDescription = null,
-                    )
-                }
-            }
-        }
-        // TextField っぽく見せるために下枠のみ線を入れる
-        Divider(
-            modifier = Modifier.fillMaxWidth(),
-            thickness = 1.dp,
-            color = MaterialTheme.colorScheme.outline
-        )
-    }
-}
-
-@Composable
-fun ExposedGameSelectorItem(
-    gameKind: GameKind,
-    height: Int,
-    textSize: Int,
-    textHorizontalPaddingValues: Int,
-    onClick: () -> Unit
-){
-    DropdownMenuItem(
-        onClick = { onClick() }
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(height.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(
-                    getPainterResourceIdOfBrandImage(
-                        gameKind.name.take(3)
-                    )
-                ),
-                contentDescription = null,
-                modifier = Modifier.padding(horizontal = 4.dp)
-            )
-            Image(
-                painter = painterResource(
-                    getPainterResourceIdOfGameImage(gameKind.name)
-                ),
-                contentDescription = null,
-                modifier = Modifier.padding(horizontal = 4.dp)
-            )
-            Text(
-                text = "(" + gameKind.displayName + ")",
-                fontSize = textSize.sp,
-                modifier = Modifier.padding(start = textHorizontalPaddingValues.dp)
-            )
-        }
-    }
-}
-
-fun isValid(title: String, artist: String, score: String, isPlanning: Boolean): Pair<Boolean, String> {
-    var valid = true
-    var message = ""
-
-    // タイトルやアーティスト名で問題になるのは空白ぐらい?
-    if (title.isBlank()) {
-        valid = false
-        message += "[Title] Blank is not allowed.\n"
-    }
-    if (artist.isBlank()) {
-        valid = false
-        message += "[Artist] Blank is not allowed.\n"
-    }
-
-    return valid to message
-}
-
-@ExperimentalMaterial3Api
-@Composable
-fun rememberCustomDatePickerState(
-    @Suppress("AutoBoxing") initialSelectedDateMillis: Long? = null,
-    @Suppress("AutoBoxing") initialDisplayedMonthMillis: Long? = initialSelectedDateMillis,
-    yearRange: IntRange = DatePickerDefaults.YearRange,
-    initialDisplayMode: DisplayMode = DisplayMode.Picker
-): Pair<DatePickerState, DatePickerState> {
-    val datePickerState = rememberSaveable(
-        saver = DatePickerState.Saver()
-    ){
-        DatePickerState(
-            initialSelectedDateMillis = initialSelectedDateMillis,
-            initialDisplayedMonthMillis = initialDisplayedMonthMillis,
-            yearRange = yearRange,
-            initialDisplayMode = initialDisplayMode
-        )
-    }
-    val pendingDatePickerState = rememberSaveable(
-        saver = DatePickerState.Saver()
-    ){
-        DatePickerState(
-            initialSelectedDateMillis = initialSelectedDateMillis,
-            initialDisplayedMonthMillis = initialDisplayedMonthMillis,
-            yearRange = yearRange,
-            initialDisplayMode = initialDisplayMode
-        )
-    }
-    return datePickerState to pendingDatePickerState
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@ExperimentalMaterial3Api
-@Composable
-fun getLocalizedDate(defaultDate: LocalDate): LocalDate {
-    var showPicker by remember { mutableStateOf(false) }
-    val defaultZone = ZoneId.systemDefault()
-    // UTC+0 とシステムデフォルトとの時差をミリ秒単位にしたもの
-    val mSecondFromUTC = defaultDate.atStartOfDay(defaultZone).offset.totalSeconds * 1000
-    val (datePickerState, pendingDatePickerState) = rememberCustomDatePickerState(
-        // toInstant(): Java の Instant 型 (エポック秒 = UNIX 時間を保持する) に変換する。
-        //              ただし、表示形式は UNIX 時間ではない。
-        //              このとき、タイムゾーン情報が UTC+0 になる。
-        // toEpochMilli(): UNIX 時間形式 (ミリ秒) に変換する。
-        // mSecondFromUTC を足すことで無理やり Zoned 時刻にする
-        initialSelectedDateMillis = (defaultDate.atStartOfDay(defaultZone).toInstant().toEpochMilli() + mSecondFromUTC)
-    )
-    var localizedNullableSelectedDate: LocalDate?
-    var localizedSelectedDate: LocalDate = defaultDate
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp),
-        contentAlignment = Alignment.CenterEnd
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.End
-        ) {
-            localizedNullableSelectedDate = datePickerState.selectedDateMillis?.let {
-                Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
-            }
-            localizedSelectedDate = localizedNullableSelectedDate ?: defaultDate
-
-            // 現在設定されている日付を描画する
-            Text(
-                text = localizedSelectedDate.toString(),
-                modifier = Modifier
-                    .padding(end = 20.dp)
-            )
-            // カレンダーボタン
-            IconButton(
-                onClick = { showPicker = true }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.DateRange,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(24.dp)
-                )
-            }
-        }
-    }
-
-    if (showPicker) {
-        DatePickerDialog(
-            onDismissRequest = {
-                showPicker = false
-                pendingDatePickerState.setSelection(datePickerState.selectedDateMillis)
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        pendingDatePickerState.setSelection(datePickerState.selectedDateMillis)
-                        showPicker = false
-                    }
-                ) {
-                    Text(text = "OK")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        datePickerState.setSelection(pendingDatePickerState.selectedDateMillis)
-                        showPicker = false
-                    }
-                ) {
-                    Text(text = "Cancel")
-                }
-            }
-        ) {
-            DatePicker(
-                state = datePickerState,
-                title = {
-                    Text(
-                        text = "Sung date",
-                        modifier = Modifier.padding(start = 24.dp, end = 12.dp, top = 16.dp)
-                    )
-                },
-                showModeToggle = true
-            )
-        }
-    }
-
-    return localizedSelectedDate
-}
 
 private fun getDefaultValuesBasedOnRoute(
     backStackEntry: NavBackStackEntry?,
@@ -376,14 +94,93 @@ private fun getDefaultValuesBasedOnRoute(
     }
 }
 
+// Save ボタンを押したときに無効データがないかどうかチェックする
+fun isValid(
+    titleErrorSupportingText: String,
+    artistErrorSupportingText: String,
+    scoreErrorSupportingText: String
+): Boolean {
+    // errorSupportingText の有無で判断してしまおう
+    return !(titleErrorSupportingText.isNotBlank() ||
+            artistErrorSupportingText.isNotBlank() ||
+            scoreErrorSupportingText.isNotBlank())
+}
+
+// データをデータベースに登録する
+fun entryToDataBase(
+    editingSongScore: SongScore?,
+    newTitle: String,
+    newArtist: String,
+    newGame: GameKind,
+    newScore: String,
+    isPlanning: Boolean,
+    newKey: Float,
+    newDate: LocalDate,
+    newComment: String,
+    songDao: SongDao,
+    artistDao: ArtistDao,
+    songScoreDao: SongScoreDao,
+    scope: CoroutineScope,
+    snackBarHostState: SnackbarHostState
+){
+    val newArtistId = artistDao.insert(
+        Artist(
+            name = newArtist,
+            iconColor = Color.Black.toArgb()
+        )
+    )
+    val newSongId = songDao.insertSong(
+        Song(
+            title = newTitle,
+            artistId = newArtistId,
+        )
+    )
+    val newSongScore = SongScore(
+        id = editingSongScore?.id ?: 0L,
+        songId = newSongId,
+        date = newDate,
+        score = newScore.toFloat(),
+        key = newKey.roundToInt(),
+        comment = newComment,
+        gameKind = newGame
+    )
+    scope.launch {
+        if (editingSongScore == null) {
+            songScoreDao.insert(newSongScore)
+        } else {
+            songScoreDao.update(newSongScore)
+        }
+
+        val snackBarMessage = if (isPlanning) {
+            "Saved as plans."
+        } else {
+            "Saved."
+        }
+        snackBarHostState.showSnackbar(
+            message = snackBarMessage,
+            actionLabel = null,
+            withDismissAction = true,
+            duration = SnackbarDuration.Short
+        )
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3Api
 @Composable
-fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao, scope: CoroutineScope, screenOpened: MutableState<Boolean>, editingSongScoreState: MutableState<SongScore?>, snackBarHostState: SnackbarHostState) {
+fun NewEntryScreen(
+    navController: NavController,
+    songDao: SongDao,
+    songScoreDao: SongScoreDao,
+    artistDao: ArtistDao,
+    scope: CoroutineScope,
+    screenOpened: MutableState<Boolean>,
+    editingSongScoreState: MutableState<SongScore?>,
+    snackBarHostState: SnackbarHostState
+) {
     val editingSongScore = editingSongScoreState.value
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val parentPage: String? = currentBackStackEntry?.destination?.route
-    var errorDialogOpened by remember { mutableStateOf(false) }
     val allArtistFlow = artistDao.getAllArtists()
     val allArtists by allArtistFlow.collectAsState(initial = emptyList())
     val allSongs = songDao.getAllSongs()
@@ -409,14 +206,19 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
     val gameListFontSize = 10
     val gameListHeight = 56
 
-    var newArtist by remember { mutableStateOf("") }
     var newTitle by remember { mutableStateOf("") }
+    var newArtist by remember { mutableStateOf("") }
     var newGame by remember { mutableStateOf(gamesList[0]) }
     var newScore by remember { mutableStateOf("") }
     var isPlanning by remember(parentPage, editingSongScore) { mutableStateOf(parentPage == "plans" && editingSongScore == null) }
     var newKey by remember { mutableFloatStateOf(0f) }
     var newDate by remember { mutableStateOf(LocalDate.now()) }
     var newComment by remember { mutableStateOf("") }
+
+    var errorSupportingTextTitle by remember { mutableStateOf("Required.") }
+    var errorSupportingTextArtist by remember { mutableStateOf("Required.") }
+    var errorSupportingTextScore by remember { mutableStateOf("Required.") }
+
     LaunchedEffect(key1 = defaultArtistId, key2 = defaultTitle, key3 = editingSongScore) {
         newArtist = artistDao.getNameById(defaultArtistId) ?: ""
         newTitle = defaultTitle
@@ -442,26 +244,6 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
             imageVector = Icons.Rounded.Add,
             contentDescription = "Add",
             tint = Color.White,
-        )
-    }
-
-    if (errorDialogOpened) {
-        AlertDialog(
-            onDismissRequest = { },
-            confirmButton = {
-                TextButton(
-                    onClick = { errorDialogOpened = false }
-                ) {
-                    Text("OK")
-                }
-            },
-            dismissButton = null,
-            title = {
-                Text("Error")
-            },
-            text = {
-                Text(isValid(newTitle, newArtist, newScore, isPlanning).second)
-            }
         )
     }
 
@@ -499,10 +281,7 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 imageVector = Icons.Filled.Clear,
                                 contentDescription = "cancel",
                                 modifier = Modifier
-                                    .padding(
-                                        horizontalPaddingValue.dp,
-                                        verticalPaddingValue.dp
-                                    )
+                                    .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp)
                                     .size(16.dp)
                             )
                         }
@@ -511,56 +290,28 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                             modifier = Modifier.align(Alignment.CenterEnd),
                             onClick = {
                                 // タイトル、アーティスト、スコア欄のチェック
-                                if (!isValid(newTitle, newArtist, newScore, isPlanning).first) {
-                                    errorDialogOpened = true
-                                }
-                                else {
+                                if (isValid(errorSupportingTextTitle, errorSupportingTextArtist, errorSupportingTextScore)) {
                                     // 予約モードが true ならスコアを 0 とする。
-                                    if (isPlanning) {
-                                        newScore = "0.000"
-                                    }
+                                    if (isPlanning) { newScore = "0.000" }
 
-                                    // データを登録
-                                    val newArtistId = artistDao.insert(
-                                        Artist(
-                                            name = newArtist,
-                                            iconColor = Color.Black.toArgb()
-                                        )
+                                    // データベースへ登録
+                                    entryToDataBase(
+                                        editingSongScore,
+                                        newTitle,
+                                        newArtist,
+                                        newGame,
+                                        newScore,
+                                        isPlanning,
+                                        newKey,
+                                        newDate,
+                                        newComment,
+                                        songDao,
+                                        artistDao,
+                                        songScoreDao,
+                                        scope,
+                                        snackBarHostState
                                     )
-                                    val newSongId = songDao.insertSong(
-                                        Song(
-                                            title = newTitle,
-                                            artistId = newArtistId,
-                                        )
-                                    )
-                                    val newSongScore = SongScore(
-                                        id = editingSongScore?.id ?: 0L,
-                                        songId = newSongId,
-                                        date = newDate,
-                                        score = newScore.toFloat(),
-                                        key = newKey.roundToInt(),
-                                        comment = newComment,
-                                        gameKind = newGame
-                                    )
-                                    scope.launch {
-                                        if (editingSongScore == null) {
-                                            songScoreDao.insert(newSongScore)
-                                        } else {
-                                            songScoreDao.update(newSongScore)
-                                        }
 
-                                        val snackBarMessage = if (isPlanning) {
-                                            "Saved as plans."
-                                        } else {
-                                            "Saved."
-                                        }
-                                        snackBarHostState.showSnackbar(
-                                            message = snackBarMessage,
-                                            actionLabel = null,
-                                            withDismissAction = true,
-                                            duration = SnackbarDuration.Short
-                                        )
-                                    }
                                     editingSongScoreState.value = null
                                     newScore = ""
                                     newKey = 0f
@@ -588,14 +339,20 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 isEmptyAllowed = false,
                                 singleLine = true,
                                 fontSize = fontSize,
-                                errorSupportingText = "Blank is not allowed.",
+                                errorSupportingText = errorSupportingTextTitle,
                                 isEnabled = true,
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Default,
                                 focusRequester = focusRequester,
                                 autoCompleteSuggestions = allSongs.map { it.title },
-                                { inputText -> newTitle = inputText },
-                                { newTitle = "" },
+                                { inputText ->
+                                    newTitle = inputText
+                                    errorSupportingTextTitle = getErrorSupportingTextForTitleAndArtistField(newTitle)
+                                },
+                                {
+                                    newTitle = ""
+                                    errorSupportingTextTitle = getErrorSupportingTextForTitleAndArtistField(newTitle)
+                                },
                             )
                         }
 
@@ -608,14 +365,20 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                 isEmptyAllowed = false,
                                 singleLine = true,
                                 fontSize = fontSize,
-                                errorSupportingText = "Blank is not allowed.",
+                                errorSupportingText = errorSupportingTextArtist,
                                 isEnabled = true,
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Default,
                                 focusRequester = focusRequester,
                                 autoCompleteSuggestions = allArtists.map { it.name },
-                                { inputText -> newArtist = inputText },
-                                { newArtist = "" }
+                                { inputText ->
+                                    newArtist = inputText
+                                    errorSupportingTextArtist = getErrorSupportingTextForTitleAndArtistField(newArtist)
+                                },
+                                {
+                                    newArtist = ""
+                                    errorSupportingTextArtist = getErrorSupportingTextForTitleAndArtistField(newArtist)
+                                }
                             )
                         }
 
@@ -677,19 +440,26 @@ fun NewEntryScreen(navController: NavController, songDao: SongDao, songScoreDao:
                                         isEmptyAllowed = false,
                                         singleLine = true,
                                         fontSize = fontSize,
-                                        errorSupportingText = "Required",
+                                        errorSupportingText = errorSupportingTextScore,
                                         isEnabled = !isPlanning,
                                         keyboardType = KeyboardType.Number,
                                         imeAction = ImeAction.Default,
                                         focusRequester = focusRequester,
                                         autoCompleteSuggestions = emptyList(),
-                                        { inputText -> newScore = inputText },
-                                        { newScore = "" }
+                                        { inputText ->
+                                            newScore = inputText
+                                            errorSupportingTextScore = getErrorSupportingTextForScoreField(newScore, isPlanning)
+                                        },
+                                        {
+                                            newScore = ""
+                                            errorSupportingTextScore = getErrorSupportingTextForScoreField(newScore, isPlanning)
+                                        }
                                     )
                                 }
                             }
                         }
 
+                        // Plans スイッチ
                         item {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
