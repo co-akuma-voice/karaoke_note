@@ -215,9 +215,9 @@ fun NewEntryScreen(
     var newDate by remember { mutableStateOf(LocalDate.now()) }
     var newComment by remember { mutableStateOf("") }
 
-    var errorSupportingTextTitle by remember { mutableStateOf("Required.") }
-    var errorSupportingTextArtist by remember { mutableStateOf("Required.") }
-    var errorSupportingTextScore by remember { mutableStateOf("Required.") }
+    var errorSupportingTextTitle by remember { mutableStateOf("") }
+    var errorSupportingTextArtist by remember { mutableStateOf("") }
+    var errorSupportingTextScore by remember { mutableStateOf("") }
 
     LaunchedEffect(key1 = defaultArtistId, key2 = defaultTitle, key3 = editingSongScore) {
         newArtist = artistDao.getNameById(defaultArtistId) ?: ""
@@ -236,7 +236,12 @@ fun NewEntryScreen(
     val fontSize = 16
 
     FloatingActionButton(
-        onClick = { screenOpened.value = true },
+        onClick = {
+            screenOpened.value = true
+            errorSupportingTextTitle = getErrorSupportingTextForTitleAndArtistField(newTitle)
+            errorSupportingTextArtist = getErrorSupportingTextForTitleAndArtistField(newArtist)
+            errorSupportingTextScore = getErrorSupportingTextForScoreField(newScore, isPlanning)
+        },
         shape = RoundedCornerShape(16.dp),
         containerColor = MaterialTheme.colorScheme.primaryContainer,
     ) {
@@ -290,7 +295,9 @@ fun NewEntryScreen(
                             modifier = Modifier.align(Alignment.CenterEnd),
                             onClick = {
                                 // タイトル、アーティスト、スコア欄のチェック
-                                if (isValid(errorSupportingTextTitle, errorSupportingTextArtist, errorSupportingTextScore)) {
+                                if (isValid(errorSupportingTextTitle, errorSupportingTextArtist,
+                                        errorSupportingTextScore))
+                                {
                                     // 予約モードが true ならスコアを 0 とする。
                                     if (isPlanning) { newScore = "0.000" }
 
