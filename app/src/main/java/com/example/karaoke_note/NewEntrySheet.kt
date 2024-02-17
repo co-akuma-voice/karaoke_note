@@ -219,6 +219,8 @@ fun NewEntryScreen(
     var errorSupportingTextArtist by remember { mutableStateOf("") }
     var errorSupportingTextScore by remember { mutableStateOf("") }
 
+    var isSaveButtonEnabled by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = defaultArtistId, key2 = defaultTitle, key3 = editingSongScore) {
         newArtist = artistDao.getNameById(defaultArtistId) ?: ""
         newTitle = defaultTitle
@@ -294,42 +296,45 @@ fun NewEntryScreen(
                         TextButton(
                             modifier = Modifier.align(Alignment.CenterEnd),
                             onClick = {
-                                // タイトル、アーティスト、スコア欄のチェック
-                                if (isValid(errorSupportingTextTitle, errorSupportingTextArtist,
-                                        errorSupportingTextScore))
-                                {
-                                    // 予約モードが true ならスコアを 0 とする。
-                                    if (isPlanning) { newScore = "0.000" }
+                                // 予約モードが true ならスコアを 0 とする。
+                                if (isPlanning) { newScore = "0.000" }
 
-                                    // データベースへ登録
-                                    entryToDataBase(
-                                        editingSongScore,
-                                        newTitle,
-                                        newArtist,
-                                        newGame,
-                                        newScore,
-                                        isPlanning,
-                                        newKey,
-                                        newDate,
-                                        newComment,
-                                        songDao,
-                                        artistDao,
-                                        songScoreDao,
-                                        scope,
-                                        snackBarHostState
-                                    )
+                                // データベースへ登録
+                                entryToDataBase(
+                                    editingSongScore,
+                                    newTitle,
+                                    newArtist,
+                                    newGame,
+                                    newScore,
+                                    isPlanning,
+                                    newKey,
+                                    newDate,
+                                    newComment,
+                                    songDao,
+                                    artistDao,
+                                    songScoreDao,
+                                    scope,
+                                    snackBarHostState
+                                )
 
-                                    editingSongScoreState.value = null
-                                    newScore = ""
-                                    newKey = 0f
-                                    newDate = LocalDate.now()
-                                    newComment = ""
+                                editingSongScoreState.value = null
+                                newScore = ""
+                                newKey = 0f
+                                newDate = LocalDate.now()
+                                newComment = ""
 
-                                    screenOpened.value = false
-                                }
+                                screenOpened.value = false
                             },
+                            enabled = isSaveButtonEnabled,
                         ) {
-                            Text("Save")
+                            Text(
+                                text = "Save",
+                                color = if (isSaveButtonEnabled) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    Color.LightGray
+                                }
+                            )
                         }
                     }
 
@@ -355,10 +360,12 @@ fun NewEntryScreen(
                                 { inputText ->
                                     newTitle = inputText
                                     errorSupportingTextTitle = getErrorSupportingTextForTitleAndArtistField(newTitle)
+                                    isSaveButtonEnabled = isValid(errorSupportingTextTitle, errorSupportingTextArtist, errorSupportingTextScore)
                                 },
                                 {
                                     newTitle = ""
                                     errorSupportingTextTitle = getErrorSupportingTextForTitleAndArtistField(newTitle)
+                                    isSaveButtonEnabled = isValid(errorSupportingTextTitle, errorSupportingTextArtist, errorSupportingTextScore)
                                 },
                             )
                         }
@@ -381,10 +388,12 @@ fun NewEntryScreen(
                                 { inputText ->
                                     newArtist = inputText
                                     errorSupportingTextArtist = getErrorSupportingTextForTitleAndArtistField(newArtist)
+                                    isSaveButtonEnabled = isValid(errorSupportingTextTitle, errorSupportingTextArtist, errorSupportingTextScore)
                                 },
                                 {
                                     newArtist = ""
                                     errorSupportingTextArtist = getErrorSupportingTextForTitleAndArtistField(newArtist)
+                                    isSaveButtonEnabled = isValid(errorSupportingTextTitle, errorSupportingTextArtist, errorSupportingTextScore)
                                 }
                             )
                         }
@@ -456,10 +465,12 @@ fun NewEntryScreen(
                                         { inputText ->
                                             newScore = inputText
                                             errorSupportingTextScore = getErrorSupportingTextForScoreField(newScore, isPlanning)
+                                            isSaveButtonEnabled = isValid(errorSupportingTextTitle, errorSupportingTextArtist, errorSupportingTextScore)
                                         },
                                         {
                                             newScore = ""
                                             errorSupportingTextScore = getErrorSupportingTextForScoreField(newScore, isPlanning)
+                                            isSaveButtonEnabled = isValid(errorSupportingTextTitle, errorSupportingTextArtist, errorSupportingTextScore)
                                         }
                                     )
                                 }
