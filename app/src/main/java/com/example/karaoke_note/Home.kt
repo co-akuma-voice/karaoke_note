@@ -58,7 +58,12 @@ import kotlinx.coroutines.launch
 
 @ExperimentalMaterial3Api
 @Composable
-fun LatestPage(navController: NavController, songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao) {
+fun LatestPage(
+    navController: NavController,
+    songDao: SongDao,
+    songScoreDao: SongScoreDao,
+    artistDao: ArtistDao
+) {
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
     val firstVisibleListItem by remember { derivedStateOf { listState.firstVisibleItemIndex } }
