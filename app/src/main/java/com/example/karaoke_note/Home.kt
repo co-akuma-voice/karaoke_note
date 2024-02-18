@@ -191,8 +191,12 @@ fun getPainterResourceIdOfGameImage(gameName: String): Int {
 
 @ExperimentalMaterial3Api
 @Composable
-fun LatestCard(song: Song, songScore: SongScore, artist: String, navController: NavController) {
-    remember { mutableStateOf(false) }
+fun LatestCard(
+    song: Song,
+    songScore: SongScore,
+    artist: String,
+    navController: NavController
+) {
     var commentforcard = ""
     if (songScore.comment.isNotEmpty()) {
         commentforcard = "..."
@@ -200,20 +204,18 @@ fun LatestCard(song: Song, songScore: SongScore, artist: String, navController: 
     val keyFormat = if (songScore.key != 0) { "%+d" } else { "%d" }
 
     Column(
-        modifier = Modifier
-            .padding(horizontal = 20.dp, vertical = 12.dp)
+        modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
     ) {
         Card(
-            onClick = {navController.navigate("song_data/${song.id}")},
+            onClick = {
+                navController.navigate("song_data/${song.id}")
+            },
             shape = MaterialTheme.shapes.medium,
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(Color(0xffffffff)),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 4.dp
-            )
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
-            Row (
+            Row(
                 modifier = Modifier,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
