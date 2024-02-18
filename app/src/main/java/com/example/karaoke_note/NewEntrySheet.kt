@@ -36,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -195,11 +196,12 @@ fun NewEntryScreen(
         Pair(artistId, title)
     }
 
+    var previousGameKind by rememberSaveable { mutableStateOf(GameKind.JOY_NATIONAL_SCORING_GP) }
     val defaultScore = editingSongScore?.score?.let { String.format("%.3f", it) } ?: ""
     val defaultKey = editingSongScore?.key?.toFloat() ?: 0f
     val defaultDate = editingSongScore?.date ?: LocalDate.now()
     val defaultComment = editingSongScore?.comment ?: ""
-    val defaultGameKind = editingSongScore?.gameKind ?: GameKind.JOY_NATIONAL_SCORING_GP
+    val defaultGameKind = editingSongScore?.gameKind ?: previousGameKind
 
     val gamesList = enumValues<GameKind>()
     var expanded by remember { mutableStateOf(false) }
@@ -208,7 +210,7 @@ fun NewEntryScreen(
 
     var newTitle by remember { mutableStateOf("") }
     var newArtist by remember { mutableStateOf("") }
-    var newGame by remember { mutableStateOf(gamesList[0]) }
+    var newGame by remember { mutableStateOf(GameKind.JOY_NATIONAL_SCORING_GP) }  // あくまで初期値
     var newScore by remember { mutableStateOf("") }
     var isPlanning by remember(parentPage, editingSongScore) { mutableStateOf(parentPage == "plans" && editingSongScore == null) }
     var newKey by remember { mutableFloatStateOf(0f) }
@@ -439,6 +441,7 @@ fun NewEntryScreen(
                                                     textHorizontalPaddingValues = horizontalPaddingValue,
                                                 ){
                                                     newGame = it
+                                                    previousGameKind = newGame
                                                     expanded = false
                                                 }
                                             }
