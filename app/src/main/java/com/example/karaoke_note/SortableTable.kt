@@ -12,6 +12,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,7 +35,7 @@ fun <T> SortableTable(
     onRowClick: (T) -> Unit = {}
 ) {
     var sortDirection by remember { mutableStateOf(SortDirection.None) }
-    var sortColumnIndex by remember { mutableStateOf(initialSortColumnIndex) }
+    var sortColumnIndex by remember { mutableIntStateOf(initialSortColumnIndex) }
     val sortedItems = remember(items, sortColumnIndex, sortDirection) {
         val column = columns[sortColumnIndex]
         if (column.comparator == null) {
