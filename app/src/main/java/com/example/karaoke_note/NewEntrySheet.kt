@@ -232,6 +232,7 @@ fun NewEntryScreen(
         newComment = defaultComment
         newGame = defaultGameKind
     }
+    if (newScore == "0.000") { newScore = "" }    // Plans から呼び出したときはスコアを消す
 
     val focusRequester = remember { FocusRequester() }
 
