@@ -326,6 +326,7 @@ fun NewEntryScreen(
                                 newDate = LocalDate.now()
                                 newComment = ""
 
+                                isSaveButtonEnabled = false
                                 screenOpened.value = false
                             },
                             enabled = isSaveButtonEnabled,
