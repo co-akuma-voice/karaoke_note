@@ -1,4 +1,6 @@
-
+package com.example.karaoke_note
+import SortableTable
+import TableColumn
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,9 +40,17 @@ import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-data class SongData(val id: Long, val title: String, val highestScore: Float, val lastDate: LocalDate)
+data class SongData(
+    val id: Long,
+    val title: String,
+    val highestScore: Float,
+    val lastDate: LocalDate
+)
 
-fun convertToSongDataList(songScoreDao: SongScoreDao, songs: List<Song>): List<SongData> {
+fun convertToSongDataList(
+    songScoreDao: SongScoreDao,
+    songs: List<Song>
+): List<SongData> {
     return runBlocking(Dispatchers.IO) {
         songs.map { song ->
             async {
@@ -57,7 +67,13 @@ fun convertToSongDataList(songScoreDao: SongScoreDao, songs: List<Song>): List<S
     }
 }
 @Composable
-fun SongList(navController: NavController, artistId: Long, songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao) {
+fun SongList(
+    navController: NavController,
+    artistId: Long,
+    songDao: SongDao,
+    songScoreDao: SongScoreDao,
+    artistDao: ArtistDao
+) {
     fun onUpdate(artistId: Long, newTitle: String) {
         artistDao.updateName(artistId, newTitle)
     }
@@ -72,18 +88,38 @@ fun SongList(navController: NavController, artistId: Long, songDao: SongDao, son
         TableColumn<SongData>("タイトル",
             {
                 val scrollState = rememberScrollState()
-                Text(text = it.title, modifier = Modifier.horizontalScroll(scrollState), fontSize = fontSize)
-            } ,
-            compareBy{ it.title },
+                Text(
+                    text = it.title,
+                    modifier = Modifier.horizontalScroll(scrollState),
+                    fontSize = fontSize
+                )
+            },
+            compareBy { it.title },
             2f
         ),
-        TableColumn<SongData>("最高スコア",
-            { Text(text = String.format("%.3f", it.highestScore), textAlign = TextAlign.End, modifier = Modifier.fillMaxWidth(), fontSize = fontSize) },
-            compareBy{ it.highestScore },
+        TableColumn<SongData>(
+            "最高スコア",
+            {
+                Text(
+                    text = String.format("%.3f", it.highestScore),
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth(),
+                    fontSize = fontSize
+                )
+            },
+            compareBy { it.highestScore },
             2f
         ),
-        TableColumn<SongData>("最後に歌った日",
-            { Text(text = it.lastDate.format(formatter), textAlign = TextAlign.End, modifier = Modifier.fillMaxWidth(), fontSize = fontSize) },
+        TableColumn<SongData>(
+            "最後に歌った日",
+            {
+                Text(
+                    text = it.lastDate.format(formatter),
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth(),
+                    fontSize = fontSize
+                )
+            },
             compareBy { it.lastDate },
             2f
         )

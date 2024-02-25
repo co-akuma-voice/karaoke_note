@@ -110,6 +110,7 @@ fun isValid(
 // データをデータベースに登録する
 fun entryToDataBase(
     editingSongScore: SongScore?,
+    isComeFromPlansPage: Boolean,
     newTitle: String,
     newArtist: String,
     newGame: GameKind,
@@ -136,8 +137,12 @@ fun entryToDataBase(
             artistId = newArtistId,
         )
     )
+    // Plans ページから来た場合は既存の id があるが、マニュアル 0 指定する
+    //   0 指定すると新しい番号で振り直される
+    //   Long 型なら 2^63 - 1 (= 9,223,372,036,854,775,807) までいけるので多少無駄遣いしても問題ない
+    val newSongScoreId = if (isComeFromPlansPage) { 0L } else { editingSongScore?.id ?: 0L }
     val newSongScore = SongScore(
-        id = editingSongScore?.id ?: 0L,
+        id = newSongScoreId,
         songId = newSongId,
         date = newDate,
         score = newScore.toFloat(),
@@ -146,10 +151,17 @@ fun entryToDataBase(
         gameKind = newGame
     )
     scope.launch {
-        if (editingSongScore == null) {
+        if (editingSongScore == null) {  // 通常新規登録
             songScoreDao.insert(newSongScore)
-        } else {
-            songScoreDao.update(newSongScore)
+        }
+        else {
+            if (isComeFromPlansPage && !isPlanning) {  // Plans に仮登録されている曲を編集して正式登録
+                songScoreDao.insert(newSongScore)
+                songScoreDao.deleteSongScore(editingSongScore.id)  // Plans 仮登録 id を削除
+            }
+            else {  // List ページの編集ボタンからの更新 or Plans 再仮登録
+                songScoreDao.update(newSongScore)
+            }
         }
 
         val snackBarMessage = if (isPlanning) {
@@ -220,14 +232,15 @@ fun NewEntryScreen(
     var errorSupportingTextTitle by remember { mutableStateOf("") }
     var errorSupportingTextArtist by remember { mutableStateOf("") }
     var errorSupportingTextScore by remember { mutableStateOf("") }
-
     var isSaveButtonEnabled by remember { mutableStateOf(false) }
+    var isComeFromPlansPage = false
 
     LaunchedEffect(key1 = defaultArtistId, key2 = defaultTitle, key3 = editingSongScore) {
+        isComeFromPlansPage = (defaultScore == "0.000")
+
         newArtist = artistDao.getNameById(defaultArtistId) ?: ""
         newTitle = defaultTitle
-        newScore = defaultScore
-        newScore = if (newScore != "0.000") { defaultScore } else { "" }
+        newScore = if (defaultScore != "0.000") { defaultScore } else { "" }
         newKey = defaultKey
         newDate = defaultDate
         newComment = defaultComment
@@ -305,6 +318,7 @@ fun NewEntryScreen(
                                 // データベースへ登録
                                 entryToDataBase(
                                     editingSongScore,
+                                    isComeFromPlansPage,
                                     newTitle,
                                     newArtist,
                                     newGame,

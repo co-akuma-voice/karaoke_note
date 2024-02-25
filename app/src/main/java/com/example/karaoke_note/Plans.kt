@@ -16,9 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,9 +34,16 @@ import java.time.LocalDate
 
 @ExperimentalMaterial3Api
 @Composable
-fun PlansPage(songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao, showEntrySheetDialog: MutableState<Boolean>, editingSongScore: MutableState<SongScore?>) {
+fun PlansPage(
+    songDao: SongDao,
+    songScoreDao: SongScoreDao,
+    artistDao: ArtistDao,
+    showEntrySheetDialog: MutableState<Boolean>,
+    editingSongScore: MutableState<SongScore?>
+) {
     val songDataFlow = songScoreDao.getAll0Scores()
     val songDataList by songDataFlow.collectAsState(initial = listOf())
+
     Column {
         Box(
             modifier = Modifier.weight(8f)
@@ -64,8 +69,13 @@ fun PlansPage(songDao: SongDao, songScoreDao: SongScoreDao, artistDao: ArtistDao
 
 @ExperimentalMaterial3Api
 @Composable
-fun PlansCard(song: Song, songScore: SongScore, artist: String, showEntrySheetDialog: MutableState<Boolean>, editingSongScore: MutableState<SongScore?>) {
-    remember { mutableStateOf(false) }
+fun PlansCard(
+    song: Song,
+    songScore: SongScore,
+    artist: String,
+    showEntrySheetDialog: MutableState<Boolean>,
+    editingSongScore: MutableState<SongScore?>
+) {
     val keyFormat = if (songScore.key != 0) { "%+d" } else { "%d" }
 
     Column(
