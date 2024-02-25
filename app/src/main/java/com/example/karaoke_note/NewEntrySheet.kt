@@ -227,12 +227,21 @@ fun NewEntryScreen(
         newArtist = artistDao.getNameById(defaultArtistId) ?: ""
         newTitle = defaultTitle
         newScore = defaultScore
+        newScore = if (newScore != "0.000") {
+            defaultScore
+        } else {
+            ""  // Plans から呼び出したときはスコアを消す
+        }
         newKey = defaultKey
         newDate = defaultDate
         newComment = defaultComment
         newGame = defaultGameKind
+
+        errorSupportingTextTitle = getErrorSupportingTextForTitleAndArtistField(newTitle)
+        errorSupportingTextArtist = getErrorSupportingTextForTitleAndArtistField(newArtist)
+        errorSupportingTextScore = getErrorSupportingTextForScoreField(newScore, isPlanning)
+        isSaveButtonEnabled = isValid(errorSupportingTextTitle, errorSupportingTextArtist, errorSupportingTextScore)
     }
-    if (newScore == "0.000") { newScore = "" }    // Plans から呼び出したときはスコアを消す
 
     val focusRequester = remember { FocusRequester() }
 
@@ -243,9 +252,6 @@ fun NewEntryScreen(
     FloatingActionButton(
         onClick = {
             screenOpened.value = true
-            errorSupportingTextTitle = getErrorSupportingTextForTitleAndArtistField(newTitle)
-            errorSupportingTextArtist = getErrorSupportingTextForTitleAndArtistField(newArtist)
-            errorSupportingTextScore = getErrorSupportingTextForScoreField(newScore, isPlanning)
         },
         shape = RoundedCornerShape(16.dp),
         containerColor = MaterialTheme.colorScheme.primaryContainer,
