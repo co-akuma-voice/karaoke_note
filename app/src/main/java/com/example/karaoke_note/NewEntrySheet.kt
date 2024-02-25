@@ -227,11 +227,7 @@ fun NewEntryScreen(
         newArtist = artistDao.getNameById(defaultArtistId) ?: ""
         newTitle = defaultTitle
         newScore = defaultScore
-        newScore = if (newScore != "0.000") {
-            defaultScore
-        } else {
-            ""  // Plans から呼び出したときはスコアを消す
-        }
+        newScore = if (newScore != "0.000") { defaultScore } else { "" }
         newKey = defaultKey
         newDate = defaultDate
         newComment = defaultComment
@@ -250,9 +246,7 @@ fun NewEntryScreen(
     val fontSize = 16
 
     FloatingActionButton(
-        onClick = {
-            screenOpened.value = true
-        },
+        onClick = { screenOpened.value = true },
         shape = RoundedCornerShape(16.dp),
         containerColor = MaterialTheme.colorScheme.primaryContainer,
     ) {
