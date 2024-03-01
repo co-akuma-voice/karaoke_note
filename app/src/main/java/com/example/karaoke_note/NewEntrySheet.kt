@@ -99,12 +99,20 @@ private fun getDefaultValuesBasedOnRoute(
 fun isValid(
     titleErrorSupportingText: String,
     artistErrorSupportingText: String,
-    scoreErrorSupportingText: String
+    scoreErrorSupportingText: String,
+    isPlanning: Boolean
 ): Boolean {
     // errorSupportingText の有無で判断してしまおう
-    return !(titleErrorSupportingText.isNotBlank() ||
-            artistErrorSupportingText.isNotBlank() ||
-            scoreErrorSupportingText.isNotBlank())
+    // errorSupportingText が isNotBlank = True (ある) ということは空白または不正値があるということ
+    return if (isPlanning) {
+        !(titleErrorSupportingText.isNotBlank() ||
+                artistErrorSupportingText.isNotBlank())
+    }
+    else {
+        !(titleErrorSupportingText.isNotBlank() ||
+                artistErrorSupportingText.isNotBlank() ||
+                scoreErrorSupportingText.isNotBlank())
+    }
 }
 
 // データをデータベースに登録する
@@ -249,7 +257,8 @@ fun NewEntryScreen(
         errorSupportingTextTitle = getErrorSupportingTextForTitleAndArtistField(newTitle)
         errorSupportingTextArtist = getErrorSupportingTextForTitleAndArtistField(newArtist)
         errorSupportingTextScore = getErrorSupportingTextForScoreField(newScore, isPlanning)
-        isSaveButtonEnabled = isValid(errorSupportingTextTitle, errorSupportingTextArtist, errorSupportingTextScore)
+        isSaveButtonEnabled = isValid(errorSupportingTextTitle, errorSupportingTextArtist,
+            errorSupportingTextScore, isPlanning)
     }
 
     val focusRequester = remember { FocusRequester() }
@@ -378,12 +387,14 @@ fun NewEntryScreen(
                                 { inputText ->
                                     newTitle = inputText
                                     errorSupportingTextTitle = getErrorSupportingTextForTitleAndArtistField(newTitle)
-                                    isSaveButtonEnabled = isValid(errorSupportingTextTitle, errorSupportingTextArtist, errorSupportingTextScore)
+                                    isSaveButtonEnabled = isValid(errorSupportingTextTitle,
+                                        errorSupportingTextArtist, errorSupportingTextScore, isPlanning)
                                 },
                                 {
                                     newTitle = ""
                                     errorSupportingTextTitle = getErrorSupportingTextForTitleAndArtistField(newTitle)
-                                    isSaveButtonEnabled = isValid(errorSupportingTextTitle, errorSupportingTextArtist, errorSupportingTextScore)
+                                    isSaveButtonEnabled = isValid(errorSupportingTextTitle,
+                                        errorSupportingTextArtist, errorSupportingTextScore, isPlanning)
                                 },
                             )
                         }
@@ -406,12 +417,14 @@ fun NewEntryScreen(
                                 { inputText ->
                                     newArtist = inputText
                                     errorSupportingTextArtist = getErrorSupportingTextForTitleAndArtistField(newArtist)
-                                    isSaveButtonEnabled = isValid(errorSupportingTextTitle, errorSupportingTextArtist, errorSupportingTextScore)
+                                    isSaveButtonEnabled = isValid(errorSupportingTextTitle,
+                                        errorSupportingTextArtist, errorSupportingTextScore, isPlanning)
                                 },
                                 {
                                     newArtist = ""
                                     errorSupportingTextArtist = getErrorSupportingTextForTitleAndArtistField(newArtist)
-                                    isSaveButtonEnabled = isValid(errorSupportingTextTitle, errorSupportingTextArtist, errorSupportingTextScore)
+                                    isSaveButtonEnabled = isValid(errorSupportingTextTitle,
+                                        errorSupportingTextArtist, errorSupportingTextScore, isPlanning)
                                 }
                             )
                         }
@@ -484,12 +497,14 @@ fun NewEntryScreen(
                                         { inputText ->
                                             newScore = inputText
                                             errorSupportingTextScore = getErrorSupportingTextForScoreField(newScore, isPlanning)
-                                            isSaveButtonEnabled = isValid(errorSupportingTextTitle, errorSupportingTextArtist, errorSupportingTextScore)
+                                            isSaveButtonEnabled = isValid(errorSupportingTextTitle,
+                                                errorSupportingTextArtist, errorSupportingTextScore, isPlanning)
                                         },
                                         {
                                             newScore = ""
                                             errorSupportingTextScore = getErrorSupportingTextForScoreField(newScore, isPlanning)
-                                            isSaveButtonEnabled = isValid(errorSupportingTextTitle, errorSupportingTextArtist, errorSupportingTextScore)
+                                            isSaveButtonEnabled = isValid(errorSupportingTextTitle,
+                                                errorSupportingTextArtist, errorSupportingTextScore, isPlanning)
                                         }
                                     )
                                 }
@@ -509,7 +524,11 @@ fun NewEntryScreen(
                                 )
                                 Switch(
                                     checked = isPlanning,
-                                    onCheckedChange = { isPlanning = it },
+                                    onCheckedChange = {
+                                        isPlanning = it
+                                        isSaveButtonEnabled = isValid(errorSupportingTextTitle, errorSupportingTextArtist,
+                                            errorSupportingTextScore, it)
+                                    },
                                     modifier = Modifier.scale(0.5f)
                                 )
                             }
