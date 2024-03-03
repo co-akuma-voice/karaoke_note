@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -13,7 +14,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.karaoke_note.data.SongScoreDao
@@ -23,7 +27,7 @@ data class BottomNavItem(
     val name: String,
     val route: String,
     val icon: ImageVector,
-    val badge: String? = null
+    val badge: Int? = null
 )
 
 @ExperimentalMaterial3Api
@@ -31,7 +35,7 @@ data class BottomNavItem(
 fun BottomNavigationBar(navController: NavController, songScoreDao: SongScoreDao) {
     val songDataFlow = songScoreDao.getAll0Scores()
     val songDataList by songDataFlow.collectAsState(initial = listOf())
-    val plansBadge = songDataList.size.toString()
+    val plansBadge = songDataList.size
     val bottomNavItems = listOf(
         BottomNavItem(
             name = "Latest",
@@ -57,7 +61,7 @@ fun BottomNavigationBar(navController: NavController, songScoreDao: SongScoreDao
             NavigationBarItem(
                 icon = {
                     if (item.badge != null) {
-                        BadgedBox(badge = { Text(text = item.badge) }) {
+                        BadgedBox(badge = { Badge { Text(item.badge.toString()) }}) {
                             Icon(item.icon, contentDescription = item.name)
                         }
                     } else {
