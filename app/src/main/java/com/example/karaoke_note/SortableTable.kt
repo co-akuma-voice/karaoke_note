@@ -128,7 +128,12 @@ fun <T> HeaderRow(
 }
 
 @Composable
-fun <T> DataRow(columns: List<TableColumn<T>>, item: T, color: Color, onClick: () -> Unit) {
+fun <T> DataRow(
+    columns: List<TableColumn<T>>,
+    item: T,
+    color: Color,
+    onClick: () -> Unit
+) {
     Row(Modifier
         .fillMaxWidth()
         .clickable(onClick = onClick)
