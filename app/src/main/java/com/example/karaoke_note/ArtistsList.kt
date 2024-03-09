@@ -39,10 +39,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.karaoke_note.data.Artist
 import com.example.karaoke_note.data.ArtistDao
+import com.example.karaoke_note.data.SongDao
 
 @ExperimentalMaterial3Api
 @Composable
-fun ArtistsPage(navController: NavController, artistDao: ArtistDao) {
+fun ArtistsPage(navController: NavController, artistDao: ArtistDao, songDao: SongDao) {
     Column {
         Box(modifier = Modifier.weight(0.5f)) {
             Spacer(modifier = Modifier)
@@ -50,14 +51,19 @@ fun ArtistsPage(navController: NavController, artistDao: ArtistDao) {
         Box(modifier = Modifier.weight(9f)) {
             val artistsFlow = artistDao.getArtistsWithSongs()
             val artists by artistsFlow.collectAsState(initial = emptyList())
-            SortArtists(navController, artists, artistDao)
+            SortArtists(navController, artists, artistDao, songDao)
         }
     }
 }
 
 @ExperimentalMaterial3Api
 @Composable
-fun SortArtists(navController: NavController, artists: List<Artist>, artistDao: ArtistDao) {
+fun SortArtists(
+    navController: NavController,
+    artists: List<Artist>,
+    artistDao: ArtistDao,
+    songDao: SongDao
+) {
     var sortDirection by remember { mutableStateOf(SortDirection.Asc) }
     var sortedArtists by remember(sortDirection, artists) { mutableStateOf(getSortedArtists(sortDirection, artists)) }
 
@@ -71,7 +77,7 @@ fun SortArtists(navController: NavController, artists: List<Artist>, artistDao: 
         ) {
             LazyColumn {
                 itemsIndexed(sortedArtists) { _, artist ->
-                    ArtistsListDrawing(navController, artist, artistDao)
+                    ArtistsListDrawing(navController, artist, artistDao, songDao)
                 }
             }
         }
@@ -133,12 +139,22 @@ fun getARGB(colorNumber: Int): Color {
 @OptIn(ExperimentalFoundationApi::class)
 @ExperimentalMaterial3Api
 @Composable
-fun ArtistsListDrawing(navController: NavController, artist: Artist, artistDao: ArtistDao) {
+fun ArtistsListDrawing(
+    navController: NavController,
+    artist: Artist,
+    artistDao: ArtistDao,
+    songDao: SongDao
+) {
     fun onUpdate(artistId: Long, iconColor: Int) {
         artistDao.updateIconColor(artistId, iconColor)
     }
     val haptics = LocalHapticFeedback.current
     var iconColorSelectorOpened by remember { mutableStateOf(false) }
+
+    // アーティストごとに曲数を取得する
+    val songsListFlow = songDao.getSongsByArtist(artist.id)
+    val songList by songsListFlow.collectAsState(initial = listOf())
+    val numberOfSongs = songList.size
 
     Column (
         modifier = Modifier.clickable {
@@ -148,7 +164,7 @@ fun ArtistsListDrawing(navController: NavController, artist: Artist, artistDao: 
         ListItem(
             headlineContent = {
                 Text(
-                    text = artist.name,
+                    text = artist.name + "\t(" + numberOfSongs + ")",
                     overflow = TextOverflow.Ellipsis
                 )
             },
