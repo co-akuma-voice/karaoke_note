@@ -40,10 +40,16 @@ import androidx.navigation.NavController
 import com.example.karaoke_note.data.Artist
 import com.example.karaoke_note.data.ArtistDao
 import com.example.karaoke_note.data.SongDao
+import com.example.karaoke_note.data.SongScoreDao
 
 @ExperimentalMaterial3Api
 @Composable
-fun ArtistsPage(navController: NavController, artistDao: ArtistDao, songDao: SongDao) {
+fun ArtistsPage(
+    navController: NavController,
+    artistDao: ArtistDao,
+    songDao: SongDao,
+    songScoreDao: SongScoreDao
+) {
     Column {
         Box(modifier = Modifier.weight(0.5f)) {
             Spacer(modifier = Modifier)
@@ -51,7 +57,7 @@ fun ArtistsPage(navController: NavController, artistDao: ArtistDao, songDao: Son
         Box(modifier = Modifier.weight(9f)) {
             val artistsFlow = artistDao.getArtistsWithSongs()
             val artists by artistsFlow.collectAsState(initial = emptyList())
-            SortArtists(navController, artists, artistDao, songDao)
+            SortArtists(navController, artists, artistDao, songDao, songScoreDao)
         }
     }
 }
@@ -62,7 +68,8 @@ fun SortArtists(
     navController: NavController,
     artists: List<Artist>,
     artistDao: ArtistDao,
-    songDao: SongDao
+    songDao: SongDao,
+    songScoreDao: SongScoreDao
 ) {
     var sortDirection by remember { mutableStateOf(SortDirection.Asc) }
     var sortedArtists by remember(sortDirection, artists) { mutableStateOf(getSortedArtists(sortDirection, artists)) }
@@ -77,7 +84,7 @@ fun SortArtists(
         ) {
             LazyColumn {
                 itemsIndexed(sortedArtists) { _, artist ->
-                    ArtistsListDrawing(navController, artist, artistDao, songDao)
+                    ArtistsListDrawing(navController, artist, artistDao, songDao, songScoreDao)
                 }
             }
         }
@@ -143,7 +150,8 @@ fun ArtistsListDrawing(
     navController: NavController,
     artist: Artist,
     artistDao: ArtistDao,
-    songDao: SongDao
+    songDao: SongDao,
+    songScoreDao: SongScoreDao
 ) {
     fun onUpdate(artistId: Long, iconColor: Int) {
         artistDao.updateIconColor(artistId, iconColor)
@@ -155,7 +163,16 @@ fun ArtistsListDrawing(
     //   Plans にある曲もカウントされてしまう
     val songsListFlow = songDao.getSongsByArtist(artist.id)
     val songList by songsListFlow.collectAsState(initial = listOf())
-    val numberOfSongs = songList.size
+    var numberOfSongs = 0
+    for (song in songList) {
+        val highestSongScore = songScoreDao.getHighestScoreBySongId(song.id)
+        if (highestSongScore != null) {
+            if (highestSongScore.score == 0f) {
+                numberOfSongs --    // 最高スコアが 0 の曲は Plans にしか登録がないということになるので引く
+            }
+        }
+    }
+    numberOfSongs += songList.size    // songList.size には Plans にしか入っていない曲もカウントされる
 
     Column (
         modifier = Modifier.clickable {
