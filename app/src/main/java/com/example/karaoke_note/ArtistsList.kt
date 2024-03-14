@@ -152,6 +152,7 @@ fun ArtistsListDrawing(
     var iconColorSelectorOpened by remember { mutableStateOf(false) }
 
     // アーティストごとに曲数を取得する
+    //   Plans にある曲もカウントされてしまう
     val songsListFlow = songDao.getSongsByArtist(artist.id)
     val songList by songsListFlow.collectAsState(initial = listOf())
     val numberOfSongs = songList.size
@@ -164,7 +165,7 @@ fun ArtistsListDrawing(
         ListItem(
             headlineContent = {
                 Text(
-                    text = artist.name + "\t(" + numberOfSongs + ")",
+                    text = artist.name + "  (" + numberOfSongs + ")",
                     overflow = TextOverflow.Ellipsis
                 )
             },
