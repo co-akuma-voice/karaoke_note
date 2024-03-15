@@ -40,15 +40,13 @@ import androidx.navigation.NavController
 import com.example.karaoke_note.data.Artist
 import com.example.karaoke_note.data.ArtistDao
 import com.example.karaoke_note.data.SongDao
-import com.example.karaoke_note.data.SongScoreDao
 
 @ExperimentalMaterial3Api
 @Composable
 fun ArtistsPage(
     navController: NavController,
     artistDao: ArtistDao,
-    songDao: SongDao,
-    songScoreDao: SongScoreDao
+    songDao: SongDao
 ) {
     Column {
         Box(modifier = Modifier.weight(0.5f)) {
@@ -57,7 +55,7 @@ fun ArtistsPage(
         Box(modifier = Modifier.weight(9f)) {
             val artistsFlow = artistDao.getArtistsWithSongs()
             val artists by artistsFlow.collectAsState(initial = emptyList())
-            SortArtists(navController, artists, artistDao, songDao, songScoreDao)
+            SortArtists(navController, artists, artistDao, songDao)
         }
     }
 }
@@ -68,8 +66,7 @@ fun SortArtists(
     navController: NavController,
     artists: List<Artist>,
     artistDao: ArtistDao,
-    songDao: SongDao,
-    songScoreDao: SongScoreDao
+    songDao: SongDao
 ) {
     var sortDirection by remember { mutableStateOf(SortDirection.Asc) }
     var sortedArtists by remember(sortDirection, artists) { mutableStateOf(getSortedArtists(sortDirection, artists)) }
@@ -84,7 +81,7 @@ fun SortArtists(
         ) {
             LazyColumn {
                 itemsIndexed(sortedArtists) { _, artist ->
-                    ArtistsListDrawing(navController, artist, artistDao, songDao, songScoreDao)
+                    ArtistsListDrawing(navController, artist, artistDao, songDao)
                 }
             }
         }
@@ -150,8 +147,7 @@ fun ArtistsListDrawing(
     navController: NavController,
     artist: Artist,
     artistDao: ArtistDao,
-    songDao: SongDao,
-    songScoreDao: SongScoreDao
+    songDao: SongDao
 ) {
     fun onUpdate(artistId: Long, iconColor: Int) {
         artistDao.updateIconColor(artistId, iconColor)
