@@ -160,18 +160,9 @@ fun ArtistsListDrawing(
     var iconColorSelectorOpened by remember { mutableStateOf(false) }
 
     // アーティストごとに曲数を取得する
-    val songsListFlow = songDao.getSongsByArtist(artist.id)
+    val songsListFlow = songDao.getSongsWithScores(artist.id)
     val songList by songsListFlow.collectAsState(initial = listOf())
-    var numberOfSongs = 0
-    for (song in songList) {
-        val highestSongScore = songScoreDao.getHighestScoreBySongId(song.id)
-        if (highestSongScore != null) {
-            if (highestSongScore.score == 0f) {
-                numberOfSongs --    // 最高スコアが 0 の曲は Plans にしか登録がないということになるので引く
-            }
-        }
-    }
-    numberOfSongs += songList.size    // songList.size には Plans にしか入っていない曲もカウントされる
+    val numberOfSongs = songList.size
 
     Column (
         modifier = Modifier.clickable {
