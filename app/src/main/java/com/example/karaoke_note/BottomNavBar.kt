@@ -57,7 +57,7 @@ fun BottomNavigationBar(navController: NavController, songScoreDao: SongScoreDao
             val selected = item.route == navController.currentBackStackEntryAsState().value?.destination?.route
             NavigationBarItem(
                 icon = {
-                    if (item.badge != null) {
+                    if (item.badge != null && item.badge > 0) {
                         BadgedBox(badge = { Badge { Text(item.badge.toString()) }}) {
                             Icon(item.icon, contentDescription = item.name)
                         }
