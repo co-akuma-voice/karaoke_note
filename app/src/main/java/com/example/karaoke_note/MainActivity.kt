@@ -83,7 +83,7 @@ class MainActivity : ComponentActivity() {
                                 PlansPage(songDao, songScoreDao, artistDao, showDialog, editingSongScore)
                             }
                             composable("list"){
-                                ArtistsPage(navController, artistDao, songDao, songScoreDao)
+                                ArtistsPage(navController, artistDao, songDao)
                             }
                             composable("song_list/{artistId}"){backStackEntry ->
                                 val artistId = backStackEntry.arguments?.getString("artistId")?.toLongOrNull()
