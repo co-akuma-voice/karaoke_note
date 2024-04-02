@@ -44,7 +44,14 @@ import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun SongScores(song: Song, songDao: SongDao, songScoreDao: SongScoreDao, scope: CoroutineScope, showEntrySheetDialog: MutableState<Boolean>, editingSongScore: MutableState<SongScore?>) {
+fun SongScores(
+    song: Song,
+    songDao: SongDao,
+    songScoreDao: SongScoreDao,
+    scope: CoroutineScope,
+    showEntrySheetDialog: MutableState<Boolean>,
+    editingSongScore: MutableState<SongScore?>
+) {
     fun onUpdate(songId: Long, newTitle: String) {
         scope.launch {
             songDao.updateTitle(songId, newTitle)
