@@ -212,6 +212,7 @@ fun PlansListItem(
         modifier = Modifier
             .height(80.dp)
             .clickable {
+                // ListItem をタップしたときには、その仮登録データを初期データとして新規登録画面を起動する
                 editingSongScore.value = songScore.copy(date = LocalDate.now())
                 showEntrySheetDialog.value = true
             },
