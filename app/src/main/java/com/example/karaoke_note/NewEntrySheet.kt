@@ -183,7 +183,7 @@ fun entryToDataBase(
         }
         else {
             if (isComeFromPlansPage && !isPlanning) {  // Plans に仮登録されている曲を編集して正式登録
-                songScoreDao.insert(newSongScore)
+                songScoreDao.insert(newSongScore)    // id は新規
                 songScoreDao.deleteSongScore(editingSongScore.id)  // Plans 仮登録 id を削除
             }
             else {  // List ページの編集ボタンからの更新 or Plans 再仮登録
