@@ -88,7 +88,10 @@ fun SortArtists(
     }
 }
 
-fun getSortedArtists(sortDirection: SortDirection, artists: List<Artist>): List<Artist> {
+fun getSortedArtists(
+    sortDirection: SortDirection,
+    artists: List<Artist>
+): List<Artist> {
     return when (sortDirection) {
         SortDirection.None -> artists
         SortDirection.Asc -> artists.sortedBy(Artist::name)
@@ -98,7 +101,10 @@ fun getSortedArtists(sortDirection: SortDirection, artists: List<Artist>): List<
 
 
 @Composable
-fun ArtistsListHeader(sortDirection: SortDirection, onSortChanged: (SortDirection) -> Unit) {
+fun ArtistsListHeader(
+    sortDirection: SortDirection,
+    onSortChanged: (SortDirection) -> Unit
+) {
     Row(Modifier.fillMaxWidth()) {
         Box(modifier = Modifier
             .fillMaxWidth()
