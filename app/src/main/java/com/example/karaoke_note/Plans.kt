@@ -10,17 +10,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DismissDirection
 import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.rememberDismissState
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -28,7 +25,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -54,6 +50,10 @@ fun getARGBForSwipeDismiss(colorNumber: Int): Color {
     return argb
 }
 
+data class PlansItem(
+    val id: Long
+)
+
 @ExperimentalMaterialApi
 @Composable
 fun PlansPage(
@@ -63,8 +63,8 @@ fun PlansPage(
     showEntrySheetDialog: MutableState<Boolean>,
     editingSongScore: MutableState<SongScore?>
 ) {
-    val songDataFlow = songScoreDao.getAll0Scores()
-    val songDataList by songDataFlow.collectAsState(initial = listOf())
+    val songScoreFlow = songScoreDao.getAll0Scores()
+    val songScoreList by songScoreFlow.collectAsState(initial = listOf())
 
     fun removePlan(id: Long) {
         songScoreDao.deleteSongScore(id)
@@ -77,15 +77,15 @@ fun PlansPage(
             LazyColumn(
                 modifier = Modifier
             ) {
-                items(songDataList) { songData ->
-                    val song = songDao.getSong(songData.songId)
+                items(songScoreList, {songScore:SongScore -> songScore.id}) { songScore ->
+                    val song = songDao.getSong(songScore.songId)
                     if (song != null) {
                         val artist = artistDao.getNameById(song.artistId)
                         if (artist != null) {
                             val dismissState = rememberDismissState(
                                 confirmStateChange = {
-                                    if (it == DismissValue.DismissedToStart) {
-                                        removePlan(songData.id)    // Plan データを削除する
+                                    if (songScoreList.size > 1 && it == DismissValue.DismissedToStart) {
+                                        removePlan(songScore.id)    // Plan データを削除する
                                         true
                                     }
                                     else { false }
@@ -100,7 +100,6 @@ fun PlansPage(
                                     Box (
                                         modifier = Modifier
                                             .padding()
-                                            .clip(RoundedCornerShape(8.dp))
                                             .fillMaxWidth()
                                             .height(80.dp)
                                             .background(getARGBForSwipeDismiss(1)),
@@ -117,7 +116,7 @@ fun PlansPage(
                                     }
                                 },
                                 dismissContent = {
-                                    PlansListItem(song, songData, artist, showEntrySheetDialog, editingSongScore)
+                                    PlansListItem(song, songScore, artist, showEntrySheetDialog, editingSongScore)
                                 }
                             )
                         }
@@ -144,7 +143,6 @@ fun PlansListItem(
     ListItem(
         modifier = Modifier
             .height(80.dp)
-            .clip(MaterialTheme.shapes.small)
             .clickable {
                 editingSongScore.value = songScore.copy(date = LocalDate.now())
                 showEntrySheetDialog.value = true
@@ -184,7 +182,8 @@ fun PlansListItem(
                 fontSize = 14.sp,
                 textAlign = TextAlign.End,
             )
-        }
+        },
+        shadowElevation = 1.dp
     )
-    Divider(color = Color.Gray, thickness = 1.dp)
+    //Divider(color = Color.Gray, thickness = 1.dp)
 }
