@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,7 +15,7 @@ import androidx.compose.material.DismissDirection
 import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -42,6 +43,17 @@ import com.example.karaoke_note.data.SongScoreDao
 import com.example.karaoke_note.ui.component.CustomSwipeToDismiss
 import java.time.LocalDate
 
+fun getARGBForSwipeDismiss(colorNumber: Int): Color {
+    var argb: Color = Color.Black
+    when (colorNumber) {
+        0 -> argb = Color(0xffc00000)
+        1 -> argb = Color(0x1fff0000)
+        2 -> argb = Color.LightGray
+        3 -> argb = Color.Gray
+    }
+    return argb
+}
+
 @ExperimentalMaterialApi
 @Composable
 fun PlansPage(
@@ -53,6 +65,10 @@ fun PlansPage(
 ) {
     val songDataFlow = songScoreDao.getAll0Scores()
     val songDataList by songDataFlow.collectAsState(initial = listOf())
+
+    fun removePlan(id: Long) {
+        songScoreDao.deleteSongScore(id)
+    }
 
     Column {
         Box(
@@ -69,7 +85,7 @@ fun PlansPage(
                             val dismissState = rememberDismissState(
                                 confirmStateChange = {
                                     if (it == DismissValue.DismissedToStart) {
-                                        // remove function
+                                        removePlan(songData.id)    // Plan データを削除する
                                         true
                                     }
                                     else { false }
@@ -83,18 +99,20 @@ fun PlansPage(
                                 background = {
                                     Box (
                                         modifier = Modifier
-                                            .padding(horizontal = 30.dp)
+                                            .padding()
                                             .clip(RoundedCornerShape(8.dp))
                                             .fillMaxWidth()
-                                            .height(40.dp)
-                                            .background(Color.Red),
+                                            .height(80.dp)
+                                            .background(getARGBForSwipeDismiss(1)),
                                         contentAlignment = Alignment.CenterEnd
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Filled.Delete,
+                                            imageVector = Icons.Outlined.Delete,
                                             contentDescription = "delete",
-                                            tint = Color.White,
-                                            modifier = Modifier.padding(end = 20.dp)
+                                            tint = getARGBForSwipeDismiss(0),
+                                            modifier = Modifier
+                                                .size(60.dp)
+                                                .padding(end = 30.dp)
                                         )
                                     }
                                 },
@@ -125,6 +143,7 @@ fun PlansListItem(
 
     ListItem(
         modifier = Modifier
+            .height(80.dp)
             .clip(MaterialTheme.shapes.small)
             .clickable {
                 editingSongScore.value = songScore.copy(date = LocalDate.now())
