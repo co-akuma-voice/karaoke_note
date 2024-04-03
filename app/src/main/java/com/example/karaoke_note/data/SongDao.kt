@@ -24,6 +24,9 @@ interface SongDao {
     @Query("SELECT * FROM Song WHERE artistId = :artistId")
     fun getSongsByArtist(artistId: Long): Flow<List<Song>>
 
+    @Query("SELECT COUNT(*) FROM Song WHERE artistId = :artistId")
+    suspend fun countSongsForArtist(artistId: Long): Int
+
     @Query("DELETE FROM Song WHERE id = :id")
     fun delete(id: Long)
 

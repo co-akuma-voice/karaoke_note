@@ -54,9 +54,63 @@ fun getARGBForSwipeDismiss(colorNumber: Int): Color {
     return argb
 }
 
-data class PlansItem(
-    val id: Long
-)
+// artistId についている曲の数をチェックし、0個の場合はアーティストデータ自体を削除する
+private fun deleteArtistData(
+    artistId: Long,
+    artistDao: ArtistDao,
+    songDao: SongDao,
+    scope: CoroutineScope
+) {
+    scope.launch {
+        if (songDao.countSongsForArtist(artistId) == 0) {
+            artistDao.delete(artistId)
+        }
+    }
+}
+
+// songId の曲についているスコアの数をチェックし、0個の場合は Song データ自体を削除する
+private fun deleteSongData(
+    songId: Long,
+    songScoreDao: SongScoreDao,
+    songDao: SongDao,
+    scope: CoroutineScope
+) {
+    scope.launch {
+        if (songScoreDao.countScoresForSong(songId) == 0) {
+            songDao.delete(songId)
+        }
+    }
+}
+
+private fun removePlansListItem(
+    artistId: Long,
+    songId: Long,
+    scoreId: Long,
+    artistDao: ArtistDao,
+    songDao: SongDao,
+    songScoreDao: SongScoreDao,
+    scope: CoroutineScope,
+    snackBarHostState: SnackbarHostState
+) {
+    scope.launch {
+        val snackbarResult = snackBarHostState.showSnackbar(
+            message = "One data has been deleted.",
+            actionLabel = null,
+            withDismissAction = true,
+            duration = SnackbarDuration.Long
+        )
+        // Undo 機能を実装したい
+    }
+
+    // スコア ID を削除
+    //   これだけでは一度 Plans に登録した SongID や ArtistID などは残るので、サジェスト機能で出てくる
+    songScoreDao.deleteSongScore(scoreId)
+
+    // SongID の削除
+    deleteSongData(songId, songScoreDao, songDao, scope)
+    // ArtistID の削除
+    deleteArtistData(artistId, artistDao, songDao, scope)
+}
 
 @ExperimentalMaterialApi
 @Composable
@@ -71,24 +125,6 @@ fun PlansPage(
 ) {
     val songScoreFlow = songScoreDao.getAll0Scores()
     val songScoreList by songScoreFlow.collectAsState(initial = listOf())
-
-    val allSongScoreList = songScoreDao.getAll()
-
-    fun removePlansListItem(songId: Long, scoreId: Long) {
-        scope.launch {
-            val snackbarResult = snackBarHostState.showSnackbar(
-                message = "One data has been deleted.",
-                actionLabel = null,
-                withDismissAction = true,
-                duration = SnackbarDuration.Long
-            )
-            // Undo 機能を実装したい
-        }
-
-        // スコア ID を削除
-        // SongID や ArtistID などは残る
-        songScoreDao.deleteSongScore(scoreId)
-    }
 
     Column {
         Box(
@@ -105,7 +141,17 @@ fun PlansPage(
                             val dismissState = rememberDismissState(
                                 confirmStateChange = {
                                     if (songScoreList.isNotEmpty() && it == DismissValue.DismissedToStart) {
-                                        removePlansListItem(songScore.songId, songScore.id)    // Plan データを削除する
+                                        // Plan データを削除する
+                                        removePlansListItem(
+                                            artistId = song.artistId,
+                                            songId = songScore.songId,
+                                            scoreId = songScore.id,
+                                            artistDao = artistDao,
+                                            songDao = songDao,
+                                            songScoreDao = songScoreDao,
+                                            scope = scope,
+                                            snackBarHostState = snackBarHostState
+                                        )
                                         true    // スワイプして songScore が消える
                                     }
                                     else {
