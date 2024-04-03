@@ -82,6 +82,7 @@ private fun deleteSongData(
     }
 }
 
+// Undo 機能で元に戻すこともしたいので関数名を remove にしている
 private fun removePlansListItem(
     artistId: Long,
     songId: Long,
