@@ -115,6 +115,24 @@ fun isValid(
     }
 }
 
+// Plans に同じ曲が登録されていないかチェックする
+// 同じ曲があれば Plans に登録済みのスコア ID を取得する
+@Composable
+fun getScoreIdInPlans(
+    songId: Long,
+    defaultSongId: Long,
+    songScoreDao: SongScoreDao
+): Long {
+    val songDataFlow = songScoreDao.getAll0Scores()
+    val songDataList by songDataFlow.collectAsState(initial = listOf())
+
+    for (elem in songDataList) {
+        if (songId == elem.songId) { return elem.id }
+    }
+    return defaultSongId
+}
+
+
 // データをデータベースに登録する
 fun entryToDataBase(
     editingSongScore: SongScore?,
@@ -147,7 +165,8 @@ fun entryToDataBase(
     )
     // Plans ページから来た場合は既存の id があるが、マニュアル 0 指定する
     //   0 指定すると新しい番号で振り直される
-    //   Long 型なら 2^63 - 1 (= 9,223,372,036,854,775,807) までいけるので多少無駄遣いしても問題ない
+    //   Long 型なら 2^63 - 1 (= 9,223,372,036,854,775,807) までいける
+    //     毎秒1つ登録しても、使い切るのに 2,924 億年かかるので問題ない
     val newSongScoreId = if (isComeFromPlansPage) { 0L } else { editingSongScore?.id ?: 0L }
     val newSongScore = SongScore(
         id = newSongScoreId,
