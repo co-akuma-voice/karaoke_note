@@ -115,24 +115,6 @@ fun isValid(
     }
 }
 
-// Plans に同じ曲が登録されていないかチェックする
-// 同じ曲があれば Plans に登録済みのスコア ID を取得する
-@Composable
-fun getScoreIdInPlans(
-    songId: Long,
-    defaultSongId: Long,
-    songScoreDao: SongScoreDao
-): Long {
-    val songDataFlow = songScoreDao.getAll0Scores()
-    val songDataList by songDataFlow.collectAsState(initial = listOf())
-
-    for (elem in songDataList) {
-        if (songId == elem.songId) { return elem.id }
-    }
-    return defaultSongId
-}
-
-
 // データをデータベースに登録する
 fun entryToDataBase(
     editingSongScore: SongScore?,
