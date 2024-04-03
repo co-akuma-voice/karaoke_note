@@ -18,6 +18,8 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -37,6 +39,8 @@ import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
 import com.example.karaoke_note.ui.component.CustomSwipeToDismiss
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 fun getARGBForSwipeDismiss(colorNumber: Int): Color {
@@ -61,13 +65,29 @@ fun PlansPage(
     songScoreDao: SongScoreDao,
     artistDao: ArtistDao,
     showEntrySheetDialog: MutableState<Boolean>,
-    editingSongScore: MutableState<SongScore?>
+    editingSongScore: MutableState<SongScore?>,
+    scope: CoroutineScope,
+    snackBarHostState: SnackbarHostState
 ) {
     val songScoreFlow = songScoreDao.getAll0Scores()
     val songScoreList by songScoreFlow.collectAsState(initial = listOf())
 
-    fun removePlan(id: Long) {
-        songScoreDao.deleteSongScore(id)
+    val allSongScoreList = songScoreDao.getAll()
+
+    fun removePlansListItem(songId: Long, scoreId: Long) {
+        scope.launch {
+            val snackbarResult = snackBarHostState.showSnackbar(
+                message = "One data has been deleted.",
+                actionLabel = null,
+                withDismissAction = true,
+                duration = SnackbarDuration.Long
+            )
+            // Undo 機能を実装したい
+        }
+
+        // スコア ID を削除
+        // SongID や ArtistID などは残る
+        songScoreDao.deleteSongScore(scoreId)
     }
 
     Column {
@@ -84,11 +104,13 @@ fun PlansPage(
                         if (artist != null) {
                             val dismissState = rememberDismissState(
                                 confirmStateChange = {
-                                    if (songScoreList.size > 1 && it == DismissValue.DismissedToStart) {
-                                        removePlan(songScore.id)    // Plan データを削除する
-                                        true
+                                    if (songScoreList.isNotEmpty() && it == DismissValue.DismissedToStart) {
+                                        removePlansListItem(songScore.songId, songScore.id)    // Plan データを削除する
+                                        true    // スワイプして songScore が消える
                                     }
-                                    else { false }
+                                    else {
+                                        false   // スワイプして元に戻る
+                                    }
                                 }
                             )
 
@@ -179,11 +201,10 @@ fun PlansListItem(
                     .padding(top = 2.dp, end = 16.dp, bottom = 2.dp),
                 color = Color.DarkGray,
                 fontFamily = FontFamily.SansSerif,
-                fontSize = 14.sp,
+                fontSize = 16.sp,
                 textAlign = TextAlign.End,
             )
         },
         shadowElevation = 1.dp
     )
-    //Divider(color = Color.Gray, thickness = 1.dp)
 }
