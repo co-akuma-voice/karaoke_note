@@ -149,7 +149,7 @@ fun entryToDataBase(
     //   0 指定すると新しい番号で振り直される
     //   Java の Long 型は 2^63 - 1 (= 9,223,372,036,854,775,807) までいける
     //     毎秒1つ登録しても、使い切るのに 2,924 億年かかるので問題ない
-    val newSongScoreId = if (isComeFromPlansPage) { 0L } else { editingSongScore?.id ?: 0L }
+    val newSongScoreId = if (isComeFromPlansPage && !isPlanning) { 0L } else { editingSongScore?.id ?: 0L }
     val newSongScore = SongScore(
         id = newSongScoreId,
         songId = newSongId,
