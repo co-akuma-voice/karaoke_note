@@ -244,7 +244,8 @@ fun NewEntryScreen(
     var isSaveButtonEnabled by remember { mutableStateOf(false) }
     var isComeFromPlansPage = false
 
-    LaunchedEffect(key1 = defaultArtistId, key2 = defaultTitle, key3 = editingSongScore) {
+    //LaunchedEffect(key1 = defaultArtistId, key2 = defaultTitle, key3 = editingSongScore) {
+    LaunchedEffect(key1 = screenOpened.value) {
         isComeFromPlansPage = (defaultScore == "0.000")
 
         newArtist = artistDao.getNameById(defaultArtistId) ?: ""
@@ -302,6 +303,8 @@ fun NewEntryScreen(
                         IconButton(
                             onClick = {
                                 editingSongScoreState.value = null
+                                newTitle = ""    // default* で適切な値を取ってこられるのでクリアしてしまえ
+                                newArtist = ""
                                 newScore = ""
                                 newKey = 0f
                                 newDate = LocalDate.now()
@@ -345,6 +348,8 @@ fun NewEntryScreen(
                                 )
 
                                 editingSongScoreState.value = null
+                                newTitle = ""
+                                newArtist = ""
                                 newScore = ""
                                 newKey = 0f
                                 newDate = LocalDate.now()
