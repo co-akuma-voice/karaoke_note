@@ -245,7 +245,7 @@ fun NewEntryScreen(
     var isComeFromPlansPage = false
 
     //LaunchedEffect(key1 = defaultArtistId, key2 = defaultTitle, key3 = editingSongScore) {
-    LaunchedEffect(key1 = screenOpened.value) {
+    LaunchedEffect(key1 = screenOpened.value, key2 = isPlanning) {
         isComeFromPlansPage = (defaultScore == "0.000")
 
         newArtist = artistDao.getNameById(defaultArtistId) ?: ""
