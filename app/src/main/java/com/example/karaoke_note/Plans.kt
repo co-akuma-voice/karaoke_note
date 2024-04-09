@@ -16,6 +16,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.rememberDismissState
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.SnackbarDuration
@@ -166,23 +167,7 @@ fun PlansPage(
                                 modifier = Modifier,
                                 directions = setOf(DismissDirection.EndToStart),
                                 background = {
-                                    Box (
-                                        modifier = Modifier
-                                            .padding()
-                                            .fillMaxWidth()
-                                            .height(80.dp)
-                                            .background(getARGBForSwipeDismiss(1)),
-                                        contentAlignment = Alignment.CenterEnd
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Outlined.Delete,
-                                            contentDescription = "delete",
-                                            tint = getARGBForSwipeDismiss(0),
-                                            modifier = Modifier
-                                                .size(60.dp)
-                                                .padding(end = 30.dp)
-                                        )
-                                    }
+                                    BackGroundItem()
                                 },
                                 dismissContent = {
                                     PlansListItem(song, songScore, artist, showEntrySheetDialog, editingSongScore)
@@ -200,6 +185,30 @@ fun PlansPage(
 }
 
 @Composable
+fun BackGroundItem() {
+    Column(modifier = Modifier) {
+        Box(
+            modifier = Modifier
+                .padding()
+                .fillMaxWidth()
+                .height(80.dp)
+                .background(getARGBForSwipeDismiss(1)),
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Delete,
+                contentDescription = "delete",
+                tint = getARGBForSwipeDismiss(0),
+                modifier = Modifier
+                    .size(60.dp)
+                    .padding(end = 30.dp)
+            )
+        }
+        Divider(thickness = 1.dp, color = getARGBForSwipeDismiss(1))
+    }
+}
+
+@Composable
 fun PlansListItem(
     song: Song,
     songScore: SongScore,
@@ -209,50 +218,53 @@ fun PlansListItem(
 ) {
     val keyFormat = if (songScore.key != 0) { "%+d" } else { "%d" }
 
-    ListItem(
-        modifier = Modifier
-            .height(80.dp)
-            .clickable {
-                // ListItem をタップしたときには、その仮登録データを初期データとして新規登録画面を起動する
-                editingSongScore.value = songScore.copy(date = LocalDate.now())
-                showEntrySheetDialog.value = true
+    Column(modifier = Modifier) {
+        ListItem(
+            modifier = Modifier
+                .height(80.dp)
+                .clickable {
+                    // ListItem をタップしたときには、その仮登録データを初期データとして新規登録画面を起動する
+                    editingSongScore.value = songScore.copy(date = LocalDate.now())
+                    showEntrySheetDialog.value = true
+                },
+            headlineContent = {
+                Text(
+                    text = song.title,
+                    modifier = Modifier
+                        .padding(start = 20.dp, top = 4.dp, bottom = 2.dp),
+                    color = Color.DarkGray,
+                    fontFamily = FontFamily.SansSerif,
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             },
-        headlineContent = {
-            Text(
-                text = song.title,
-                modifier = Modifier
-                    .padding(start = 20.dp, top = 6.dp, bottom = 4.dp),
-                color = Color.DarkGray,
-                fontFamily = FontFamily.SansSerif,
-                fontSize = 16.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        },
-        supportingContent = {
-            Text(
-                text = artist,
-                modifier = Modifier
-                    .padding(start = 20.dp, top = 4.dp, bottom = 6.dp),
-                color = Color.Gray,
-                fontFamily = FontFamily.SansSerif,
-                fontSize = 12.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        },
-        leadingContent = {},
-        trailingContent = {
-            Text(
-                text = String.format(keyFormat, songScore.key),
-                modifier = Modifier
-                    .padding(top = 2.dp, end = 16.dp, bottom = 2.dp),
-                color = Color.DarkGray,
-                fontFamily = FontFamily.SansSerif,
-                fontSize = 16.sp,
-                textAlign = TextAlign.End,
-            )
-        },
-        shadowElevation = 1.dp
-    )
+            supportingContent = {
+                Text(
+                    text = artist,
+                    modifier = Modifier
+                        .padding(start = 20.dp, top = 2.dp, bottom = 4.dp),
+                    color = Color.Gray,
+                    fontFamily = FontFamily.SansSerif,
+                    fontSize = 10.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            },
+            leadingContent = {},
+            trailingContent = {
+                Text(
+                    text = String.format(keyFormat, songScore.key),
+                    modifier = Modifier
+                        .padding(top = 2.dp, end = 16.dp, bottom = 2.dp),
+                    color = Color.DarkGray,
+                    fontFamily = FontFamily.SansSerif,
+                    fontSize = 12.sp,
+                    textAlign = TextAlign.End,
+                )
+            },
+            shadowElevation = 1.dp
+        )
+        Divider(thickness = 1.dp, color = Color.LightGray)
+    }
 }
