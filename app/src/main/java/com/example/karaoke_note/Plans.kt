@@ -221,7 +221,7 @@ fun PlansListItem(
     Column(modifier = Modifier) {
         ListItem(
             modifier = Modifier
-                .height(80.dp)
+                .height(60.dp)
                 .clickable {
                     // ListItem をタップしたときには、その仮登録データを初期データとして新規登録画面を起動する
                     editingSongScore.value = songScore.copy(date = LocalDate.now())
@@ -231,7 +231,7 @@ fun PlansListItem(
                 Text(
                     text = song.title,
                     modifier = Modifier
-                        .padding(start = 20.dp, top = 4.dp, bottom = 2.dp),
+                        .padding(start = 20.dp, top = 2.dp, bottom = 2.dp),
                     color = Color.DarkGray,
                     fontFamily = FontFamily.SansSerif,
                     fontSize = 14.sp,
@@ -243,7 +243,7 @@ fun PlansListItem(
                 Text(
                     text = artist,
                     modifier = Modifier
-                        .padding(start = 20.dp, top = 2.dp, bottom = 4.dp),
+                        .padding(start = 20.dp, top = 2.dp, bottom = 2.dp),
                     color = Color.Gray,
                     fontFamily = FontFamily.SansSerif,
                     fontSize = 10.sp,
