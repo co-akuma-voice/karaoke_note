@@ -209,7 +209,7 @@ fun CommonTextField(
 
         // サジェスト機能
         val alreadyComplete = filteredAutoCompleteSuggestions.size == 1 && filteredAutoCompleteSuggestions[0] == textFieldValue.text
-        if (isFocused && filteredAutoCompleteSuggestions.isNotEmpty() && !alreadyComplete) {
+        if (isFocused && filteredAutoCompleteSuggestions.isNotEmpty() && !alreadyComplete && textFieldValue.text.isNotEmpty()) {
             DropdownMenu(
                 expanded = isDropdownExpanded,
                 onDismissRequest = { isDropdownExpanded = false },
