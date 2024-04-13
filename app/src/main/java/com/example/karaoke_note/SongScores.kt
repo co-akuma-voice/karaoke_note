@@ -150,7 +150,11 @@ fun SongScores(
                 )
             }
             IconButton(onClick = { isEditing = true }) {
-                Icon(Icons.Filled.Edit, contentDescription = null)
+                // 通常状態だと位置が下にずれて見えるが、編集状態だとぴったり真ん中になる
+                Icon(
+                    imageVector = Icons.Filled.Edit,
+                    contentDescription = null,
+                )
             }
         }
         Divider(color = Color.Gray, thickness = 1.dp)
