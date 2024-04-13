@@ -10,10 +10,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
@@ -30,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -105,6 +109,9 @@ fun ArtistsListHeader(
     sortDirection: SortDirection,
     onSortChanged: (SortDirection) -> Unit
 ) {
+    val iconScale = 0.8f
+    val iconPaddingValues = 8
+
     Row(Modifier.fillMaxWidth()) {
         Box(modifier = Modifier
             .fillMaxWidth()
@@ -117,13 +124,21 @@ fun ArtistsListHeader(
             }) {
             Text(text = "アーティスト", modifier = Modifier.align(Alignment.CenterStart))
             when(sortDirection) {
-                SortDirection.Asc -> Text(
-                    text = "↑",
-                    modifier = Modifier.align(Alignment.CenterEnd)
+                SortDirection.Asc -> Icon(
+                    imageVector = Icons.Filled.ArrowUpward,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .scale(iconScale)
+                        .align(Alignment.CenterEnd)
+                        .padding(end = iconPaddingValues.dp)
                 )
-                SortDirection.Desc -> Text(
-                    text = "↓",
-                    modifier = Modifier.align(Alignment.CenterEnd)
+                SortDirection.Desc -> Icon(
+                    imageVector = Icons.Filled.ArrowDownward,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .scale(iconScale)
+                        .align(Alignment.CenterEnd)
+                        .padding(end = iconPaddingValues.dp)
                 )
                 else -> {}
             }
