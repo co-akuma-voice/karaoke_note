@@ -7,18 +7,26 @@ import android.provider.DocumentsContract
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.Games
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,6 +46,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.karaoke_note.data.Artist
 import com.example.karaoke_note.data.ArtistDao
@@ -122,6 +134,7 @@ fun AppBar(
     if (showSheet) {
         ModalBottomSheet(
             onDismissRequest = { showSheet = false },
+            modifier = Modifier.fillMaxSize(),
             sheetState = sheetState,
             shape = BottomSheetDefaults.ExpandedShape,
             containerColor = BottomSheetDefaults.ContainerColor,
@@ -131,23 +144,57 @@ fun AppBar(
             windowInsets = WindowInsets.displayCutout,
         ) {
             // Sheet content
-            FilterChip()
+            FilterContents()
         }
+    }
+}
+
+@Composable
+fun FilterContents(){
+    Column(
+        modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Games,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(end = 8.dp)
+                    .scale(0.75f)
+                ,
+                tint = MaterialTheme.colors.primary,
+            )
+            Text(text = "Game", fontWeight = FontWeight.Bold)
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            FilterContent(label = "JOY")
+            FilterContent(label = "DAM")
+        }
+        Divider(thickness = 1.dp, color = Color.LightGray)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FilterChip(
-
-){
-    var selected by remember { mutableStateOf(false) }
+fun FilterContent(
+    label: String,
+) {
+    var selectedStatus by remember { mutableStateOf(false) }
 
     FilterChip(
-        onClick = { selected = !selected },
-        label = { Text("JOY") },
-        selected = selected,
-        leadingIcon = if (selected) {
+        onClick = { selectedStatus = !selectedStatus },
+        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+        label = { Text(label) },
+        selected = selectedStatus,
+        leadingIcon = if (selectedStatus) {
             {
                 Icon(
                     imageVector = Icons.Filled.Done,
@@ -155,11 +202,11 @@ fun FilterChip(
                     modifier = Modifier.size(FilterChipDefaults.IconSize)
                 )
             }
-        }
-        else { null },
+        } else {
+            null
+        },
     )
 }
-
 
 
 private fun generateFileName(): String {
