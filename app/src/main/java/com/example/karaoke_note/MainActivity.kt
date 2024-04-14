@@ -39,7 +39,6 @@ class MainActivity : ComponentActivity() {
                 val showDialog = remember { mutableStateOf(false) }
                 val editingSongScore = remember { mutableStateOf<SongScore?>(null) }
                 val snackBarHostState = remember { SnackbarHostState() }
-                val showFilterSheet = remember { mutableStateOf(false) }
 
                 // A surface container using the 'background' color from the theme
                 Surface(
