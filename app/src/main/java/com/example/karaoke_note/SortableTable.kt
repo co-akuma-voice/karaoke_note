@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 enum class SortDirection {
@@ -93,12 +94,14 @@ fun <T> HeaderRow(
     currentSortDirection: SortDirection,
     onSortChanged: (Int, SortDirection) -> Unit
 ) {
+    var fieldPaddingValues: Int
     val iconScale = 0.8f
-    val iconPaddingValues = 4
 
     Row(Modifier.fillMaxWidth()) {
         columns.forEachIndexed { index, column ->
             val isCurrentSortColumn = index == currentSortColumnIndex
+            fieldPaddingValues = if (isCurrentSortColumn) {16} else {0}
+
             Box(
                 modifier = Modifier
                     .weight(column.weight)
@@ -115,9 +118,12 @@ fun <T> HeaderRow(
             ) {
                 Text(
                     text = column.title,
-                    modifier = Modifier.align(Alignment.CenterStart),
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(end = fieldPaddingValues.dp),
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1
                 )
-
                 if (isCurrentSortColumn) {
                     when (currentSortDirection) {
                         SortDirection.Asc -> Icon(
@@ -126,7 +132,6 @@ fun <T> HeaderRow(
                             modifier = Modifier
                                 .scale(iconScale)
                                 .align(Alignment.CenterEnd)
-                                .padding(end = iconPaddingValues.dp)
                         )
                         SortDirection.Desc -> Icon(
                             imageVector = Icons.Filled.ArrowDownward,
@@ -134,7 +139,6 @@ fun <T> HeaderRow(
                             modifier = Modifier
                                 .scale(iconScale)
                                 .align(Alignment.CenterEnd)
-                                .padding(end = iconPaddingValues.dp)
                         )
                         SortDirection.None -> { /* 何も表示しない */ }
                     }

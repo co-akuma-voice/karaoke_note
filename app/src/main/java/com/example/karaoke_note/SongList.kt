@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -66,6 +67,7 @@ fun convertToSongDataList(
         }.awaitAll()
     }
 }
+
 @Composable
 fun SongList(
     navController: NavController,
@@ -85,43 +87,47 @@ fun SongList(
     val fontSize = 18.sp
 
     val columns = listOf(
-        TableColumn<SongData>("タイトル",
+        TableColumn<SongData>(
+            title = "タイトル",
             {
                 val scrollState = rememberScrollState()
                 Text(
                     text = it.title,
                     modifier = Modifier.horizontalScroll(scrollState),
-                    fontSize = fontSize
+                    fontSize = fontSize,
+                    overflow = TextOverflow.Ellipsis
                 )
             },
             compareBy { it.title },
-            2f
+            weight = 4f
         ),
         TableColumn<SongData>(
-            "最高スコア",
+            title = "最高スコア",
             {
                 Text(
                     text = String.format("%.3f", it.highestScore),
                     textAlign = TextAlign.End,
                     modifier = Modifier.fillMaxWidth(),
-                    fontSize = fontSize
+                    fontSize = fontSize,
+                    overflow = TextOverflow.Ellipsis
                 )
             },
             compareBy { it.highestScore },
-            2f
+            weight = 3f
         ),
         TableColumn<SongData>(
-            "最後に歌った日",
+            title = "最後に歌った日",
             {
                 Text(
                     text = it.lastDate.format(formatter),
                     textAlign = TextAlign.End,
                     modifier = Modifier.fillMaxWidth(),
-                    fontSize = fontSize
+                    fontSize = fontSize,
+                    overflow = TextOverflow.Ellipsis
                 )
             },
             compareBy { it.lastDate },
-            2f
+            weight = 4f
         )
     )
 
