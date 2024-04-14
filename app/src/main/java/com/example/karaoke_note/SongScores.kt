@@ -66,39 +66,47 @@ fun SongScores(
     val selectedScore = remember { mutableStateOf<SongScore?>(null) }
 
     val columns = listOf(
-        TableColumn<SongScore>("日付",
+        TableColumn<SongScore>(
+            title = "日付",
             { Text(text = it.date.format(formatter), fontSize = fontSize)},
             compareBy{ it.date },
-            2f
+            weight = 2f
         ),
-        TableColumn("点数",
+        TableColumn(
+            title = "点数",
             { Text(text = String.format("%.3f", it.score), textAlign = TextAlign.End, modifier = Modifier.fillMaxWidth(), fontSize = fontSize) },
             compareBy{ it.score },
-            1.5f
+            weight = 1.5f
         ),
-        TableColumn("キー",
+        TableColumn(
+            title = "キー",
             {
                 val keyFormat = if (it.key != 0) { "%+d" } else { "%d" }
                 Text(text = String.format(keyFormat, it.key), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(), fontSize = fontSize)
             },
             compareBy{ it.key },
-            1f
+            weight = 1f
         ),
-        TableColumn("コメント",
+        TableColumn(
+            title = "コメント",
             {
                 val scrollState = rememberScrollState()
                 Text(text = it.comment, modifier = Modifier.horizontalScroll(scrollState), fontSize = fontSize)
             },
             compareBy{ it.comment.length },
-            3f
+            weight = 3f
         ),
-        TableColumn("",
+        TableColumn(
+            title = "",
             { songScore ->
                 val expanded = remember { mutableStateOf(false) }
-                IconButton(onClick = {
-                    expanded.value = true
-                    selectedScoreId.value = songScore.id
-                }, modifier = Modifier.size(24.dp)) {
+                IconButton(
+                    onClick = {
+                        expanded.value = true
+                        selectedScoreId.value = songScore.id
+                    },
+                    modifier = Modifier.size(24.dp)
+                ) {
                     Icon(Icons.Filled.MoreVert, "menu", Modifier.size(24.dp))
                 }
                 DropdownMenu(
@@ -120,8 +128,8 @@ fun SongScores(
                     }
                 }
             },
-            null,
-        1f
+            comparator = null,
+            weight = 1f
         )
     )
 
