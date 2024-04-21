@@ -142,7 +142,7 @@ fun ArtistsPage(
             }
         }
 
-        Box(modifier = Modifier) {
+        Box(modifier = Modifier.fillMaxWidth()) {
             if (artistSelected) {
                 val artistsFlow = artistDao.getArtistsWithSongs()
                 val artists by artistsFlow.collectAsState(initial = emptyList())
@@ -272,11 +272,11 @@ fun ArtistsListDrawing(
     val songList by songsListFlow.collectAsState(initial = listOf())
     val numberOfSongs = songList.size
 
-    Column (
+    Column(
         modifier = Modifier.clickable {
             navController.navigate("song_list/${artist.id}")
         }
-    ){
+    ) {
         ListItem(
             headlineContent = {
                 Text(
@@ -299,7 +299,7 @@ fun ArtistsListDrawing(
                 )
             }
         )
-        Divider(color = Color.Gray, thickness = 1.dp)
+        Divider(thickness = 1.dp, color = Color.LightGray)
     }
 
     if (iconColorSelectorOpened) { // これもできれば切り出したいな
