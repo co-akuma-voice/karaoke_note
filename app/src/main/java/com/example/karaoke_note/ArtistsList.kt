@@ -7,10 +7,12 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,12 +20,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -40,6 +45,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.karaoke_note.data.Artist
 import com.example.karaoke_note.data.ArtistDao
@@ -52,14 +58,99 @@ fun ArtistsPage(
     artistDao: ArtistDao,
     songDao: SongDao
 ) {
+    var artistSelected by remember { mutableStateOf(true) }
+    val buttonWidth = 120
+    val buttonInnerPadding = 4
+    val buttonShape = 8
+    val buttonTextSize = 14
+
     Column {
-        Box(modifier = Modifier.weight(0.5f)) {
-            Spacer(modifier = Modifier)
+        // 疑似的な Segmented Button
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Row {
+                FilledTonalButton(
+                    onClick = { artistSelected = true },
+                    modifier = Modifier
+                        .width(buttonWidth.dp)
+                        .defaultMinSize(minHeight = 1.dp),
+                    contentPadding = PaddingValues(buttonInnerPadding.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (artistSelected) {
+                            MaterialTheme.colorScheme.secondaryContainer
+                        }
+                        else {
+                            MaterialTheme.colorScheme.surface
+                        },
+                        contentColor = if (artistSelected) {
+                            MaterialTheme.colorScheme.onSecondaryContainer
+                        }
+                        else {
+                            MaterialTheme.colorScheme.onSurface
+                        }
+                    ),
+                    shape = RoundedCornerShape(
+                        topStart = buttonShape.dp,
+                        bottomStart = buttonShape.dp,
+                        topEnd = 0.dp,
+                        bottomEnd = 0.dp
+                    )
+                ) {
+                    Text(
+                        text = "Artist",
+                        modifier = Modifier,
+                        fontSize = buttonTextSize.sp
+                    )
+                }
+                FilledTonalButton(
+                    onClick = { artistSelected = false },
+                    modifier = Modifier
+                        .width(buttonWidth.dp)
+                        .defaultMinSize(minHeight = 1.dp),
+                    contentPadding = PaddingValues(buttonInnerPadding.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (!artistSelected) {
+                            MaterialTheme.colorScheme.secondaryContainer
+                        }
+                        else {
+                            MaterialTheme.colorScheme.surface
+                        },
+                        contentColor = if (!artistSelected) {
+                            MaterialTheme.colorScheme.onSecondaryContainer
+                        }
+                        else {
+                            MaterialTheme.colorScheme.onSurface
+                        }
+                    ),
+                    shape = RoundedCornerShape(
+                        topStart = 0.dp,
+                        bottomStart = 0.dp,
+                        topEnd = buttonShape.dp,
+                        bottomEnd = buttonShape.dp,
+                    )
+                ) {
+                    Text(
+                        text = "All songs",
+                        modifier = Modifier,
+                        fontSize = buttonTextSize.sp
+                    )
+                }
+            }
         }
-        Box(modifier = Modifier.weight(9f)) {
-            val artistsFlow = artistDao.getArtistsWithSongs()
-            val artists by artistsFlow.collectAsState(initial = emptyList())
-            SortArtists(navController, artists, artistDao, songDao)
+
+        Box(modifier = Modifier) {
+            if (artistSelected) {
+                val artistsFlow = artistDao.getArtistsWithSongs()
+                val artists by artistsFlow.collectAsState(initial = emptyList())
+                SortArtists(navController, artists, artistDao, songDao)
+            }
+            else {
+                AllSongList()
+            }
         }
     }
 }
