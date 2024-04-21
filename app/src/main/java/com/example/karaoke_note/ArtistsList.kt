@@ -101,7 +101,7 @@ fun ArtistsPage(
                     )
                 ) {
                     Text(
-                        text = "Artist",
+                        text = "Artists",
                         modifier = Modifier,
                         fontSize = buttonTextSize.sp
                     )
@@ -146,10 +146,10 @@ fun ArtistsPage(
             if (artistSelected) {
                 val artistsFlow = artistDao.getArtistsWithSongs()
                 val artists by artistsFlow.collectAsState(initial = emptyList())
-                SortArtists(navController, artists, artistDao, songDao)
+                DisplayArtistsList(navController, artists, artistDao, songDao)
             }
             else {
-                AllSongList()
+//                DisplayAllSongsList()
             }
         }
     }
@@ -157,7 +157,7 @@ fun ArtistsPage(
 
 @ExperimentalMaterial3Api
 @Composable
-fun SortArtists(
+fun DisplayArtistsList(
     navController: NavController,
     artists: List<Artist>,
     artistDao: ArtistDao,
@@ -176,7 +176,7 @@ fun SortArtists(
         ) {
             LazyColumn {
                 itemsIndexed(sortedArtists) { _, artist ->
-                    ArtistsListDrawing(navController, artist, artistDao, songDao)
+                    ArtistListItem(navController, artist, artistDao, songDao)
                 }
             }
         }
@@ -255,7 +255,7 @@ fun getARGB(colorNumber: Int): Color {
 @OptIn(ExperimentalFoundationApi::class)
 @ExperimentalMaterial3Api
 @Composable
-fun ArtistsListDrawing(
+fun ArtistListItem(
     navController: NavController,
     artist: Artist,
     artistDao: ArtistDao,
