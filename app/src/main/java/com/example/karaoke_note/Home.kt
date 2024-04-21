@@ -4,29 +4,27 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -98,7 +96,7 @@ fun LatestPage(
                     if (song != null) {
                         val artist = artistDao.getNameById(song.artistId)
                         if (artist != null) {
-                            LatestCard(song, songScore, artist, navController)
+                            LatestList(song, songScore, artist, navController)
                         }
                     }
 
@@ -196,131 +194,105 @@ fun getPainterResourceIdOfGameImage(gameName: String): Int {
 
 @ExperimentalMaterial3Api
 @Composable
-fun LatestCard(
+fun LatestList(
     song: Song,
     songScore: SongScore,
     artist: String,
     navController: NavController
 ) {
-    var commentforcard = ""
-    if (songScore.comment.isNotEmpty()) {
-        commentforcard = "..."
-    }
     val keyFormat = if (songScore.key != 0) { "%+d" } else { "%d" }
 
-    Column(
-        modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
-    ) {
-        Card(
-            onClick = {
-                navController.navigate("song_data/${song.id}")
-            },
-            shape = MaterialTheme.shapes.medium,
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(Color(0xffffffff)),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-        ) {
-            Row(
-                modifier = Modifier,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Box(
-                    modifier = Modifier.weight(3f),
-                ) {
-                    Column(
-                        modifier = Modifier,
-                        verticalArrangement = Arrangement.SpaceBetween
-                    ){
-                        Text(
-                            text = songScore.date.toString(),
-                            modifier = Modifier
-                                .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
-                                .align(Alignment.Start),
-                            color = Color.Gray,
-                            fontFamily = FontFamily.SansSerif,
-                            fontSize = 6.sp,
-                        )
-                        Text(
-                            text = song.title,
-                            modifier = Modifier
-                                .padding(start = 20.dp, top = 4.dp, bottom = 4.dp)
-                                .align(Alignment.Start),
-                            color = Color.DarkGray,
-                            fontFamily = FontFamily.SansSerif,
-                            fontSize = 12.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Text(
-                            text = artist,
-                            modifier = Modifier
-                                .padding(start = 20.dp, top = 4.dp, bottom = 4.dp)
-                                .align(Alignment.Start),
-                            color = Color.Gray,
-                            fontFamily = FontFamily.SansSerif,
-                            fontSize = 8.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                }
-                Box(
+    Column {
+        ListItem(
+            modifier = Modifier
+                .height(90.dp)
+                .clickable {
+                    navController.navigate("song_data/${song.id}")
+                },
+            leadingContent = {
+                Image(
+                    painter = painterResource(id = getPainterResourceIdOfGameImage(songScore.gameKind.name)),
+                    contentDescription = "Selected Game",
+                    contentScale = ContentScale.Fit,
                     modifier = Modifier
-                        .width(50.dp)
-                        .height(60.dp)
-                        .padding(top = 12.dp),
-                        //.background(Color.Blue),
-                ){
-                    Image(
-                        painter = painterResource(id = getPainterResourceIdOfGameImage(songScore.gameKind.name)),
-                        contentDescription = "Selected Game",
-                        contentScale = ContentScale.Fit,
+                        .size(30.dp)
+                )
+            },
+            headlineContent = {
+                Column {
+                    Text(
+                        text = songScore.date.toString(),
                         modifier = Modifier
-                            .size(30.dp)
-                            .align(Alignment.TopCenter)
+                            .padding(top = 2.dp, bottom = 6.dp)
+                            .align(Alignment.Start),
+                        color = Color.Gray,
+                        fontFamily = FontFamily.SansSerif,
+                        fontSize = 6.sp,
+                    )
+                    Text(
+                        text = song.title,
+                        modifier = Modifier
+                            .padding(top = 2.dp, bottom = 2.dp)
+                            .align(Alignment.Start),
+                        color = Color.DarkGray,
+                        fontFamily = FontFamily.SansSerif,
+                        fontSize = 12.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        text = artist,
+                        modifier = Modifier
+                            .padding(top = 2.dp, bottom = 6.dp)
+                            .align(Alignment.Start),
+                        color = Color.Gray,
+                        fontFamily = FontFamily.SansSerif,
+                        fontSize = 8.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
-                Box(
+            },
+            supportingContent = {
+                Text(
+                    text = songScore.comment,
                     modifier = Modifier
-                        .width(80.dp)
-                        .height(80.dp)
-                        .padding(top = 6.dp),
-                        //.background(Color.Green),
-                    contentAlignment = Alignment.BottomEnd
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = String.format("%.3f", songScore.score),
-                            modifier = Modifier
-                                .padding(top = 0.dp, end = 16.dp, bottom = 2.dp)
-                                .align(Alignment.End),
-                            color = Color.DarkGray,
-                            fontFamily = FontFamily.SansSerif,
-                            fontSize = 12.sp,
-                        )
-                        Text(
-                            text = String.format(keyFormat, songScore.key),
-                            modifier = Modifier
-                                .padding(top = 2.dp, end = 16.dp, bottom = 2.dp)
-                                .align(Alignment.End),
-                            color = Color.Red,
-                            fontFamily = FontFamily.SansSerif,
-                            fontSize = 10.sp,
-                        )
-                        Text(
-                            text = commentforcard,
-                            modifier = Modifier
-                                .padding(top = 2.dp, end = 16.dp, bottom = 8.dp)
-                                .align(Alignment.End),
-                            color = Color.DarkGray,
-                            fontFamily = FontFamily.SansSerif,
-                            fontSize = 10.sp,
-                        )
-                    }
+                        .padding(top = 2.dp, end = 4.dp, bottom = 2.dp),
+                    color = Color.DarkGray,
+                    fontFamily = FontFamily.SansSerif,
+                    fontSize = 8.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            },
+            trailingContent = {
+                Column {
+                    Text(
+                        text = String.format("%.3f", songScore.score),
+                        modifier = Modifier
+                            .padding(top = 0.dp, end = 16.dp, bottom = 2.dp)
+                            .align(Alignment.End),
+                        color = Color.DarkGray,
+                        fontFamily = FontFamily.SansSerif,
+                        fontSize = 12.sp,
+                    )
+                    Text(
+                        text = String.format(keyFormat, songScore.key),
+                        modifier = Modifier
+                            .padding(top = 2.dp, end = 16.dp, bottom = 2.dp)
+                            .align(Alignment.End),
+                        color = when (songScore.key) {
+                            0 -> Color.Black
+                            -7, -6, -5, -4, -3, -2, -1 -> Color.Red
+                            else -> Color.Blue
+                        },
+                        fontFamily = FontFamily.SansSerif,
+                        fontSize = 10.sp,
+                    )
                 }
-            }
-        }
+            },
+            shadowElevation = 1.dp
+        )
+        Divider(thickness = 1.dp, color = Color.LightGray)
     }
 }
