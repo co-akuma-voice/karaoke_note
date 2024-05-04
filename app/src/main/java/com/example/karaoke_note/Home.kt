@@ -155,12 +155,12 @@ fun AnimatedScrollUpButton(
             IconButton(
                 onClick = { onClick() },
                 modifier = Modifier,
-                colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+                colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.tertiary)
             ) {
                 Icon(
                     imageVector = Icons.Filled.ArrowUpward,
                     contentDescription = "Scroll to Top",
-                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                    tint = MaterialTheme.colorScheme.onTertiary,
                     modifier = Modifier
                 )
             }
