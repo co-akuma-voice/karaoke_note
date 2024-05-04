@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -34,6 +33,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -47,7 +47,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -81,7 +80,6 @@ fun AppBar(
 ) {
     val canPop = remember { mutableStateOf(false) }
     val showMenu = remember { mutableStateOf(false) }
-
     var showSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
 
@@ -92,6 +90,7 @@ fun AppBar(
     }
 
     TopAppBar(
+        backgroundColor = MaterialTheme.colorScheme.primaryContainer,
         title = { Text("カラオケ点数管理") },
         navigationIcon = {
             if (canPop.value) {
@@ -166,7 +165,7 @@ fun FilterContents(){
                     .padding(end = 8.dp)
                     .scale(0.75f)
                 ,
-                tint = MaterialTheme.colors.primary,
+                tint = MaterialTheme.colorScheme.primary,
             )
             Text(text = "Game", fontWeight = FontWeight.Bold)
         }
@@ -178,7 +177,7 @@ fun FilterContents(){
             FilterContent(label = "JOY")
             FilterContent(label = "DAM")
         }
-        Divider(thickness = 1.dp, color = Color.LightGray)
+        Divider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
     }
 }
 
