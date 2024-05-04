@@ -272,12 +272,12 @@ fun NewEntryScreen(
     FloatingActionButton(
         onClick = { screenOpened.value = true },
         shape = RoundedCornerShape(16.dp),
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        containerColor = MaterialTheme.colorScheme.primary
     ) {
         Icon(
             imageVector = Icons.Rounded.Add,
             contentDescription = "Add",
-            tint = MaterialTheme.colorScheme.onPrimaryContainer
+            tint = MaterialTheme.colorScheme.onPrimary
         )
     }
 
