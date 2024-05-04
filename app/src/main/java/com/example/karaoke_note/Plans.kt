@@ -19,6 +19,7 @@ import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -232,7 +233,7 @@ fun PlansListItem(
                     text = song.title,
                     modifier = Modifier
                         .padding(start = 20.dp, top = 2.dp, bottom = 2.dp),
-                    color = Color.DarkGray,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontFamily = FontFamily.SansSerif,
                     fontSize = 14.sp,
                     maxLines = 1,
@@ -244,7 +245,7 @@ fun PlansListItem(
                     text = artist,
                     modifier = Modifier
                         .padding(start = 20.dp, top = 2.dp, bottom = 2.dp),
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontFamily = FontFamily.SansSerif,
                     fontSize = 10.sp,
                     maxLines = 1,
@@ -257,7 +258,7 @@ fun PlansListItem(
                     text = String.format(keyFormat, songScore.key),
                     modifier = Modifier
                         .padding(top = 2.dp, end = 16.dp, bottom = 2.dp),
-                    color = Color.DarkGray,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontFamily = FontFamily.SansSerif,
                     fontSize = 12.sp,
                     textAlign = TextAlign.End,
@@ -265,6 +266,6 @@ fun PlansListItem(
             },
             shadowElevation = 1.dp
         )
-        Divider(thickness = 1.dp, color = Color.LightGray)
+        Divider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
     }
 }
