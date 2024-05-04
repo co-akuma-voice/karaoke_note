@@ -1,6 +1,7 @@
 package com.example.karaoke_note
 
 import SortDirection
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,11 +26,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -61,7 +63,7 @@ fun ArtistsPage(
     var artistSelected by remember { mutableStateOf(true) }
     val buttonWidth = 120
     val buttonInnerPadding = 4
-    val buttonShape = 8
+    val buttonShape = 16
     val buttonTextSize = 14
 
     Column {
@@ -73,7 +75,7 @@ fun ArtistsPage(
             contentAlignment = Alignment.Center
         ) {
             Row {
-                FilledTonalButton(
+                OutlinedButton(
                     onClick = { artistSelected = true },
                     modifier = Modifier
                         .width(buttonWidth.dp)
@@ -93,6 +95,10 @@ fun ArtistsPage(
                             MaterialTheme.colorScheme.onSurface
                         }
                     ),
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outline
+                    ),
                     shape = RoundedCornerShape(
                         topStart = buttonShape.dp,
                         bottomStart = buttonShape.dp,
@@ -106,11 +112,12 @@ fun ArtistsPage(
                         fontSize = buttonTextSize.sp
                     )
                 }
-                FilledTonalButton(
+                OutlinedButton(
                     onClick = { artistSelected = false },
                     modifier = Modifier
                         .width(buttonWidth.dp)
-                        .defaultMinSize(minHeight = 1.dp),
+                        .defaultMinSize(minHeight = 1.dp)
+                        .offset(x = (-1).dp),
                     contentPadding = PaddingValues(buttonInnerPadding.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (!artistSelected) {
@@ -125,6 +132,10 @@ fun ArtistsPage(
                         else {
                             MaterialTheme.colorScheme.onSurface
                         }
+                    ),
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outline
                     ),
                     shape = RoundedCornerShape(
                         topStart = 0.dp,
