@@ -299,7 +299,7 @@ fun ArtistListItem(
                 )
             }
         )
-        Divider(thickness = 1.dp, color = Color.LightGray)
+        Divider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
     }
 
     if (iconColorSelectorOpened) { // これもできれば切り出したいな
