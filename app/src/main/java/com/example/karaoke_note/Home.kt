@@ -18,7 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowUp
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -158,7 +158,7 @@ fun AnimatedScrollUpButton(
                 colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.tertiary)
             ) {
                 Icon(
-                    imageVector = Icons.Filled.ArrowUpward,
+                    imageVector = Icons.Filled.KeyboardDoubleArrowUp,
                     contentDescription = "Scroll to Top",
                     tint = MaterialTheme.colorScheme.onTertiary,
                     modifier = Modifier
