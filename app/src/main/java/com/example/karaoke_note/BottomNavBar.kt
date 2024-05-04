@@ -8,6 +8,7 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
@@ -52,20 +53,35 @@ fun BottomNavigationBar(navController: NavController, songScoreDao: SongScoreDao
         )
     )
 
-    NavigationBar {
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) {
         bottomNavItems.forEach { item ->
             val selected = item.route == navController.currentBackStackEntryAsState().value?.destination?.route
             NavigationBarItem(
                 icon = {
                     if (item.badge != null && item.badge > 0) {
                         BadgedBox(badge = { Badge { Text(item.badge.toString()) }}) {
-                            Icon(item.icon, contentDescription = item.name)
+                            Icon(
+                                imageVector = item.icon,
+                                contentDescription = item.name,
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
                         }
                     } else {
-                        Icon(item.icon, contentDescription = item.name)
+                        Icon(
+                            imageVector = item.icon,
+                            contentDescription = item.name,
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
                     }
                 },
-                label = { Text(text = item.name) },
+                label = {
+                    Text(
+                        text = item.name,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                },
                 selected = selected,
                 onClick = {
                     navController.navigate(item.route)
