@@ -29,7 +29,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -44,17 +43,6 @@ import com.example.karaoke_note.ui.component.CustomSwipeToDismiss
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-
-fun getARGBForSwipeDismiss(colorNumber: Int): Color {
-    var argb: Color = Color.Black
-    when (colorNumber) {
-        0 -> argb = Color(0xffc00000)
-        1 -> argb = Color(0x1fff0000)
-        2 -> argb = Color.LightGray
-        3 -> argb = Color.Gray
-    }
-    return argb
-}
 
 // artistId についている曲の数をチェックし、0個の場合はアーティストデータ自体を削除する
 private fun deleteArtistData(
@@ -193,19 +181,19 @@ fun BackGroundItem() {
                 .padding()
                 .fillMaxWidth()
                 .height(80.dp)
-                .background(getARGBForSwipeDismiss(1)),
+                .background(MaterialTheme.colorScheme.errorContainer),
             contentAlignment = Alignment.CenterEnd
         ) {
             Icon(
                 imageVector = Icons.Outlined.Delete,
                 contentDescription = "delete",
-                tint = getARGBForSwipeDismiss(0),
+                tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier
                     .size(60.dp)
                     .padding(end = 30.dp)
             )
         }
-        Divider(thickness = 1.dp, color = getARGBForSwipeDismiss(1))
+        Divider(thickness = 1.dp, color = MaterialTheme.colorScheme.errorContainer)
     }
 }
 
