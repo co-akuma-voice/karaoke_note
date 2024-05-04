@@ -1,5 +1,6 @@
 package com.example.karaoke_note
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -37,7 +38,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
@@ -160,7 +160,7 @@ fun AnimatedScrollUpButton(
                 Icon(
                     imageVector = Icons.Filled.ArrowUpward,
                     contentDescription = "Scroll to Top",
-                    tint = Color.White,
+                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
                     modifier = Modifier
                 )
             }
@@ -192,6 +192,7 @@ fun getPainterResourceIdOfGameImage(gameName: String): Int {
     return painterResourceId
 }
 
+@SuppressLint("DefaultLocale")
 @ExperimentalMaterial3Api
 @Composable
 fun LatestList(
@@ -225,7 +226,7 @@ fun LatestList(
                         modifier = Modifier
                             .padding(top = 2.dp, bottom = 6.dp)
                             .align(Alignment.Start),
-                        color = Color.Gray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontFamily = FontFamily.SansSerif,
                         fontSize = 6.sp,
                     )
@@ -234,7 +235,7 @@ fun LatestList(
                         modifier = Modifier
                             .padding(top = 2.dp, bottom = 2.dp)
                             .align(Alignment.Start),
-                        color = Color.DarkGray,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontFamily = FontFamily.SansSerif,
                         fontSize = 12.sp,
                         maxLines = 1,
@@ -245,7 +246,7 @@ fun LatestList(
                         modifier = Modifier
                             .padding(top = 2.dp, bottom = 6.dp)
                             .align(Alignment.Start),
-                        color = Color.Gray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontFamily = FontFamily.SansSerif,
                         fontSize = 8.sp,
                         maxLines = 1,
@@ -258,7 +259,7 @@ fun LatestList(
                     text = songScore.comment,
                     modifier = Modifier
                         .padding(top = 2.dp, end = 4.dp, bottom = 2.dp),
-                    color = Color.DarkGray,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontFamily = FontFamily.SansSerif,
                     fontSize = 8.sp,
                     maxLines = 1,
@@ -272,7 +273,7 @@ fun LatestList(
                         modifier = Modifier
                             .padding(top = 0.dp, end = 16.dp, bottom = 2.dp)
                             .align(Alignment.End),
-                        color = Color.DarkGray,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontFamily = FontFamily.SansSerif,
                         fontSize = 12.sp,
                     )
@@ -281,11 +282,7 @@ fun LatestList(
                         modifier = Modifier
                             .padding(top = 2.dp, end = 16.dp, bottom = 2.dp)
                             .align(Alignment.End),
-                        color = when (songScore.key) {
-                            0 -> Color.Black
-                            -7, -6, -5, -4, -3, -2, -1 -> Color.Red
-                            else -> Color.Blue
-                        },
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontFamily = FontFamily.SansSerif,
                         fontSize = 10.sp,
                     )
@@ -293,6 +290,6 @@ fun LatestList(
             },
             shadowElevation = 1.dp
         )
-        Divider(thickness = 1.dp, color = Color.LightGray)
+        Divider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
     }
 }
