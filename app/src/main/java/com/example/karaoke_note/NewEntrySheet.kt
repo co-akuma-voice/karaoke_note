@@ -277,7 +277,7 @@ fun NewEntryScreen(
         Icon(
             imageVector = Icons.Rounded.Add,
             contentDescription = "Add",
-            tint = Color.White,
+            tint = MaterialTheme.colorScheme.onPrimaryContainer
         )
     }
 
