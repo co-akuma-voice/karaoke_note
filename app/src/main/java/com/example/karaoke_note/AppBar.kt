@@ -20,9 +20,9 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Games
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Divider
@@ -106,7 +106,7 @@ fun AppBar(
                 // フィルターボタン
                 IconButton(onClick = { showSheet = true }) {
                     Icon(
-                        imageVector = Icons.Filled.FilterAlt,
+                        imageVector = Icons.Outlined.FilterAlt,
                         contentDescription = "Filter"
                     )
                 }
