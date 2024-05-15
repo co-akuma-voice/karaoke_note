@@ -160,7 +160,7 @@ fun ArtistsPage(
                 DisplayArtistsList(navController, artists, artistDao, songDao)
             }
             else {
-//                DisplayAllSongsList()
+                DisplayAllSongsList()
             }
         }
     }
