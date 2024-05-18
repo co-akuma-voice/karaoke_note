@@ -53,12 +53,14 @@ import androidx.navigation.NavController
 import com.example.karaoke_note.data.Artist
 import com.example.karaoke_note.data.ArtistDao
 import com.example.karaoke_note.data.SongDao
+import com.example.karaoke_note.ui.component.SortMethod
 
 @ExperimentalMaterial3Api
 @Composable
 fun ArtistsPage(
     navController: NavController,
     isArtistListSelected: MutableState<Boolean>,
+    sortMethodOfAllSongs: MutableState<SortMethod>,
     artistDao: ArtistDao,
     songDao: SongDao
 ) {
@@ -161,7 +163,7 @@ fun ArtistsPage(
                 DisplayArtistsList(navController, artists, artistDao, songDao)
             }
             else {
-                DisplayAllSongsList()
+                DisplayAllSongsList(sortMethodOfAllSongs)
             }
         }
     }
