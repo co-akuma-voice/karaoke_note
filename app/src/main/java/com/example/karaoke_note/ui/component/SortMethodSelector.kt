@@ -28,8 +28,8 @@ import androidx.compose.ui.unit.dp
 enum class SortMethod(val displayName: String) {
     NameAsc("名前 (昇順)"),
     NameDesc("名前 (降順)"),
-    DateAsc("最近歌った日付 (新しい順)"),
-    DateDesc("最近歌った日付 (古い順)");
+    DateAsc("最近日付 (新しい順)"),
+    DateDesc("最近日付 (古い順)");
 
     companion object {
         fun fromDisplayName(displayName: String): SortMethod? {
