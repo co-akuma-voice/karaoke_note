@@ -2,6 +2,7 @@ package com.example.karaoke_note
 
 import SortableTable
 import TableColumn
+import android.annotation.SuppressLint
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,6 +44,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun SongScores(
     song: Song,
