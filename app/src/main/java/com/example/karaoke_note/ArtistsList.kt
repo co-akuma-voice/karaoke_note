@@ -53,6 +53,7 @@ import androidx.navigation.NavController
 import com.example.karaoke_note.data.Artist
 import com.example.karaoke_note.data.ArtistDao
 import com.example.karaoke_note.data.SongDao
+import com.example.karaoke_note.data.SongScoreDao
 import com.example.karaoke_note.ui.component.SortMethod
 
 @ExperimentalMaterial3Api
@@ -62,7 +63,8 @@ fun ArtistsPage(
     isArtistListSelected: MutableState<Boolean>,
     sortMethodOfAllSongs: MutableState<SortMethod>,
     artistDao: ArtistDao,
-    songDao: SongDao
+    songDao: SongDao,
+    songScoreDao: SongScoreDao
 ) {
     val buttonWidth = 120
     val buttonInnerPadding = 4
@@ -163,7 +165,9 @@ fun ArtistsPage(
                 DisplayArtistsList(navController, artists, artistDao, songDao)
             }
             else {
-                DisplayAllSongsList(sortMethodOfAllSongs)
+                // これだとスコア 0 (Plans) の曲も取得してしまうなぁ
+                val songs = songDao.getAllSongs()
+                DisplayAllSongsList(navController, sortMethodOfAllSongs, songs, songDao, songScoreDao)
             }
         }
     }

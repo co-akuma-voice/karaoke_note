@@ -1,6 +1,7 @@
 package com.example.karaoke_note
 import SortableTable
 import TableColumn
+import android.annotation.SuppressLint
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -68,6 +69,7 @@ fun convertToSongDataList(
     }
 }
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun SongList(
     navController: NavController,
