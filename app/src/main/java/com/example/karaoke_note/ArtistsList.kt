@@ -33,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,10 +58,10 @@ import com.example.karaoke_note.data.SongDao
 @Composable
 fun ArtistsPage(
     navController: NavController,
+    isArtistListSelected: MutableState<Boolean>,
     artistDao: ArtistDao,
     songDao: SongDao
 ) {
-    var artistSelected by remember { mutableStateOf(true) }
     val buttonWidth = 120
     val buttonInnerPadding = 4
     val buttonShape = 16
@@ -76,19 +77,19 @@ fun ArtistsPage(
         ) {
             Row {
                 OutlinedButton(
-                    onClick = { artistSelected = true },
+                    onClick = { isArtistListSelected.value = true },
                     modifier = Modifier
                         .width(buttonWidth.dp)
                         .defaultMinSize(minHeight = 1.dp),
                     contentPadding = PaddingValues(buttonInnerPadding.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (artistSelected) {
+                        containerColor = if (isArtistListSelected.value) {
                             MaterialTheme.colorScheme.secondaryContainer
                         }
                         else {
                             MaterialTheme.colorScheme.surface
                         },
-                        contentColor = if (artistSelected) {
+                        contentColor = if (isArtistListSelected.value) {
                             MaterialTheme.colorScheme.onSecondaryContainer
                         }
                         else {
@@ -113,20 +114,20 @@ fun ArtistsPage(
                     )
                 }
                 OutlinedButton(
-                    onClick = { artistSelected = false },
+                    onClick = { isArtistListSelected.value = false },
                     modifier = Modifier
                         .width(buttonWidth.dp)
                         .defaultMinSize(minHeight = 1.dp)
                         .offset(x = (-1).dp),
                     contentPadding = PaddingValues(buttonInnerPadding.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (!artistSelected) {
+                        containerColor = if (!isArtistListSelected.value) {
                             MaterialTheme.colorScheme.secondaryContainer
                         }
                         else {
                             MaterialTheme.colorScheme.surface
                         },
-                        contentColor = if (!artistSelected) {
+                        contentColor = if (!isArtistListSelected.value) {
                             MaterialTheme.colorScheme.onSecondaryContainer
                         }
                         else {
@@ -154,7 +155,7 @@ fun ArtistsPage(
         }
 
         Box(modifier = Modifier.fillMaxWidth()) {
-            if (artistSelected) {
+            if (isArtistListSelected.value) {
                 val artistsFlow = artistDao.getArtistsWithSongs()
                 val artists by artistsFlow.collectAsState(initial = emptyList())
                 DisplayArtistsList(navController, artists, artistDao, songDao)

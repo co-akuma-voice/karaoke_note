@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -39,6 +40,7 @@ class MainActivity : ComponentActivity() {
                 val showDialog = remember { mutableStateOf(false) }
                 val editingSongScore = remember { mutableStateOf<SongScore?>(null) }
                 val snackBarHostState = remember { SnackbarHostState() }
+                val isArtistListSelected = remember { mutableStateOf(true) }
 
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -84,7 +86,7 @@ class MainActivity : ComponentActivity() {
                                 PlansPage(songDao, songScoreDao, artistDao, showDialog, editingSongScore, lifecycleScope, snackBarHostState)
                             }
                             composable("list"){
-                                ArtistsPage(navController, artistDao, songDao)
+                                ArtistsPage(navController, isArtistListSelected, artistDao, songDao)
                             }
                             composable("song_list/{artistId}"){backStackEntry ->
                                 val artistId = backStackEntry.arguments?.getString("artistId")?.toLongOrNull()
