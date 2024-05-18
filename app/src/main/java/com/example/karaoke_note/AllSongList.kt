@@ -6,10 +6,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -21,13 +21,10 @@ import com.example.karaoke_note.ui.component.SortMethodSelectorItem
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DisplayAllSongsList(
-
+    sortMethod: MutableState<SortMethod>
 ){
     var expanded by remember { mutableStateOf(false) }
-
-    val sortMethods = enumValues<SortMethod>()
-    var previousSortMethod by rememberSaveable { mutableStateOf(SortMethod.NameAsc) }
-    var newSortMethod by remember { mutableStateOf(previousSortMethod) }  // あくまで初期値
+    val sortMethodsList = enumValues<SortMethod>()
 
     val sortMethodHeight = 36
     val sortMethodFontSize = 6
@@ -49,7 +46,7 @@ fun DisplayAllSongsList(
         ) {
             // 現在設定値の表示部分
             SortMethodSelectorBox(
-                displayedSortMethod = newSortMethod,
+                displayedSortMethod = sortMethod.value,
                 height = sortMethodHeight,
                 modifier = Modifier.menuAnchor(),
                 isExpanded = expanded,
@@ -61,15 +58,14 @@ fun DisplayAllSongsList(
                 onDismissRequest = { expanded = false },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                sortMethods.forEach {
+                sortMethodsList.forEach {
                     SortMethodSelectorItem(
                         sortMethod = it,
                         height = sortMethodHeight,
                         textSize = sortMethodFontSize,
                         textHorizontalPaddingValues = horizontalPaddingValue,
                     ){
-                        newSortMethod = it
-                        previousSortMethod = newSortMethod
+                        sortMethod.value = it
                         expanded = false
                     }
                 }
