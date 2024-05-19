@@ -49,4 +49,7 @@ interface SongDao {
 
     @Query("SELECT Song.* FROM Song INNER JOIN SongScore ON Song.id = SongScore.songId WHERE Song.artistId = :artistId AND SongScore.score != 0.0 GROUP BY Song.id")
     fun getSongsWithScores(artistId: Long): Flow<List<Song>>
+
+    @Query("SELECT Song.* FROM Song INNER JOIN SongScore ON Song.id = SongScore.songId WHERE SongScore.score != 0.0 GROUP BY Song.id")
+    fun getAllSongsWithScores(): Flow<List<Song>>
 }

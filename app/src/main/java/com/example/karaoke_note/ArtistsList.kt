@@ -165,10 +165,9 @@ fun ArtistsPage(
                 DisplayArtistsList(navController, artists, artistDao, songDao)
             }
             else {
-                // getSongsWithScores は引数に ArtistID が必要になる
-                // しかし、これだとスコア 0 (Plans) の曲も取得してしまうなぁ
-                val songs = songDao.getAllSongs()
-                DisplayAllSongsList(navController, sortMethodOfAllSongs, songs, songScoreDao)
+                val allSongsFlow = songDao.getAllSongsWithScores()
+                val allSongs by allSongsFlow.collectAsState(initial = emptyList())
+                DisplayAllSongsList(navController, sortMethodOfAllSongs, allSongs, songScoreDao)
             }
         }
     }
