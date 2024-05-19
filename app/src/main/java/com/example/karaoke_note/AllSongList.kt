@@ -150,7 +150,7 @@ fun AllSongsListItem(
     Column {
         ListItem(
             modifier = Modifier
-                .height(50.dp)
+                .height(60.dp)
                 .clickable {
                     navController.navigate("song_data/${song.id}")
                 },
