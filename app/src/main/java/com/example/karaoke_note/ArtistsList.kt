@@ -167,7 +167,7 @@ fun ArtistsPage(
             else {
                 val allSongsFlow = songDao.getAllSongsWithScores()
                 val allSongs by allSongsFlow.collectAsState(initial = emptyList())
-                DisplayAllSongsList(navController, sortMethodOfAllSongs, allSongs, songScoreDao)
+                DisplayAllSongsList(navController, sortMethodOfAllSongs, allSongs, artistDao, songScoreDao)
             }
         }
     }

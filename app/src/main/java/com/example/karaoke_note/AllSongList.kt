@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.karaoke_note.data.ArtistDao
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongScoreDao
 import com.example.karaoke_note.ui.component.SortMethod
@@ -57,6 +58,7 @@ fun DisplayAllSongsList(
     navController: NavController,
     sortMethod: MutableState<SortMethod>,
     songs: List<Song>,
+    artistDao: ArtistDao,
     songScoreDao: SongScoreDao
 ){
     var sortedAllSongs by remember(sortMethod, songs) { mutableStateOf(getSortedAllSongs(sortMethod.value, songs)) }
@@ -68,7 +70,7 @@ fun DisplayAllSongsList(
         Box(modifier = Modifier) {
             LazyColumn {
                 itemsIndexed(sortedAllSongs) { _, song ->
-                    AllSongsListItem(navController, song, songScoreDao)
+                    AllSongsListItem(navController, song, artistDao, songScoreDao)
                 }
             }
         }
@@ -137,8 +139,10 @@ fun SortMethodSelector(
 fun AllSongsListItem(
     navController: NavController,
     song: Song,
+    artistDao: ArtistDao,
     songScoreDao: SongScoreDao
 ) {
+    val artistName = artistDao.getNameById(song.artistId)
     val mostRecentDate = songScoreDao.getMostRecentDate(song.id)
     val formatter = DateTimeFormatter.ofPattern("yy/MM/dd")
     val highestScore = songScoreDao.getHighestScoreBySongId(song.id)?.score
@@ -166,16 +170,18 @@ fun AllSongsListItem(
             leadingContent = {
             },
             supportingContent = {
-                Text(
-                    text = "Artist",
-                    modifier = Modifier
-                        .padding(top = 2.dp, end = 4.dp, bottom = 2.dp),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontFamily = FontFamily.SansSerif,
-                    fontSize = 8.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                if (artistName != null) {
+                    Text(
+                        text = artistName,
+                        modifier = Modifier
+                            .padding(top = 2.dp, end = 4.dp, bottom = 2.dp),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontFamily = FontFamily.SansSerif,
+                        fontSize = 8.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             },
             trailingContent = {
                 Column {
