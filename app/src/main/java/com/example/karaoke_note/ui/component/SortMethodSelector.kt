@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.sp
 enum class SortMethod(val displayName: String) {
     NameAsc("名前 (昇順)"),
     NameDesc("名前 (降順)"),
-    DateAsc("最近日付 (新しい順)"),
-    DateDesc("最近日付 (古い順)"),
+    DateAsc("最近日付 (古い順)"),
+    DateDesc("最近日付 (新しい順)"),
     ScoreAsc("ハイスコア (低い順)"),
     ScoreDesc("ハイスコア (高い順)");
 

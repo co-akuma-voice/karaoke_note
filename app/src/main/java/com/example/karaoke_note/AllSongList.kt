@@ -37,18 +37,30 @@ import com.example.karaoke_note.ui.component.SortMethodSelectorBox
 import com.example.karaoke_note.ui.component.SortMethodSelectorItem
 import java.time.format.DateTimeFormatter
 
+// Songの情報 + 最高スコア + 最新日付を表示するためのクラス
+data class SongInfo(
+    val song: Song,
+    val mostRecentDate: String?,
+    val highestScore: Float?
+)
 
-fun getSortedAllSongs(
+fun getSortedAllSongInfos(
     sortMethod: SortMethod,
-    songs: List<Song>
-): List<Song> {
+    songs: List<Song>,
+    songScoreDao: SongScoreDao
+): List<SongInfo> {
+    val songInfos = songs.map { song ->
+        val mostRecentDate = songScoreDao.getMostRecentDate(song.id)
+        val highestScore = songScoreDao.getHighestScoreBySongId(song.id)?.score
+        SongInfo(song, mostRecentDate?.format(DateTimeFormatter.ofPattern("yy/MM/dd")), highestScore)
+    }
     return when (sortMethod) {
-        SortMethod.NameAsc -> songs.sortedBy { it.title }
-        SortMethod.NameDesc -> songs.sortedByDescending { it.title }
-        SortMethod.DateAsc-> songs
-        SortMethod.DateDesc -> songs
-        SortMethod.ScoreAsc -> songs
-        SortMethod.ScoreDesc -> songs
+        SortMethod.NameAsc -> songInfos.sortedBy { it.song.title }
+        SortMethod.NameDesc -> songInfos.sortedByDescending { it.song.title }
+        SortMethod.DateAsc-> songInfos.sortedBy { it.mostRecentDate }
+        SortMethod.DateDesc -> songInfos.sortedByDescending { it.mostRecentDate }
+        SortMethod.ScoreAsc -> songInfos.sortedBy { it.highestScore }
+        SortMethod.ScoreDesc -> songInfos.sortedByDescending { it.highestScore }
     }
 }
 
@@ -61,16 +73,16 @@ fun DisplayAllSongsList(
     artistDao: ArtistDao,
     songScoreDao: SongScoreDao
 ){
-    var sortedAllSongs by remember(sortMethod, songs) { mutableStateOf(getSortedAllSongs(sortMethod.value, songs)) }
+    var sortedAllSongInfos by remember(sortMethod, songs) { mutableStateOf(getSortedAllSongInfos(sortMethod.value, songs, songScoreDao)) }
 
     Column {
         SortMethodSelector(sortMethod) {
-            sortedAllSongs = getSortedAllSongs(it, songs)
+            sortedAllSongInfos = getSortedAllSongInfos(it, songs, songScoreDao)
         }
         Box(modifier = Modifier) {
             LazyColumn {
-                itemsIndexed(sortedAllSongs) { _, song ->
-                    AllSongsListItem(navController, song, artistDao, songScoreDao)
+                itemsIndexed(sortedAllSongInfos) { _, songInfo ->
+                    AllSongsListItem(navController, songInfo, artistDao)
                 }
             }
         }
@@ -138,14 +150,13 @@ fun SortMethodSelector(
 @Composable
 fun AllSongsListItem(
     navController: NavController,
-    song: Song,
+    songInfo: SongInfo,
     artistDao: ArtistDao,
-    songScoreDao: SongScoreDao
 ) {
+    val song = songInfo.song
     val artistName = artistDao.getNameById(song.artistId)
-    val mostRecentDate = songScoreDao.getMostRecentDate(song.id)
-    val formatter = DateTimeFormatter.ofPattern("yy/MM/dd")
-    val highestScore = songScoreDao.getHighestScoreBySongId(song.id)?.score
+    val mostRecentDate = songInfo.mostRecentDate
+    val highestScore = songInfo.highestScore
 
     Column {
         ListItem(
@@ -187,7 +198,7 @@ fun AllSongsListItem(
                 Column {
                     if (mostRecentDate != null) {
                         Text(
-                            text = mostRecentDate.format(formatter),
+                            text = mostRecentDate,
                             modifier = Modifier
                                 .padding(top = 2.dp, end = 16.dp, bottom = 2.dp)
                                 .align(Alignment.End),
