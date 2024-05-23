@@ -18,7 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardDoubleArrowUp
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -64,7 +64,7 @@ fun LatestPage(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
-    val firstVisibleListItem by remember { derivedStateOf { listState.firstVisibleItemIndex } }
+    val isTopOfList by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
     val songScoreList = remember { mutableStateListOf<SongScore>() }
     val isLoading = remember { mutableStateOf(false) }
     val pageSize = 10  // 1回のロードで取得するアイテム数
@@ -123,7 +123,7 @@ fun LatestPage(
 
             // Scroll to Top ボタン
             AnimatedScrollUpButton(
-                isVisible = (firstVisibleListItem > 0),
+                isVisible = (isTopOfList),
             ){
                 coroutineScope.launch {
                     listState.animateScrollToItem(index = 0)
@@ -158,7 +158,7 @@ fun AnimatedScrollUpButton(
                 colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.tertiary)
             ) {
                 Icon(
-                    imageVector = Icons.Filled.KeyboardDoubleArrowUp,
+                    imageVector = Icons.Filled.KeyboardArrowUp,
                     contentDescription = "Scroll to Top",
                     tint = MaterialTheme.colorScheme.onTertiary,
                     modifier = Modifier
