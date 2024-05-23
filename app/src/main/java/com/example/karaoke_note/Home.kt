@@ -123,7 +123,7 @@ fun LatestPage(
 
             // Scroll to Top ボタン
             AnimatedScrollUpButton(
-                isVisible = (isTopOfList),
+                isVisible = (!isTopOfList),
             ){
                 coroutineScope.launch {
                     listState.animateScrollToItem(index = 0)
