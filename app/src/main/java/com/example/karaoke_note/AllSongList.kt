@@ -44,23 +44,23 @@ data class SongInfo(
     val highestScore: Float?
 )
 
-fun getSortedAllSongInfos(
+fun getSortedAllSongInfo(
     sortMethod: SortMethod,
     songs: List<Song>,
     songScoreDao: SongScoreDao
 ): List<SongInfo> {
-    val songInfos = songs.map { song ->
+    val songInfo = songs.map { song ->
         val mostRecentDate = songScoreDao.getMostRecentDate(song.id)
         val highestScore = songScoreDao.getHighestScoreBySongId(song.id)?.score
         SongInfo(song, mostRecentDate?.format(DateTimeFormatter.ofPattern("yy/MM/dd")), highestScore)
     }
     return when (sortMethod) {
-        SortMethod.NameAsc -> songInfos.sortedBy { it.song.title }
-        SortMethod.NameDesc -> songInfos.sortedByDescending { it.song.title }
-        SortMethod.DateAsc-> songInfos.sortedBy { it.mostRecentDate }
-        SortMethod.DateDesc -> songInfos.sortedByDescending { it.mostRecentDate }
-        SortMethod.ScoreAsc -> songInfos.sortedBy { it.highestScore }
-        SortMethod.ScoreDesc -> songInfos.sortedByDescending { it.highestScore }
+        SortMethod.NameAsc -> songInfo.sortedBy { it.song.title }
+        SortMethod.NameDesc -> songInfo.sortedByDescending { it.song.title }
+        SortMethod.DateAsc-> songInfo.sortedBy { it.mostRecentDate }
+        SortMethod.DateDesc -> songInfo.sortedByDescending { it.mostRecentDate }
+        SortMethod.ScoreAsc -> songInfo.sortedBy { it.highestScore }
+        SortMethod.ScoreDesc -> songInfo.sortedByDescending { it.highestScore }
     }
 }
 
@@ -73,15 +73,15 @@ fun DisplayAllSongsList(
     artistDao: ArtistDao,
     songScoreDao: SongScoreDao
 ){
-    var sortedAllSongInfos by remember(sortMethod, songs) { mutableStateOf(getSortedAllSongInfos(sortMethod.value, songs, songScoreDao)) }
+    var sortedAllSongInfo by remember(sortMethod, songs) { mutableStateOf(getSortedAllSongInfo(sortMethod.value, songs, songScoreDao)) }
 
     Column {
         SortMethodSelector(sortMethod) {
-            sortedAllSongInfos = getSortedAllSongInfos(it, songs, songScoreDao)
+            sortedAllSongInfo = getSortedAllSongInfo(it, songs, songScoreDao)
         }
         Box(modifier = Modifier) {
             LazyColumn {
-                itemsIndexed(sortedAllSongInfos) { _, songInfo ->
+                itemsIndexed(sortedAllSongInfo) { _, songInfo ->
                     AllSongsListItem(navController, songInfo, artistDao)
                 }
             }
