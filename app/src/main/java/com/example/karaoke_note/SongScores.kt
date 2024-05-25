@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -109,7 +110,12 @@ fun SongScores(
                     },
                     modifier = Modifier.size(24.dp)
                 ) {
-                    Icon(Icons.Filled.MoreVert, "menu", Modifier.size(24.dp))
+                    Icon(
+                        imageVector = Icons.Filled.MoreVert,
+                        contentDescription = "menu",
+                        modifier = Modifier.size(24.dp),
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
                 }
                 DropdownMenu(
                     expanded = expanded.value,
@@ -120,13 +126,19 @@ fun SongScores(
                         showEntrySheetDialog.value = true
                         editingSongScore.value = songScore
                     }) {
-                        Text("編集")
+                        Text(
+                            text = "編集",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                     DropdownMenuItem(onClick = {
                         selectedScoreId.value?.let { songScoreDao.deleteSongScore(it) }
                         expanded.value = false
                     }) {
-                        Text("削除")
+                        Text(
+                            text = "削除",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             },
