@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -61,19 +62,30 @@ fun <T> SortableTable(
             sortColumnIndex = newSortColumnIndex
             sortDirection = newSortDirection
         }
-        Divider(color = Color.Gray, thickness = 1.dp)
+        Divider(
+            color = MaterialTheme.colorScheme.outlineVariant,
+            thickness = 1.dp
+        )
 
         LazyColumn(
             // FAB Specs によると、FAB の下余白 16, FAB の高さ 56
             contentPadding = PaddingValues(bottom = (16+56+16).dp)
         ) {
             itemsIndexed(sortedItems) { index, item ->
-                val color = if (index % 2 == 0) Color.Gray.copy(alpha = 0.4f) else Color.Gray.copy(alpha = 0.2f)
+                val color = if (index % 2 == 0) {
+                    Color.Gray.copy(alpha = 0.4f)
+                }
+                else {
+                    Color.Gray.copy(alpha = 0.2f)
+                }
                 DataRow(columns, item, color) {
                     onRowClick(item)
                 }
                 if (index < items.size - 1) {
-                    Divider(color = Color.Gray, thickness = 1.dp)
+                    Divider(
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        thickness = 1.dp
+                    )
                 }
             }
         }
