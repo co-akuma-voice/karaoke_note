@@ -29,7 +29,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -206,6 +205,7 @@ fun PlansListItem(
     editingSongScore: MutableState<SongScore?>
 ) {
     val keyFormat = if (songScore.key != 0) { "%+d" } else { "%d" }
+    val fontSize = listOf(12, 10)
 
     Column(modifier = Modifier) {
         ListItem(
@@ -222,8 +222,7 @@ fun PlansListItem(
                     modifier = Modifier
                         .padding(start = 20.dp, top = 2.dp, bottom = 2.dp),
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontFamily = FontFamily.SansSerif,
-                    fontSize = 14.sp,
+                    fontSize = fontSize[0].sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -234,8 +233,7 @@ fun PlansListItem(
                     modifier = Modifier
                         .padding(start = 20.dp, top = 2.dp, bottom = 2.dp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontFamily = FontFamily.SansSerif,
-                    fontSize = 10.sp,
+                    fontSize = fontSize[1].sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -247,13 +245,15 @@ fun PlansListItem(
                     modifier = Modifier
                         .padding(top = 2.dp, end = 16.dp, bottom = 2.dp),
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontFamily = FontFamily.SansSerif,
-                    fontSize = 12.sp,
+                    fontSize = fontSize[0].sp,
                     textAlign = TextAlign.End,
                 )
             },
             shadowElevation = 1.dp
         )
-        Divider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
+        Divider(
+            color = MaterialTheme.colorScheme.outlineVariant,
+            thickness = 1.dp
+        )
     }
 }

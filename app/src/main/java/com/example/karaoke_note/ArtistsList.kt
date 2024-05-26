@@ -69,7 +69,7 @@ fun ArtistsPage(
     val buttonWidth = 120
     val buttonInnerPadding = 4
     val buttonShape = 16
-    val buttonTextSize = 14
+    val buttonTextSize = 12
 
     Column {
         // 疑似的な Segmented Button
@@ -222,16 +222,17 @@ fun ArtistsListHeader(
     val iconPaddingValues = 8
 
     Row(Modifier.fillMaxWidth()) {
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                val newArtistDirection = when (sortDirection) {
-                    SortDirection.None, SortDirection.Desc -> SortDirection.Asc
-                    else -> SortDirection.Desc
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    val newArtistDirection = when (sortDirection) {
+                        SortDirection.None, SortDirection.Desc -> SortDirection.Asc
+                        else -> SortDirection.Desc
+                    }
+                    onSortChanged(newArtistDirection)
                 }
-                onSortChanged(newArtistDirection)
-            }) {
-            Text(text = "アーティスト", modifier = Modifier.align(Alignment.CenterStart))
+        ) {
             when(sortDirection) {
                 SortDirection.Asc -> Icon(
                     imageVector = Icons.Filled.ArrowUpward,
@@ -239,7 +240,8 @@ fun ArtistsListHeader(
                     modifier = Modifier
                         .scale(iconScale)
                         .align(Alignment.CenterEnd)
-                        .padding(end = iconPaddingValues.dp)
+                        .padding(end = iconPaddingValues.dp),
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
                 SortDirection.Desc -> Icon(
                     imageVector = Icons.Filled.ArrowDownward,
@@ -247,7 +249,8 @@ fun ArtistsListHeader(
                     modifier = Modifier
                         .scale(iconScale)
                         .align(Alignment.CenterEnd)
-                        .padding(end = iconPaddingValues.dp)
+                        .padding(end = iconPaddingValues.dp),
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
                 else -> {}
             }
@@ -279,9 +282,10 @@ fun ArtistListItem(
     artistDao: ArtistDao,
     songDao: SongDao
 ) {
-    fun onUpdate(artistId: Long, iconColor: Int) {
+    fun updateArtistIcon(artistId: Long, iconColor: Int) {
         artistDao.updateIconColor(artistId, iconColor)
     }
+
     val haptics = LocalHapticFeedback.current
     var iconColorSelectorOpened by remember { mutableStateOf(false) }
 
@@ -299,6 +303,7 @@ fun ArtistListItem(
             headlineContent = {
                 Text(
                     text = artist.name + "  (" + numberOfSongs + ")",
+                    fontSize = 12.sp,
                     overflow = TextOverflow.Ellipsis
                 )
             },
@@ -317,7 +322,10 @@ fun ArtistListItem(
                 )
             }
         )
-        Divider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
+        Divider(
+            color = MaterialTheme.colorScheme.outlineVariant,
+            thickness = 1.dp
+        )
     }
 
     if (iconColorSelectorOpened) { // これもできれば切り出したいな
@@ -333,7 +341,7 @@ fun ArtistListItem(
                 for (index in 0..7) { // 8色
                     IconButton(
                         onClick = {
-                            onUpdate(artist.id, getARGB(index).toArgb())
+                            updateArtistIcon(artist.id, getARGB(index).toArgb())
                             iconColorSelectorOpened = false
                         },
                         modifier = Modifier

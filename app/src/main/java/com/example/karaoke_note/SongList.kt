@@ -81,12 +81,14 @@ fun SongList(
     fun onUpdate(artistId: Long, newTitle: String) {
         artistDao.updateName(artistId, newTitle)
     }
+
     val songsFlow = songDao.getSongsWithScores(artistId)
     val songs = songsFlow.collectAsState(initial = listOf()).value
     val songDatum = convertToSongDataList(songScoreDao, songs)
     val artistName = artistDao.getNameById(artistId) ?: ""
     val formatter = DateTimeFormatter.ofPattern("yy/MM/dd")
-    val fontSize = 18.sp
+    val titleFontSize = 20
+    val dataFontSize = 18
 
     val columns = listOf(
         TableColumn<SongData>(
@@ -96,7 +98,7 @@ fun SongList(
                 Text(
                     text = it.title,
                     modifier = Modifier.horizontalScroll(scrollState),
-                    fontSize = fontSize,
+                    fontSize = dataFontSize.sp,
                     overflow = TextOverflow.Ellipsis
                 )
             },
@@ -110,7 +112,7 @@ fun SongList(
                     text = String.format("%.3f", it.highestScore),
                     textAlign = TextAlign.End,
                     modifier = Modifier.fillMaxWidth(),
-                    fontSize = fontSize,
+                    fontSize = dataFontSize.sp,
                     overflow = TextOverflow.Ellipsis
                 )
             },
@@ -124,7 +126,7 @@ fun SongList(
                     text = it.lastDate.format(formatter),
                     textAlign = TextAlign.End,
                     modifier = Modifier.fillMaxWidth(),
-                    fontSize = fontSize,
+                    fontSize = dataFontSize.sp,
                     overflow = TextOverflow.Ellipsis
                 )
             },
@@ -149,14 +151,14 @@ fun SongList(
                             onUpdate(artistId, text)
                         }
                     ),
-                    textStyle = TextStyle(fontSize = 24.sp),
+                    textStyle = TextStyle(fontSize = titleFontSize.sp),
                     singleLine = true
                 )
             } else {
                 // 通常のテキスト表示
                 Text(
-                    text = "${text}の曲一覧",
-                    fontSize = 24.sp,
+                    text = "$text の曲一覧",
+                    fontSize = titleFontSize.sp,
                 )
             }
             IconButton(
