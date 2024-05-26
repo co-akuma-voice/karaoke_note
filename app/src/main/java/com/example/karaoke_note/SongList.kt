@@ -143,10 +143,12 @@ fun SongList(
                     value = text,
                     onValueChange = { text = it },
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = {
-                        isEditing = false
-                        onUpdate(artistId, text)
-                    }),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            isEditing = false
+                            onUpdate(artistId, text)
+                        }
+                    ),
                     textStyle = TextStyle(fontSize = 24.sp),
                     singleLine = true
                 )
@@ -157,8 +159,14 @@ fun SongList(
                     fontSize = 24.sp,
                 )
             }
-            IconButton(onClick = { isEditing = true }) {
-                Icon(Icons.Filled.Edit, contentDescription = null)
+            IconButton(
+                onClick = { isEditing = true }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Edit,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
             }
         }
         Divider(

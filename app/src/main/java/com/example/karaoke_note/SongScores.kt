@@ -162,10 +162,12 @@ fun SongScores(
                     value = text,
                     onValueChange = { text = it },
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = {
-                        isEditing = false
-                        onUpdate(song.id, text)
-                    }),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            isEditing = false
+                            onUpdate(song.id, text)
+                        }
+                    ),
                     textStyle = TextStyle(fontSize = 24.sp),
                     singleLine = true
                 )
@@ -176,11 +178,14 @@ fun SongScores(
                     fontSize = 24.sp,
                 )
             }
-            IconButton(onClick = { isEditing = true }) {
+            IconButton(
+                onClick = { isEditing = true }
+            ) {
                 // 通常状態だと位置が下にずれて見えるが、編集状態だとぴったり真ん中になる
                 Icon(
                     imageVector = Icons.Filled.Edit,
                     contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
