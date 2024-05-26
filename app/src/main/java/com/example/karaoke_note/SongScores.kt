@@ -3,6 +3,7 @@ package com.example.karaoke_note
 import SortableTable
 import TableColumn
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,7 +31,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -118,26 +118,31 @@ fun SongScores(
                     )
                 }
                 DropdownMenu(
+                    modifier = Modifier.background(MaterialTheme.colorScheme.surface),
                     expanded = expanded.value,
                     onDismissRequest = { expanded.value = false }
                 ) {
-                    DropdownMenuItem(onClick = {
-                        expanded.value = false
-                        showEntrySheetDialog.value = true
-                        editingSongScore.value = songScore
-                    }) {
+                    DropdownMenuItem(
+                        onClick = {
+                            expanded.value = false
+                            showEntrySheetDialog.value = true
+                            editingSongScore.value = songScore
+                        }
+                    ) {
                         Text(
                             text = "編集",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
-                    DropdownMenuItem(onClick = {
-                        selectedScoreId.value?.let { songScoreDao.deleteSongScore(it) }
-                        expanded.value = false
-                    }) {
+                    DropdownMenuItem(
+                        onClick = {
+                            selectedScoreId.value?.let { songScoreDao.deleteSongScore(it) }
+                            expanded.value = false
+                        }
+                    ) {
                         Text(
                             text = "削除",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -179,7 +184,10 @@ fun SongScores(
                 )
             }
         }
-        Divider(color = Color.Gray, thickness = 1.dp)
+        Divider(
+            color = MaterialTheme.colorScheme.outlineVariant,
+            thickness = 1.dp
+        )
         SortableTable(items = scores, columns = columns) {
             openDetailDialog = true
             selectedScore.value = it
