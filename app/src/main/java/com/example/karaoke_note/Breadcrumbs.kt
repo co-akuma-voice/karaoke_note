@@ -13,18 +13,26 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.karaoke_note.data.ArtistDao
 import com.example.karaoke_note.data.SongDao
 import kotlinx.coroutines.launch
 
-fun truncateText(text: String, maxLength: Int): String {
+fun truncateText(
+    text: String,
+    maxLength: Int
+): String {
     return if (text.length > maxLength) text.take(maxLength) + "..." else text
 }
 
 @Composable
-fun Breadcrumbs(navController: NavController, songDao: SongDao, artistDao: ArtistDao) {
+fun Breadcrumbs(
+    navController: NavController,
+    songDao: SongDao,
+    artistDao: ArtistDao
+) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: return
     val coroutineScope = rememberCoroutineScope()
@@ -33,6 +41,8 @@ fun Breadcrumbs(navController: NavController, songDao: SongDao, artistDao: Artis
     var artistName by remember { mutableStateOf<String?>(null) }
     var artistId by remember { mutableStateOf<Long?>(null) }
     var songTitle by remember { mutableStateOf<String?>(null) }
+
+    val fontSize = 14
 
     LaunchedEffect(currentRoute) {
         coroutineScope.launch {
@@ -69,12 +79,19 @@ fun Breadcrumbs(navController: NavController, songDao: SongDao, artistDao: Artis
             //Text(" > ")
             Text(
                 truncateText(artistName!!, 8),
-                modifier = Modifier.clickable { navController.navigate("song_list/$artistId") }
+                modifier = Modifier.clickable { navController.navigate("song_list/$artistId") },
+                fontSize = fontSize.sp
             )
         }
         if (songTitle != null) {
-            Text(" > ")
-            Text(truncateText(songTitle!!, 8))
+            Text(
+                text = " > ",
+                fontSize = fontSize.sp
+            )
+            Text(
+                text = truncateText(songTitle!!, 8),
+                fontSize = fontSize.sp
+            )
         }
     }
 }

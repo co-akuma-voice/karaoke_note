@@ -64,20 +64,33 @@ fun SongScores(
     val scores by scoresFlow.collectAsState(initial = emptyList())
     val selectedScoreId = remember { mutableStateOf<Long?>(null) }
     val formatter = DateTimeFormatter.ofPattern("yy/MM/dd")
-    val fontSize = 18.sp
+    val titleFontSize = 20
+    val dataFontSize = 18
     var openDetailDialog by remember { mutableStateOf(false) }
     val selectedScore = remember { mutableStateOf<SongScore?>(null) }
 
     val columns = listOf(
         TableColumn<SongScore>(
             title = "日付",
-            { Text(text = it.date.format(formatter), fontSize = fontSize)},
+            {
+                Text(
+                    text = it.date.format(formatter),
+                    fontSize = dataFontSize.sp
+                )
+            },
             compareBy{ it.date },
             weight = 2f
         ),
         TableColumn(
             title = "点数",
-            { Text(text = String.format("%.3f", it.score), textAlign = TextAlign.End, modifier = Modifier.fillMaxWidth(), fontSize = fontSize) },
+            {
+                Text(
+                    text = String.format("%.3f", it.score),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End,
+                    fontSize = dataFontSize.sp
+                )
+            },
             compareBy{ it.score },
             weight = 1.5f
         ),
@@ -85,7 +98,12 @@ fun SongScores(
             title = "キー",
             {
                 val keyFormat = if (it.key != 0) { "%+d" } else { "%d" }
-                Text(text = String.format(keyFormat, it.key), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(), fontSize = fontSize)
+                Text(
+                    text = String.format(keyFormat, it.key),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    fontSize = dataFontSize.sp
+                )
             },
             compareBy{ it.key },
             weight = 1f
@@ -94,7 +112,11 @@ fun SongScores(
             title = "コメント",
             {
                 val scrollState = rememberScrollState()
-                Text(text = it.comment, modifier = Modifier.horizontalScroll(scrollState), fontSize = fontSize)
+                Text(
+                    text = it.comment,
+                    modifier = Modifier.horizontalScroll(scrollState),
+                    fontSize = dataFontSize.sp
+                )
             },
             compareBy{ it.comment.length },
             weight = 3f
@@ -113,7 +135,7 @@ fun SongScores(
                     Icon(
                         imageVector = Icons.Filled.MoreVert,
                         contentDescription = "menu",
-                        modifier = Modifier.size(24.dp),
+                        modifier = Modifier.size(dataFontSize.dp),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -168,14 +190,14 @@ fun SongScores(
                             onUpdate(song.id, text)
                         }
                     ),
-                    textStyle = TextStyle(fontSize = 24.sp),
+                    textStyle = TextStyle(fontSize = titleFontSize.sp),
                     singleLine = true
                 )
             } else {
                 // 通常のテキスト表示
                 Text(
-                    text = "${text}のスコア一覧",
-                    fontSize = 24.sp,
+                    text = "$text のスコア一覧",
+                    fontSize = titleFontSize.sp,
                 )
             }
             IconButton(

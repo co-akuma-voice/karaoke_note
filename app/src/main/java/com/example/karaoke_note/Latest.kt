@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -40,7 +39,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -202,21 +200,19 @@ fun LatestList(
     navController: NavController
 ) {
     val keyFormat = if (songScore.key != 0) { "%+d" } else { "%d" }
+    val fontSize = listOf(12, 10, 8)
 
     Column {
         ListItem(
             modifier = Modifier
-                .height(90.dp)
-                .clickable {
-                    navController.navigate("song_data/${song.id}")
-                },
+                //.height(90.dp)
+                .clickable { navController.navigate("song_data/${song.id}") },
             leadingContent = {
                 Image(
                     painter = painterResource(id = getPainterResourceIdOfGameImage(songScore.gameKind.name)),
                     contentDescription = "Selected Game",
                     contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .size(30.dp)
+                    modifier = Modifier.size(32.dp)
                 )
             },
             headlineContent = {
@@ -227,8 +223,7 @@ fun LatestList(
                             .padding(top = 2.dp, bottom = 6.dp)
                             .align(Alignment.Start),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontFamily = FontFamily.SansSerif,
-                        fontSize = 6.sp,
+                        fontSize = fontSize[2].sp,
                     )
                     Text(
                         text = song.title,
@@ -236,8 +231,7 @@ fun LatestList(
                             .padding(top = 2.dp, bottom = 2.dp)
                             .align(Alignment.Start),
                         color = MaterialTheme.colorScheme.onSurface,
-                        fontFamily = FontFamily.SansSerif,
-                        fontSize = 12.sp,
+                        fontSize = fontSize[0].sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -247,8 +241,7 @@ fun LatestList(
                             .padding(top = 2.dp, bottom = 6.dp)
                             .align(Alignment.Start),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontFamily = FontFamily.SansSerif,
-                        fontSize = 8.sp,
+                        fontSize = fontSize[1].sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -260,8 +253,7 @@ fun LatestList(
                     modifier = Modifier
                         .padding(top = 2.dp, end = 4.dp, bottom = 2.dp),
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontFamily = FontFamily.SansSerif,
-                    fontSize = 8.sp,
+                    fontSize = fontSize[2].sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -274,8 +266,7 @@ fun LatestList(
                             .padding(top = 0.dp, end = 16.dp, bottom = 2.dp)
                             .align(Alignment.End),
                         color = MaterialTheme.colorScheme.onSurface,
-                        fontFamily = FontFamily.SansSerif,
-                        fontSize = 12.sp,
+                        fontSize = fontSize[0].sp,
                     )
                     Text(
                         text = String.format(keyFormat, songScore.key),
@@ -283,8 +274,7 @@ fun LatestList(
                             .padding(top = 2.dp, end = 16.dp, bottom = 2.dp)
                             .align(Alignment.End),
                         color = MaterialTheme.colorScheme.onSurface,
-                        fontFamily = FontFamily.SansSerif,
-                        fontSize = 10.sp,
+                        fontSize = fontSize[0].sp,
                     )
                 }
             },

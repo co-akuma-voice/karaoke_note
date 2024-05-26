@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.karaoke_note.data.Artist
 import com.example.karaoke_note.data.ArtistDao
@@ -91,10 +92,17 @@ fun AppBar(
 
     TopAppBar(
         backgroundColor = MaterialTheme.colorScheme.primaryContainer,
-        title = { Text("カラオケ点数管理") },
+        title = {
+            Text(
+                text = "カラオケ点数管理",
+                fontSize = 16.sp
+            )
+        },
         navigationIcon = {
             if (canPop.value) {
-                IconButton(onClick = { navController.navigateUp() }) {
+                IconButton(
+                    onClick = { navController.navigateUp() }
+                ) {
                     Icon(Icons.Filled.ArrowBack, contentDescription = null)
                 }
             }
