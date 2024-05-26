@@ -44,7 +44,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -137,7 +136,7 @@ fun entryToDataBase(
     val newArtistId = artistDao.insert(
         Artist(
             name = newArtist,
-            iconColor = Color.Black.toArgb()
+            icon = 0
         )
     )
     val newSongId = songDao.insertSong(
