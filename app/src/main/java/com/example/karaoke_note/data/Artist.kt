@@ -8,5 +8,5 @@ import androidx.room.PrimaryKey
 data class Artist (
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "name") val name: String,
-    @ColumnInfo(name = "icon_color") var iconColor: Int,
+    @ColumnInfo(name = "icon_color") var icon: Int,    // icon_color でデータベースに入っているので変えられない。失敗したな...
 )

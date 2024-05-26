@@ -21,7 +21,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Face3
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Person2
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.SentimentSatisfied
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
@@ -42,8 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextOverflow
@@ -258,19 +264,18 @@ fun ArtistsListHeader(
     }
 }
 
-fun getARGB(colorNumber: Int): Color {
-    var argb: Color = Color.Black
-    when (colorNumber) {
-        0 -> argb = Color.Black
-        1 -> argb = Color.Red
-        2 -> argb = Color(0xffff8000)
-        3 -> argb = Color.Yellow
-        4 -> argb = Color.Green
-        5 -> argb = Color(0xff00ffff)
-        6 -> argb = Color.Blue
-        7 -> argb = Color(0xff800080)
+fun getIcon(iconNumber: Int): ImageVector {
+    val image: ImageVector = when (iconNumber) {
+        1 -> Icons.Filled.Person2
+        2 -> Icons.Filled.People
+        3 -> Icons.Filled.Face
+        4 -> Icons.Filled.Face3
+        5 -> Icons.Filled.Favorite
+        6 -> Icons.Filled.Star
+        7 -> Icons.Outlined.SentimentSatisfied
+        else -> Icons.Filled.Person
     }
-    return argb
+    return image
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -282,8 +287,8 @@ fun ArtistListItem(
     artistDao: ArtistDao,
     songDao: SongDao
 ) {
-    fun updateArtistIcon(artistId: Long, iconColor: Int) {
-        artistDao.updateIconColor(artistId, iconColor)
+    fun updateArtistIcon(artistId: Long, icon: Int) {
+        artistDao.updateIcon(artistId, icon)
     }
 
     val haptics = LocalHapticFeedback.current
@@ -309,8 +314,8 @@ fun ArtistListItem(
             },
             leadingContent = {
                 Icon(
-                    imageVector = Icons.Filled.Person,
-                    tint = Color(artist.iconColor),
+                    imageVector = getIcon(artist.icon),
+                    tint = MaterialTheme.colorScheme.primary,
                     contentDescription = null,
                     modifier = Modifier.combinedClickable(
                         onClick = {},
@@ -341,7 +346,7 @@ fun ArtistListItem(
                 for (index in 0..7) { // 8色
                     IconButton(
                         onClick = {
-                            updateArtistIcon(artist.id, getARGB(index).toArgb())
+                            updateArtistIcon(artist.id, index)
                             iconColorSelectorOpened = false
                         },
                         modifier = Modifier
@@ -349,10 +354,10 @@ fun ArtistListItem(
                             .align(Alignment.CenterVertically)
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Person,
+                            imageVector = getIcon(index),
                             contentDescription = null,
                             modifier = Modifier,
-                            tint = getARGB(index)
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
