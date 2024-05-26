@@ -104,7 +104,9 @@ fun AppBar(
                 modifier = Modifier.align(alignment = Alignment.CenterVertically)
             ) {
                 // フィルターボタン
-                IconButton(onClick = { showSheet = true }) {
+                IconButton(
+                    onClick = { showSheet = true }
+                ) {
                     Icon(
                         imageVector = Icons.Outlined.FilterAlt,
                         contentDescription = "Filter"
@@ -112,8 +114,13 @@ fun AppBar(
                 }
 
                 // メニューボタン
-                IconButton(onClick = { showMenu.value = true }) {
-                    Icon(Icons.Filled.MoreVert, contentDescription = "メニュー")
+                IconButton(
+                    onClick = { showMenu.value = true }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.MoreVert,
+                        contentDescription = "メニュー"
+                    )
                 }
                 DropdownMenu(
                     expanded = showMenu.value,

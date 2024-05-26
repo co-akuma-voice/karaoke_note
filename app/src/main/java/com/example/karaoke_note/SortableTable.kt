@@ -73,10 +73,10 @@ fun <T> SortableTable(
         ) {
             itemsIndexed(sortedItems) { index, item ->
                 val color = if (index % 2 == 0) {
-                    Color.Gray.copy(alpha = 0.4f)
+                    MaterialTheme.colorScheme.surfaceVariant
                 }
                 else {
-                    Color.Gray.copy(alpha = 0.2f)
+                    MaterialTheme.colorScheme.surface
                 }
                 DataRow(columns, item, color) {
                     onRowClick(item)
