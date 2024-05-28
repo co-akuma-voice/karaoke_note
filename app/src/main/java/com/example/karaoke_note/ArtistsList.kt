@@ -21,14 +21,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Face3
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Person2
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.SentimentSatisfied
+import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
@@ -266,14 +266,14 @@ fun ArtistsListHeader(
 
 fun getIcon(iconNumber: Int): ImageVector {
     val image: ImageVector = when (iconNumber) {
-        1 -> Icons.Filled.Person2
-        2 -> Icons.Filled.People
-        3 -> Icons.Filled.Face
-        4 -> Icons.Filled.Face3
-        5 -> Icons.Filled.Favorite
-        6 -> Icons.Filled.Star
-        7 -> Icons.Outlined.SentimentSatisfied
-        else -> Icons.Filled.Person
+        1 -> Icons.Outlined.Circle
+        2 -> Icons.Filled.Favorite
+        3 -> Icons.Filled.FavoriteBorder
+        4 -> Icons.Filled.Star
+        5 -> Icons.Filled.StarBorder
+        6 -> Icons.Filled.Face
+        7 -> Icons.Filled.Face3
+        else -> Icons.Filled.Circle
     }
     return image
 }
