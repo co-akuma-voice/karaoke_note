@@ -26,5 +26,18 @@ enum class GameKind(val displayName: String) {
         fun fromDisplayName(displayName: String): GameKind? {
             return values().firstOrNull { it.displayName == displayName }
         }
+        fun getBrandKind(gameKind: GameKind): BrandKind {
+            return when (gameKind) {
+                JOY_NATIONAL_SCORING_GP -> BrandKind.JOY
+                JOY_ANALYSIS_SCORING_AI_PLUS -> BrandKind.JOY
+                JOY_ANALYSIS_SCORING_AI -> BrandKind.JOY
+                JOY_ANALYSIS_SCORING_MASTER -> BrandKind.JOY
+                DAM_RANKING_BATTLE_ONLINE -> BrandKind.DAM
+                DAM_PRECISE_SCORING_AI -> BrandKind.DAM
+                DAM_PRECISE_SCORING_DX_G -> BrandKind.DAM
+                DAM_PRECISE_SCORING_DX_DUET -> BrandKind.DAM
+                DAM_PRECISE_SCORING_DX -> BrandKind.DAM
+            }
+        }
     }
 }

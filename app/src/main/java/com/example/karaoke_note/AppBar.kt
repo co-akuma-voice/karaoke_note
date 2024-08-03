@@ -40,6 +40,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,6 +55,7 @@ import androidx.navigation.NavController
 import com.example.karaoke_note.data.Artist
 import com.example.karaoke_note.data.ArtistDao
 import com.example.karaoke_note.data.DATABASE_VERSION
+import com.example.karaoke_note.data.FilterSetting
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
@@ -78,6 +80,7 @@ fun AppBar(
     songDao: SongDao,
     songScoreDao: SongScoreDao,
     artistDao: ArtistDao,
+    filterSetting: MutableState<FilterSetting>
 ) {
     val canPop = remember { mutableStateOf(false) }
     val showMenu = remember { mutableStateOf(false) }
@@ -158,13 +161,16 @@ fun AppBar(
             windowInsets = WindowInsets.displayCutout,
         ) {
             // Sheet content
-            FilterContents()
+            FilterContents(filterSetting.value.joySelected, filterSetting.value.damSelected)
         }
     }
 }
 
 @Composable
-fun FilterContents(){
+fun FilterContents(
+    joySelected: MutableState<Boolean>,
+    damSelected: MutableState<Boolean>
+){
     Column(
         modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
@@ -189,8 +195,8 @@ fun FilterContents(){
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            FilterContent(label = "JOY")
-            FilterContent(label = "DAM")
+            FilterContent(label = "JOY", selectedStatus = joySelected)
+            FilterContent(label = "DAM", selectedStatus = damSelected)
         }
         Divider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
     }
@@ -200,15 +206,14 @@ fun FilterContents(){
 @Composable
 fun FilterContent(
     label: String,
+    selectedStatus: MutableState<Boolean>
 ) {
-    var selectedStatus by remember { mutableStateOf(false) }
-
     FilterChip(
-        onClick = { selectedStatus = !selectedStatus },
+        onClick = { selectedStatus.value = !selectedStatus.value },
         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
         label = { Text(label) },
-        selected = selectedStatus,
-        leadingIcon = if (selectedStatus) {
+        selected = selectedStatus.value,
+        leadingIcon = if (selectedStatus.value) {
             {
                 Icon(
                     imageVector = Icons.Filled.Done,
