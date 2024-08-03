@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
                             Modifier.padding(paddingValues)
                         ) {
                             composable("latest") {
-                                LatestPage(navController, songDao, songScoreDao, artistDao)
+                                LatestPage(navController, songDao, songScoreDao, artistDao, filterSetting.value)
                             }
                             composable("song_data/{songId}") {backStackEntry ->
                                 val songId = backStackEntry.arguments?.getString("songId")?.toLongOrNull()
