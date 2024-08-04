@@ -18,4 +18,8 @@ class FilterSetting {
             }
         }
     }
+
+    fun isDefault(): Boolean {
+        return joyGameSelected.all { it.value.value } && damGameSelected.all { it.value.value }
+    }
 }
