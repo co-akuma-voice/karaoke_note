@@ -91,9 +91,7 @@ fun LatestPage(
                 state = listState
             ) {
                 val filteredSongScoreList = songScoreList.filter { songScore ->
-                    val brandKind = GameKind.getBrandKind(songScore.gameKind)
-                    filterSetting.joySelected.value && brandKind == BrandKind.JOY ||
-                    filterSetting.damSelected.value && brandKind == BrandKind.DAM
+                    songScore.gameKind in filterSetting.getSelectedGameKinds()
                 }
                 itemsIndexed(filteredSongScoreList) { index, songScore ->
                     // 各アイテムの表示
