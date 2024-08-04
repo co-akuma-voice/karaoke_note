@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.karaoke_note.data.ArtistDao
 import com.example.karaoke_note.data.BrandKind
+import com.example.karaoke_note.data.FilterSetting
 import com.example.karaoke_note.data.GameKind
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
@@ -58,7 +59,8 @@ fun LatestPage(
     navController: NavController,
     songDao: SongDao,
     songScoreDao: SongScoreDao,
-    artistDao: ArtistDao
+    artistDao: ArtistDao,
+    filterSetting: FilterSetting
 ) {
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
@@ -88,7 +90,10 @@ fun LatestPage(
                 modifier = Modifier,
                 state = listState
             ) {
-                itemsIndexed(songScoreList) { index, songScore ->
+                val filteredSongScoreList = songScoreList.filter { songScore ->
+                    songScore.gameKind in filterSetting.getSelectedGameKinds()
+                }
+                itemsIndexed(filteredSongScoreList) { index, songScore ->
                     // 各アイテムの表示
                     val song = songDao.getSong(songScore.songId)
                     if (song != null) {

@@ -28,6 +28,15 @@ interface SongScoreDao {
     fun getHighestScoreBySongId(songId: Long): SongScore?
 
     @Query("""
+        SELECT * FROM SongScore 
+        WHERE songId = :songId AND gameKind IN (:gameKinds)
+        ORDER BY score DESC 
+        LIMIT 1
+        
+    """)
+    fun getHighestScoreBySongIdAndGameKinds(songId: Long, gameKinds: List<GameKind>): SongScore?
+
+    @Query("""
         SELECT date FROM SongScore 
         WHERE songId = :songId 
         ORDER BY date DESC 

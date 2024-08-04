@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.karaoke_note.data.ArtistDao
+import com.example.karaoke_note.data.FilterSetting
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongScoreDao
 import com.example.karaoke_note.ui.component.SortMethod
@@ -47,11 +49,12 @@ data class SongInfo(
 fun getSortedAllSongInfo(
     sortMethod: SortMethod,
     songs: List<Song>,
-    songScoreDao: SongScoreDao
+    songScoreDao: SongScoreDao,
+    filterSetting: FilterSetting
 ): List<SongInfo> {
     val songInfo = songs.map { song ->
         val mostRecentDate = songScoreDao.getMostRecentDate(song.id)
-        val highestScore = songScoreDao.getHighestScoreBySongId(song.id)?.score
+        val highestScore = songScoreDao.getHighestScoreBySongIdAndGameKinds(song.id, filterSetting.getSelectedGameKinds())?.score
         SongInfo(song, mostRecentDate?.format(DateTimeFormatter.ofPattern("yy/MM/dd")), highestScore)
     }
     return when (sortMethod) {
@@ -71,14 +74,18 @@ fun DisplayAllSongsList(
     sortMethod: MutableState<SortMethod>,
     songs: List<Song>,
     artistDao: ArtistDao,
-    songScoreDao: SongScoreDao
+    songScoreDao: SongScoreDao,
+    filterSetting: FilterSetting
 ){
-    var sortedAllSongInfo by remember(sortMethod, songs) { mutableStateOf(getSortedAllSongInfo(sortMethod.value, songs, songScoreDao)) }
+    val selectedGameKinds by remember(filterSetting) {
+        derivedStateOf {
+            filterSetting.getSelectedGameKinds()
+        }
+    }
+    val sortedAllSongInfo by remember(sortMethod.value, songs, selectedGameKinds) { mutableStateOf(getSortedAllSongInfo(sortMethod.value, songs, songScoreDao, filterSetting)) }
 
     Column {
-        SortMethodSelector(sortMethod) {
-            sortedAllSongInfo = getSortedAllSongInfo(it, songs, songScoreDao)
-        }
+        SortMethodSelector(sortMethod)
         Box(modifier = Modifier) {
             LazyColumn {
                 itemsIndexed(sortedAllSongInfo) { _, songInfo ->
@@ -93,7 +100,7 @@ fun DisplayAllSongsList(
 @Composable
 fun SortMethodSelector(
     sortMethod: MutableState<SortMethod>,
-    onSortMethodChanged: (SortMethod) -> Unit
+    onSortMethodChanged: (SortMethod) -> Unit = {},
 ){
     var expanded by remember { mutableStateOf(false) }
     val sortMethodsList = enumValues<SortMethod>()

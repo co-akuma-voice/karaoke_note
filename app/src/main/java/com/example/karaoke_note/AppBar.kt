@@ -7,6 +7,8 @@ import android.provider.DocumentsContract
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -40,6 +43,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,6 +58,8 @@ import androidx.navigation.NavController
 import com.example.karaoke_note.data.Artist
 import com.example.karaoke_note.data.ArtistDao
 import com.example.karaoke_note.data.DATABASE_VERSION
+import com.example.karaoke_note.data.FilterSetting
+import com.example.karaoke_note.data.GameKind
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
@@ -78,6 +84,7 @@ fun AppBar(
     songDao: SongDao,
     songScoreDao: SongScoreDao,
     artistDao: ArtistDao,
+    filterSetting: MutableState<FilterSetting>
 ) {
     val canPop = remember { mutableStateOf(false) }
     val showMenu = remember { mutableStateOf(false) }
@@ -158,13 +165,15 @@ fun AppBar(
             windowInsets = WindowInsets.displayCutout,
         ) {
             // Sheet content
-            FilterContents()
+            FilterContents(filterSetting)
         }
     }
 }
 
 @Composable
-fun FilterContents(){
+fun FilterContents(
+    filterSetting: MutableState<FilterSetting>
+){
     Column(
         modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
@@ -185,12 +194,12 @@ fun FilterContents(){
             Text(text = "Game", fontWeight = FontWeight.Bold)
         }
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            FilterContent(label = "JOY")
-            FilterContent(label = "DAM")
+            FilterContentGroup(label = "JOY", filterSetting.value.joySelected, filterSetting.value.joyGameSelected)
+            FilterContentGroup(label = "DAM", filterSetting.value.damSelected, filterSetting.value.damGameSelected)
         }
         Divider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
     }
@@ -198,17 +207,53 @@ fun FilterContents(){
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun FilterContentGroup(
+    label: String,
+    selectedStatus: MutableState<Boolean>,
+    gameSelected: Map<GameKind, MutableState<Boolean>>,
+    modifier: Modifier = Modifier
+) {
+
+    Column (
+        modifier = modifier
+    ) {
+        FilterContent(
+            label = label,
+            selectedStatus = selectedStatus,
+            onClick = {
+                selectedStatus.value = !selectedStatus.value
+                gameSelected.forEach { (_, value) -> value.value = selectedStatus.value }
+            }
+        )
+        Column(
+            modifier = modifier
+                .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
+                .padding(2.dp)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            gameSelected.entries.forEach() { entry ->
+                FilterContent(
+                    label = entry.key.displayName,
+                    selectedStatus = entry.value
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun FilterContent(
     label: String,
+    selectedStatus: MutableState<Boolean>,
+    onClick: () -> Unit = { selectedStatus.value = !selectedStatus.value }
 ) {
-    var selectedStatus by remember { mutableStateOf(false) }
-
     FilterChip(
-        onClick = { selectedStatus = !selectedStatus },
-        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+        onClick = onClick,
+        modifier = Modifier.padding(horizontal = 5.dp, vertical = 4.dp),
         label = { Text(label) },
-        selected = selectedStatus,
-        leadingIcon = if (selectedStatus) {
+        selected = selectedStatus.value,
+        leadingIcon = if (selectedStatus.value) {
             {
                 Icon(
                     imageVector = Icons.Filled.Done,
