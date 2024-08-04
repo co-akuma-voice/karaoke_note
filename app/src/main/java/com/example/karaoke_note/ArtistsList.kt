@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.karaoke_note.data.Artist
 import com.example.karaoke_note.data.ArtistDao
+import com.example.karaoke_note.data.FilterSetting
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScoreDao
 import com.example.karaoke_note.ui.component.SortMethod
@@ -70,7 +71,8 @@ fun ArtistsPage(
     sortMethodOfAllSongs: MutableState<SortMethod>,
     artistDao: ArtistDao,
     songDao: SongDao,
-    songScoreDao: SongScoreDao
+    songScoreDao: SongScoreDao,
+    filterSetting: FilterSetting
 ) {
     val buttonWidth = 120
     val buttonInnerPadding = 4
@@ -173,7 +175,7 @@ fun ArtistsPage(
             else {
                 val allSongsFlow = songDao.getAllSongsWithScores()
                 val allSongs by allSongsFlow.collectAsState(initial = emptyList())
-                DisplayAllSongsList(navController, sortMethodOfAllSongs, allSongs, artistDao, songScoreDao)
+                DisplayAllSongsList(navController, sortMethodOfAllSongs, allSongs, artistDao, songScoreDao, filterSetting)
             }
         }
     }
