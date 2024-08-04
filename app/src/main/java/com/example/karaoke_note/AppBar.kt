@@ -23,6 +23,7 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Games
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.FilterAlt
@@ -123,8 +124,13 @@ fun AppBar(
                     onClick = { showSheet = true }
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.FilterAlt,
-                        contentDescription = "Filter"
+                        imageVector = if (filterSetting.value.isDefault()) {
+                            Icons.Outlined.FilterAlt
+                        } else {
+                            Icons.Filled.FilterAlt
+                        },
+                        contentDescription = "Filter",
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
 
