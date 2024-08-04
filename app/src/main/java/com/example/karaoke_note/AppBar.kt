@@ -7,6 +7,8 @@ import android.provider.DocumentsContract
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +18,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -56,6 +61,7 @@ import com.example.karaoke_note.data.Artist
 import com.example.karaoke_note.data.ArtistDao
 import com.example.karaoke_note.data.DATABASE_VERSION
 import com.example.karaoke_note.data.FilterSetting
+import com.example.karaoke_note.data.GameKind
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
@@ -161,15 +167,14 @@ fun AppBar(
             windowInsets = WindowInsets.displayCutout,
         ) {
             // Sheet content
-            FilterContents(filterSetting.value.joySelected, filterSetting.value.damSelected)
+            FilterContents(filterSetting)
         }
     }
 }
 
 @Composable
 fun FilterContents(
-    joySelected: MutableState<Boolean>,
-    damSelected: MutableState<Boolean>
+    filterSetting: MutableState<FilterSetting>
 ){
     Column(
         modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
@@ -191,12 +196,12 @@ fun FilterContents(
             Text(text = "Game", fontWeight = FontWeight.Bold)
         }
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            FilterContent(label = "JOY", selectedStatus = joySelected)
-            FilterContent(label = "DAM", selectedStatus = damSelected)
+            FilterContentGroup(label = "JOY", filterSetting.value.joySelected, filterSetting.value.joyGameSelected)
+            FilterContentGroup(label = "DAM", filterSetting.value.damSelected, filterSetting.value.damGameSelected)
         }
         Divider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
     }
@@ -204,13 +209,50 @@ fun FilterContents(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun FilterContentGroup(
+    label: String,
+    selectedStatus: MutableState<Boolean>,
+    gameSelected: Map<GameKind, MutableState<Boolean>>,
+    modifier: Modifier = Modifier
+) {
+
+    Column (
+        modifier = modifier
+    ) {
+        FilterContent(
+            label = label,
+            selectedStatus = selectedStatus,
+            onClick = {
+                selectedStatus.value = !selectedStatus.value
+                gameSelected.forEach { (_, value) -> value.value = selectedStatus.value }
+            }
+        )
+        Column(
+            modifier = modifier
+                .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
+                .padding(2.dp)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            gameSelected.entries.forEach() { entry ->
+                FilterContent(
+                    label = entry.key.displayName,
+                    selectedStatus = entry.value
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun FilterContent(
     label: String,
-    selectedStatus: MutableState<Boolean>
+    selectedStatus: MutableState<Boolean>,
+    onClick: () -> Unit = { selectedStatus.value = !selectedStatus.value }
 ) {
     FilterChip(
-        onClick = { selectedStatus.value = !selectedStatus.value },
-        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+        onClick = onClick,
+        modifier = Modifier.padding(horizontal = 5.dp, vertical = 4.dp),
         label = { Text(label) },
         selected = selectedStatus.value,
         leadingIcon = if (selectedStatus.value) {

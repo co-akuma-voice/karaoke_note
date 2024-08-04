@@ -39,5 +39,11 @@ enum class GameKind(val displayName: String) {
                 DAM_PRECISE_SCORING_DX -> BrandKind.DAM
             }
         }
+        fun getJoyGameKinds(): List<GameKind> {
+            return values().filter { getBrandKind(it) == BrandKind.JOY }
+        }
+        fun getDamGameKinds(): List<GameKind> {
+            return values().filter { getBrandKind(it) == BrandKind.DAM }
+        }
     }
 }
