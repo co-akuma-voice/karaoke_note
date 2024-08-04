@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.karaoke_note.data.ArtistDao
+import com.example.karaoke_note.data.FilterSetting
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScoreDao
@@ -51,12 +53,13 @@ data class SongData(
 
 fun convertToSongDataList(
     songScoreDao: SongScoreDao,
-    songs: List<Song>
+    songs: List<Song>,
+    filterSetting: FilterSetting,
 ): List<SongData> {
     return runBlocking(Dispatchers.IO) {
         songs.map { song ->
             async {
-                val highestScoreEntry = songScoreDao.getHighestScoreBySongId(song.id)
+                val highestScoreEntry = songScoreDao.getHighestScoreBySongIdAndGameKinds(song.id, filterSetting.getSelectedGameKinds())
                 val lastDate = songScoreDao.getMostRecentDate(song.id)
                 SongData(
                     id = song.id,
@@ -76,15 +79,22 @@ fun SongList(
     artistId: Long,
     songDao: SongDao,
     songScoreDao: SongScoreDao,
-    artistDao: ArtistDao
+    artistDao: ArtistDao,
+    filterSetting: FilterSetting,
 ) {
     fun onUpdate(artistId: Long, newTitle: String) {
         artistDao.updateName(artistId, newTitle)
     }
 
+    val selectedGameKinds by remember(filterSetting) {
+        derivedStateOf {
+            filterSetting.getSelectedGameKinds()
+        }
+    }
     val songsFlow = songDao.getSongsWithScores(artistId)
     val songs = songsFlow.collectAsState(initial = listOf()).value
-    val songDatum = convertToSongDataList(songScoreDao, songs)
+    val songDatum by remember(songs, selectedGameKinds) { mutableStateOf(convertToSongDataList(songScoreDao, songs, filterSetting)) }
+
     val artistName = artistDao.getNameById(artistId) ?: ""
     val formatter = DateTimeFormatter.ofPattern("yy/MM/dd")
     val titleFontSize = 20

@@ -85,7 +85,7 @@ class MainActivity : ComponentActivity() {
                                 if (songId != null) {
                                     val song = songDao.getSong(songId)
                                     if (song != null) {
-                                        SongScores(song, songDao, songScoreDao, lifecycleScope, showDialog, editingSongScore)
+                                        SongScores(song, songDao, songScoreDao, lifecycleScope, showDialog, editingSongScore, filterSetting.value)
                                     }
                                 }
                             }
@@ -98,7 +98,7 @@ class MainActivity : ComponentActivity() {
                             composable("song_list/{artistId}"){backStackEntry ->
                                 val artistId = backStackEntry.arguments?.getString("artistId")?.toLongOrNull()
                                 if (artistId != null) {
-                                    SongList(navController, artistId, songDao, songScoreDao, artistDao)
+                                    SongList(navController, artistId, songDao, songScoreDao, artistDao, filterSetting.value)
                                 }
                             }
                         }
