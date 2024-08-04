@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +37,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.karaoke_note.data.FilterSetting
 import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
@@ -53,15 +55,22 @@ fun SongScores(
     songScoreDao: SongScoreDao,
     scope: CoroutineScope,
     showEntrySheetDialog: MutableState<Boolean>,
-    editingSongScore: MutableState<SongScore?>
+    editingSongScore: MutableState<SongScore?>,
+    filterSetting: FilterSetting,
 ) {
     fun onUpdate(songId: Long, newTitle: String) {
         scope.launch {
             songDao.updateTitle(songId, newTitle)
         }
     }
+    val selectedGameKinds by remember(filterSetting) {
+        derivedStateOf {
+            filterSetting.getSelectedGameKinds()
+        }
+    }
     val scoresFlow = songScoreDao.getScoresForSong(song.id)
     val scores by scoresFlow.collectAsState(initial = emptyList())
+    val filteredScores = scores.filter { it.gameKind in selectedGameKinds }
     val selectedScoreId = remember { mutableStateOf<Long?>(null) }
     val formatter = DateTimeFormatter.ofPattern("yy/MM/dd")
     val titleFontSize = 20
@@ -215,7 +224,7 @@ fun SongScores(
             color = MaterialTheme.colorScheme.outlineVariant,
             thickness = 1.dp
         )
-        SortableTable(items = scores, columns = columns) {
+        SortableTable(items = filteredScores, columns = columns) {
             openDetailDialog = true
             selectedScore.value = it
         }
@@ -224,7 +233,7 @@ fun SongScores(
     if (openDetailDialog) {
         SongScoreDetailDialog(
             onDismissRequest = { openDetailDialog = false },
-            songScore = selectedScore.value ?: scores[0],
+            songScore = selectedScore.value ?: filteredScores[0],
         )
     }
 }
