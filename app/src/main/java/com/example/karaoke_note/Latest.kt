@@ -68,12 +68,14 @@ fun LatestPage(
     val songScoreList = remember { mutableStateListOf<SongScore>() }
     val isLoading = remember { mutableStateOf(false) }
     val pageSize = 10  // 1回のロードで取得するアイテム数
+    var loadingDone = false
 
     // 初回および追加データのロードを行う関数
     fun loadSongs(offset: Int) {
         if (!isLoading.value) {
             isLoading.value = true
             val newSongs = songScoreDao.getLatestScores(pageSize, offset)
+            if (newSongs.isEmpty()) loadingDone = true
             songScoreList.addAll(newSongs)
             isLoading.value = false
         }
@@ -93,6 +95,9 @@ fun LatestPage(
                 val filteredSongScoreList = songScoreList.filter { songScore ->
                     songScore.gameKind in filterSetting.getSelectedGameKinds()
                 }
+                while (filteredSongScoreList.isEmpty() && !loadingDone) {
+                    loadSongs(songScoreList.size)
+                }
                 itemsIndexed(filteredSongScoreList) { index, songScore ->
                     // 各アイテムの表示
                     val song = songDao.getSong(songScore.songId)
@@ -103,8 +108,8 @@ fun LatestPage(
                         }
                     }
 
-                    // リストの末尾に到達した場合、追加のデータをロード
-                    if (index == songScoreList.size - 1 && !isLoading.value) {
+                    // リストの末尾の方に到達した場合、追加のデータをロード
+                    if (index > filteredSongScoreList.size - pageSize && !isLoading.value && !loadingDone) {
                         LaunchedEffect(songScoreList.size) {
                             loadSongs(songScoreList.size)
                         }
