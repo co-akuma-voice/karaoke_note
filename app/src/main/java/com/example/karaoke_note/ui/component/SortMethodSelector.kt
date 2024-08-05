@@ -1,7 +1,6 @@
 package com.example.karaoke_note.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.DropdownMenuItem
@@ -55,18 +54,16 @@ fun SortMethodSelectorBox(
             fontSize = textSize.sp,
             textAlign = TextAlign.End
         )
-        Box(modifier = Modifier) {
-            // Trailing icon の代わり
-            val arrowIcon: ImageVector = if (isExpanded) {
-                Icons.Filled.ArrowDropUp
-            } else {
-                Icons.Filled.ArrowDropDown
-            }
-            Icon(
-                imageVector = arrowIcon,
-                contentDescription = null,
-            )
+        // Trailing icon の代わり
+        val arrowIcon: ImageVector = if (isExpanded) {
+            Icons.Filled.ArrowDropUp
+        } else {
+            Icons.Filled.ArrowDropDown
         }
+        Icon(
+            imageVector = arrowIcon,
+            contentDescription = null,
+        )
     }
 }
 
