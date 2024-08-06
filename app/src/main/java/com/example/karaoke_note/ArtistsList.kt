@@ -78,6 +78,10 @@ fun ArtistsPage(
     val buttonInnerPadding = 4
     val buttonShape = 16
     val buttonTextSize = 12
+    val artistsFlow = artistDao.getArtistsWithSongs()
+    val artists by artistsFlow.collectAsState(initial = emptyList())
+    val allSongsFlow = songDao.getAllSongsWithScores()
+    val allSongs by allSongsFlow.collectAsState(initial = emptyList())
 
     Column {
         // 疑似的な Segmented Button
@@ -120,7 +124,7 @@ fun ArtistsPage(
                     )
                 ) {
                     Text(
-                        text = "Artists",
+                        text = "Artists (" + artists.size + ")",
                         modifier = Modifier,
                         fontSize = buttonTextSize.sp
                     )
@@ -158,7 +162,7 @@ fun ArtistsPage(
                     )
                 ) {
                     Text(
-                        text = "All songs",
+                        text = "All songs (" + allSongs.size + ")",
                         modifier = Modifier,
                         fontSize = buttonTextSize.sp
                     )
@@ -168,13 +172,9 @@ fun ArtistsPage(
 
         Box(modifier = Modifier.fillMaxWidth()) {
             if (isArtistListSelected.value) {
-                val artistsFlow = artistDao.getArtistsWithSongs()
-                val artists by artistsFlow.collectAsState(initial = emptyList())
                 DisplayArtistsList(navController, artists, artistDao, songDao)
             }
             else {
-                val allSongsFlow = songDao.getAllSongsWithScores()
-                val allSongs by allSongsFlow.collectAsState(initial = emptyList())
                 DisplayAllSongsList(navController, sortMethodOfAllSongs, allSongs, artistDao, songScoreDao, filterSetting)
             }
         }
