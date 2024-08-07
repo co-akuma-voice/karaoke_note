@@ -74,7 +74,7 @@ fun SortMethodSelectorItem(
     selectedSortMethod: SortMethod,
     textSize: Int,
     onClick: () -> Unit
-){
+) {
     val isSelected = sortMethod == selectedSortMethod
     val fontWeight = if (isSelected) {
         FontWeight.Bold
