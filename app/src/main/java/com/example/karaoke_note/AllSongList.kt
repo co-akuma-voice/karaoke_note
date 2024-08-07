@@ -85,7 +85,12 @@ fun DisplayAllSongsList(
     val sortedAllSongInfo by remember(sortMethod.value, songs, selectedGameKinds) { mutableStateOf(getSortedAllSongInfo(sortMethod.value, songs, songScoreDao, filterSetting)) }
 
     Column {
-        SortMethodSelector(sortMethod)
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.CenterEnd
+        ){
+            SortMethodSelector(sortMethod)
+        }
         Box(modifier = Modifier) {
             LazyColumn {
                 itemsIndexed(sortedAllSongInfo) { _, songInfo ->
@@ -107,21 +112,21 @@ fun SortMethodSelector(
     val sortMethodFontSize = 12
     val horizontalPaddingValue = 10
     val verticalPaddingValue = 1
+    val dropdownMenuWidth = 150
 
     Box(
         modifier = Modifier
-            .fillMaxWidth()
+            .width(dropdownMenuWidth.dp)
             .padding(
                 start = horizontalPaddingValue.dp,
                 top = (verticalPaddingValue + 6).dp,
                 end = horizontalPaddingValue.dp,
                 bottom = (verticalPaddingValue + 6).dp
-            )
+            ),
     ) {
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = { expanded = !expanded },
-            modifier = Modifier.align(Alignment.TopEnd)
         ) {
             // 現在設定値の表示部分
             SortMethodSelectorBox(
@@ -134,7 +139,7 @@ fun SortMethodSelector(
             ExposedDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
-                modifier = Modifier.width(150.dp)
+                modifier = Modifier.width(dropdownMenuWidth.dp)
             ) {
                 sortMethodsList.forEach {
                     SortMethodSelectorItem(
