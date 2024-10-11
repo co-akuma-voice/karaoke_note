@@ -218,7 +218,7 @@ fun CommonTextField(
                 ),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                filteredAutoCompleteSuggestions.forEach { suggestion ->
+                filteredAutoCompleteSuggestions.take(5).forEach { suggestion ->
                     DropdownMenuItem (
                         text = { Text(suggestion) },
                         modifier = Modifier.fillMaxWidth(),
