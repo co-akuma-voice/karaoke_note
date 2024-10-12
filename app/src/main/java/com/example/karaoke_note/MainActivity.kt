@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
                 val sortMethodOfAllSongs = remember { mutableStateOf(SortMethod.NameAsc) }
                 // filteringの設定
                 val filterSetting = remember { mutableStateOf(FilterSetting()) }
-                // 検索ワード
+                // 検索文字列の設定
                 val searchText = remember { mutableStateOf("") }
 
                 // A surface container using the 'background' color from the theme
@@ -80,7 +80,7 @@ class MainActivity : ComponentActivity() {
                             Modifier.padding(paddingValues)
                         ) {
                             composable("latest") {
-                                LatestPage(navController, songDao, songScoreDao, artistDao, filterSetting.value)
+                                LatestPage(navController, songDao, songScoreDao, artistDao, filterSetting.value, searchText.value)
                             }
                             composable("song_data/{songId}") {backStackEntry ->
                                 val songId = backStackEntry.arguments?.getString("songId")?.toLongOrNull()

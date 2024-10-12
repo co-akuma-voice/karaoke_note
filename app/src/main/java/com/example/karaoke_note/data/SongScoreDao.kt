@@ -44,6 +44,17 @@ interface SongScoreDao {
     """)
     fun getMostRecentDate(songId: Long): LocalDate?
 
+    @Query("""
+    SELECT * FROM SongScore
+    INNER JOIN Song ON SongScore.songID = Song.id
+    INNER JOIN Artist ON Song.artistID = Artist.iD
+    WHERE (Artist.name LIKE :searchQuery OR Song.title LIKE :searchQuery)
+      AND score != 0.0
+    ORDER BY date DESC, id DESC
+    LIMIT :limit OFFSET :offset
+""")
+    fun getLatestScoresByText(searchQuery: String, limit: Int, offset: Int): List<SongScore>
+
     @Update
     fun update(songScore: SongScore): Int
 
