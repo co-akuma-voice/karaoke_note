@@ -48,6 +48,8 @@ class MainActivity : ComponentActivity() {
                 val sortMethodOfAllSongs = remember { mutableStateOf(SortMethod.NameAsc) }
                 // filteringの設定
                 val filterSetting = remember { mutableStateOf(FilterSetting()) }
+                // 検索ワード
+                val searchText = remember { mutableStateOf("") }
 
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -58,7 +60,7 @@ class MainActivity : ComponentActivity() {
                     Scaffold(
                         topBar = {
                             Column {
-                                AppBar(navController, songDao, songScoreDao, artistDao, filterSetting)
+                                AppBar(navController, songDao, songScoreDao, artistDao, filterSetting, searchText)
                                 Breadcrumbs(navController, songDao, artistDao)
                             }
                         },

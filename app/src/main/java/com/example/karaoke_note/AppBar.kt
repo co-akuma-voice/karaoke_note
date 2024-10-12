@@ -22,10 +22,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Games
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
@@ -41,6 +43,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -85,7 +88,8 @@ fun AppBar(
     songDao: SongDao,
     songScoreDao: SongScoreDao,
     artistDao: ArtistDao,
-    filterSetting: MutableState<FilterSetting>
+    filterSetting: MutableState<FilterSetting>,
+    searchText: MutableState<String>
 ) {
     val canPop = remember { mutableStateOf(false) }
     val showMenu = remember { mutableStateOf(false) }
@@ -119,6 +123,35 @@ fun AppBar(
             Row(
                 modifier = Modifier.align(alignment = Alignment.CenterVertically)
             ) {
+                // 検索ウインドウ
+                TextField(
+                    value = searchText.value,
+                    onValueChange = { searchText.value = it },
+                    placeholder = { Text(text = "検索") },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp),
+                    singleLine = true,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.Search,
+                            contentDescription = null
+                        )
+                    },
+                    trailingIcon = {
+                        // バツボタン（クリアボタン）
+                        if (searchText.value.isNotEmpty()) {
+                            IconButton(onClick = { searchText.value = "" }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Close,
+                                    contentDescription = "Clear text"
+                                )
+                            }
+                        }
+                    },
+                    shape = RoundedCornerShape(50)
+                )
+
                 // フィルターボタン
                 IconButton(
                     onClick = { showSheet = true }
