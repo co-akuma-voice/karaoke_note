@@ -48,7 +48,7 @@ interface SongScoreDao {
     SELECT * FROM SongScore
     INNER JOIN Song ON SongScore.songID = Song.id
     INNER JOIN Artist ON Song.artistID = Artist.iD
-    WHERE (Artist.name LIKE :searchQuery OR Song.title LIKE :searchQuery)
+    WHERE (Artist.name LIKE :searchQuery OR Song.title LIKE :searchQuery OR SongScore.comment LIKE :searchQuery)
       AND score != 0.0
     ORDER BY date DESC, id DESC
     LIMIT :limit OFFSET :offset
