@@ -72,7 +72,8 @@ fun ArtistsPage(
     artistDao: ArtistDao,
     songDao: SongDao,
     songScoreDao: SongScoreDao,
-    filterSetting: FilterSetting
+    filterSetting: FilterSetting,
+    searchText: String,
 ) {
     val buttonWidth = 120
     val buttonInnerPadding = 4
@@ -172,7 +173,7 @@ fun ArtistsPage(
 
         Box(modifier = Modifier.fillMaxWidth()) {
             if (isArtistListSelected.value) {
-                DisplayArtistsList(navController, artists, artistDao, songDao)
+                DisplayArtistsList(navController, artists, artistDao, songDao, searchText)
             }
             else {
                 DisplayAllSongsList(navController, sortMethodOfAllSongs, allSongs, artistDao, songScoreDao, filterSetting)
@@ -187,15 +188,16 @@ fun DisplayArtistsList(
     navController: NavController,
     artists: List<Artist>,
     artistDao: ArtistDao,
-    songDao: SongDao
+    songDao: SongDao,
+    searchText: String,
 ) {
     var sortDirection by remember { mutableStateOf(SortDirection.Asc) }
-    var sortedArtists by remember(sortDirection, artists) { mutableStateOf(getSortedArtists(sortDirection, artists)) }
+    var sortedArtists by remember(sortDirection, artists, searchText) { mutableStateOf(getSortedArtists(sortDirection, artists, searchText)) }
 
     Column {
         ArtistsListHeader(sortDirection) { newSortDirection ->
             sortDirection = newSortDirection
-            sortedArtists = getSortedArtists(sortDirection, artists)
+            sortedArtists = getSortedArtists(sortDirection, artists, searchText)
         }
         Box(
             modifier = Modifier
@@ -211,12 +213,16 @@ fun DisplayArtistsList(
 
 fun getSortedArtists(
     sortDirection: SortDirection,
-    artists: List<Artist>
+    artists: List<Artist>,
+    searchText: String
 ): List<Artist> {
-    return when (sortDirection) {
+    val sortedArtists = when (sortDirection) {
         SortDirection.None -> artists
         SortDirection.Asc -> artists.sortedBy(Artist::name)
         SortDirection.Desc -> artists.sortedByDescending(Artist::name)
+    }
+    return sortedArtists.filter { artist ->
+        artist.name.contains(searchText)
     }
 }
 
