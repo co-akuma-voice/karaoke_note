@@ -176,7 +176,7 @@ fun ArtistsPage(
                 DisplayArtistsList(navController, artists, artistDao, songDao, searchText)
             }
             else {
-                DisplayAllSongsList(navController, sortMethodOfAllSongs, allSongs, artistDao, songScoreDao, filterSetting)
+                DisplayAllSongsList(navController, sortMethodOfAllSongs, allSongs, artistDao, songScoreDao, filterSetting, searchText)
             }
         }
     }
