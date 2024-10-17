@@ -33,7 +33,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,30 +60,47 @@ fun LatestPage(
     songDao: SongDao,
     songScoreDao: SongScoreDao,
     artistDao: ArtistDao,
-    filterSetting: FilterSetting
+    filterSetting: FilterSetting,
+    searchText: String,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
     val isTopOfList by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
     val songScoreList = remember { mutableStateListOf<SongScore>() }
     val isLoading = remember { mutableStateOf(false) }
-    val pageSize = 10  // 1回のロードで取得するアイテム数
-    var loadingDone = false
+    val pageSize = 10
+    var loadingDone by remember { mutableStateOf(false) }
 
-    // 初回および追加データのロードを行う関数
-    fun loadSongs(offset: Int) {
+    fun loadSongs(offset: Int, searchText: String) {
         if (!isLoading.value) {
             isLoading.value = true
-            val newSongs = songScoreDao.getLatestScores(pageSize, offset)
+            val newSongs = songScoreDao.getLatestScoresByText("%$searchText%", pageSize, offset)
             if (newSongs.isEmpty()) loadingDone = true
             songScoreList.addAll(newSongs)
             isLoading.value = false
         }
     }
 
-    // 初回のデータロード
-    LaunchedEffect(Unit) {
-        loadSongs(songScoreList.size)
+    // `searchText`の変更時にデータを再ロード
+    LaunchedEffect(searchText) {
+        songScoreList.clear()
+        loadingDone = false
+        loadSongs(0, searchText)
+    }
+
+    // スクロール位置に基づいてデータのロードが必要か判断
+    val shouldLoadMore = remember {
+        derivedStateOf {
+            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
+                ?: return@derivedStateOf false
+            lastVisibleItem.index >= songScoreList.size - pageSize / 2 && !isLoading.value && !loadingDone
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore.value) {
+        if (shouldLoadMore.value) {
+            loadSongs(songScoreList.size, searchText)
+        }
     }
 
     Column {
@@ -95,9 +112,7 @@ fun LatestPage(
                 val filteredSongScoreList = songScoreList.filter { songScore ->
                     songScore.gameKind in filterSetting.getSelectedGameKinds()
                 }
-                while (filteredSongScoreList.isEmpty() && !loadingDone) {
-                    loadSongs(songScoreList.size)
-                }
+
                 itemsIndexed(filteredSongScoreList) { index, songScore ->
                     // 各アイテムの表示
                     val song = songDao.getSong(songScore.songId)
@@ -107,14 +122,8 @@ fun LatestPage(
                             LatestList(song, songScore, artist, navController)
                         }
                     }
-
-                    // リストの末尾の方に到達した場合、追加のデータをロード
-                    if (index > filteredSongScoreList.size - pageSize && !isLoading.value && !loadingDone) {
-                        LaunchedEffect(songScoreList.size) {
-                            loadSongs(songScoreList.size)
-                        }
-                    }
                 }
+
                 // ロード中のインジケータ表示
                 if (isLoading.value) {
                     item {

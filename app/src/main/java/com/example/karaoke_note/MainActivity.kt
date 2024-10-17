@@ -48,6 +48,8 @@ class MainActivity : ComponentActivity() {
                 val sortMethodOfAllSongs = remember { mutableStateOf(SortMethod.NameAsc) }
                 // filteringの設定
                 val filterSetting = remember { mutableStateOf(FilterSetting()) }
+                // 検索文字列の設定
+                val searchText = remember { mutableStateOf("") }
 
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -58,7 +60,7 @@ class MainActivity : ComponentActivity() {
                     Scaffold(
                         topBar = {
                             Column {
-                                AppBar(navController, songDao, songScoreDao, artistDao, filterSetting)
+                                AppBar(navController, songDao, songScoreDao, artistDao, filterSetting, searchText)
                                 Breadcrumbs(navController, songDao, artistDao)
                             }
                         },
@@ -78,14 +80,14 @@ class MainActivity : ComponentActivity() {
                             Modifier.padding(paddingValues)
                         ) {
                             composable("latest") {
-                                LatestPage(navController, songDao, songScoreDao, artistDao, filterSetting.value)
+                                LatestPage(navController, songDao, songScoreDao, artistDao, filterSetting.value, searchText.value)
                             }
                             composable("song_data/{songId}") {backStackEntry ->
                                 val songId = backStackEntry.arguments?.getString("songId")?.toLongOrNull()
                                 if (songId != null) {
                                     val song = songDao.getSong(songId)
                                     if (song != null) {
-                                        SongScores(song, songDao, songScoreDao, lifecycleScope, showDialog, editingSongScore, filterSetting.value)
+                                        SongScores(song, songDao, songScoreDao, lifecycleScope, showDialog, editingSongScore, filterSetting.value, searchText.value)
                                     }
                                 }
                             }
@@ -93,12 +95,12 @@ class MainActivity : ComponentActivity() {
                                 PlansPage(songDao, songScoreDao, artistDao, showDialog, editingSongScore, lifecycleScope, snackBarHostState)
                             }
                             composable("list"){
-                                ArtistsPage(navController, isArtistListSelected, sortMethodOfAllSongs, artistDao, songDao, songScoreDao, filterSetting.value)
+                                ArtistsPage(navController, isArtistListSelected, sortMethodOfAllSongs, artistDao, songDao, songScoreDao, filterSetting.value, searchText.value)
                             }
                             composable("song_list/{artistId}"){backStackEntry ->
                                 val artistId = backStackEntry.arguments?.getString("artistId")?.toLongOrNull()
                                 if (artistId != null) {
-                                    SongList(navController, artistId, songDao, songScoreDao, artistDao, filterSetting.value)
+                                    SongList(navController, artistId, songDao, songScoreDao, artistDao, filterSetting.value, searchText.value)
                                 }
                             }
                         }

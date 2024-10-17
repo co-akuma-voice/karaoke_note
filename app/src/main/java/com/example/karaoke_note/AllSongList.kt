@@ -50,12 +50,15 @@ fun getSortedAllSongInfo(
     sortMethod: SortMethod,
     songs: List<Song>,
     songScoreDao: SongScoreDao,
-    filterSetting: FilterSetting
+    filterSetting: FilterSetting,
+    searchText: String
 ): List<SongInfo> {
     val songInfo = songs.map { song ->
         val mostRecentDate = songScoreDao.getMostRecentDate(song.id)
         val highestScore = songScoreDao.getHighestScoreBySongIdAndGameKinds(song.id, filterSetting.getSelectedGameKinds())?.score
         SongInfo(song, mostRecentDate?.format(DateTimeFormatter.ofPattern("yy/MM/dd")), highestScore)
+    }.filter {
+        it.song.title.contains(searchText)
     }
     return when (sortMethod) {
         SortMethod.NameAsc -> songInfo.sortedBy { it.song.title }
@@ -75,14 +78,15 @@ fun DisplayAllSongsList(
     songs: List<Song>,
     artistDao: ArtistDao,
     songScoreDao: SongScoreDao,
-    filterSetting: FilterSetting
+    filterSetting: FilterSetting,
+    searchText: String
 ){
     val selectedGameKinds by remember(filterSetting) {
         derivedStateOf {
             filterSetting.getSelectedGameKinds()
         }
     }
-    val sortedAllSongInfo by remember(sortMethod.value, songs, selectedGameKinds) { mutableStateOf(getSortedAllSongInfo(sortMethod.value, songs, songScoreDao, filterSetting)) }
+    val sortedAllSongInfo by remember(sortMethod.value, songs, selectedGameKinds, searchText) { mutableStateOf(getSortedAllSongInfo(sortMethod.value, songs, songScoreDao, filterSetting, searchText)) }
 
     Column {
         Box(
