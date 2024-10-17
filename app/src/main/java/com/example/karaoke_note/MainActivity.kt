@@ -87,7 +87,7 @@ class MainActivity : ComponentActivity() {
                                 if (songId != null) {
                                     val song = songDao.getSong(songId)
                                     if (song != null) {
-                                        SongScores(song, songDao, songScoreDao, lifecycleScope, showDialog, editingSongScore, filterSetting.value)
+                                        SongScores(song, songDao, songScoreDao, lifecycleScope, showDialog, editingSongScore, filterSetting.value, searchText.value)
                                     }
                                 }
                             }
