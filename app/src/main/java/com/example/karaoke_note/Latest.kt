@@ -33,10 +33,12 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.*
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -62,6 +64,7 @@ fun LatestPage(
     artistDao: ArtistDao,
     filterSetting: FilterSetting,
     searchText: String,
+    focusManagerForSearchBar: FocusManager
 ) {
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
@@ -119,7 +122,7 @@ fun LatestPage(
                     if (song != null) {
                         val artist = artistDao.getNameById(song.artistId)
                         if (artist != null) {
-                            LatestList(song, songScore, artist, navController)
+                            LatestList(song, songScore, artist, focusManagerForSearchBar, navController)
                         }
                     }
                 }
@@ -142,6 +145,7 @@ fun LatestPage(
             AnimatedScrollUpButton(
                 isVisible = (!isTopOfList),
             ){
+                focusManagerForSearchBar.clearFocus()
                 coroutineScope.launch {
                     listState.animateScrollToItem(index = 0)
                 }
@@ -216,6 +220,7 @@ fun LatestList(
     song: Song,
     songScore: SongScore,
     artist: String,
+    focusManagerForSearchBar: FocusManager,
     navController: NavController
 ) {
     val keyFormat = if (songScore.key != 0) { "%+d" } else { "%d" }
@@ -225,7 +230,10 @@ fun LatestList(
         ListItem(
             modifier = Modifier
                 //.height(90.dp)
-                .clickable { navController.navigate("song_data/${song.id}") },
+                .clickable {
+                    focusManagerForSearchBar.clearFocus()
+                    navController.navigate("song_data/${song.id}")
+                },
             leadingContent = {
                 Image(
                     painter = painterResource(id = getPainterResourceIdOfGameImage(songScore.gameKind.name)),

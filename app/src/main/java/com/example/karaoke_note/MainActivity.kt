@@ -17,6 +17,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -38,6 +40,7 @@ class MainActivity : ComponentActivity() {
         val artistDao = AppDatabase.getDatabase(this).artistDao()
         setContent {
             Karaoke_noteTheme {
+                // Snackbar の状態
                 val snackBarHostState = remember { SnackbarHostState() }
                 // NewEntrySheet を開いているかどうか
                 val showDialog = remember { mutableStateOf(false) }
@@ -50,6 +53,9 @@ class MainActivity : ComponentActivity() {
                 val filterSetting = remember { mutableStateOf(FilterSetting()) }
                 // 検索文字列の設定
                 val searchText = remember { mutableStateOf("") }
+                // Search bar に対するフォーカスの変更を管理する
+                val focusRequesterForSearchBar = remember { FocusRequester() }
+                val focusManagerForSearchBar = LocalFocusManager.current
 
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -60,7 +66,7 @@ class MainActivity : ComponentActivity() {
                     Scaffold(
                         topBar = {
                             Column {
-                                AppBar(navController, songDao, songScoreDao, artistDao, filterSetting, searchText)
+                                AppBar(navController, songDao, songScoreDao, artistDao, filterSetting, searchText, focusRequesterForSearchBar, focusManagerForSearchBar)
                                 Breadcrumbs(navController, songDao, artistDao)
                             }
                         },
@@ -80,7 +86,7 @@ class MainActivity : ComponentActivity() {
                             Modifier.padding(paddingValues)
                         ) {
                             composable("latest") {
-                                LatestPage(navController, songDao, songScoreDao, artistDao, filterSetting.value, searchText.value)
+                                LatestPage(navController, songDao, songScoreDao, artistDao, filterSetting.value, searchText.value, focusManagerForSearchBar)
                             }
                             composable("song_data/{songId}") {backStackEntry ->
                                 val songId = backStackEntry.arguments?.getString("songId")?.toLongOrNull()

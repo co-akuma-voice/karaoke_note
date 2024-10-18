@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -56,10 +58,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.karaoke_note.data.Artist
 import com.example.karaoke_note.data.ArtistDao
@@ -91,7 +96,9 @@ fun AppBar(
     songScoreDao: SongScoreDao,
     artistDao: ArtistDao,
     filterSetting: MutableState<FilterSetting>,
-    searchText: MutableState<String>
+    searchText: MutableState<String>,
+    focusRequesterForSearchBar: FocusRequester,
+    focusManagerForSearchBar: FocusManager
 ) {
     val canPop = remember { mutableStateOf(false) }
     val showMenu = remember { mutableStateOf(false) }
@@ -105,17 +112,15 @@ fun AppBar(
     }
 
     TopAppBar(
-        backgroundColor = MaterialTheme.colorScheme.primaryContainer,
-        title = {
-            Text(
-                text = "カラオケ点数管理",
-                fontSize = 16.sp
-            )
-        },
+        backgroundColor = MaterialTheme.colorScheme.surface,
+        title = {},
         navigationIcon = {
             if (canPop.value) {
                 IconButton(
-                    onClick = { navController.navigateUp() }
+                    onClick = {
+                        navController.navigateUp()
+                        focusManagerForSearchBar.clearFocus()
+                    }
                 ) {
                     Icon(Icons.Filled.ArrowBack, contentDescription = null)
                 }
@@ -132,7 +137,8 @@ fun AppBar(
                     placeholder = { Text(text = "検索") },
                     modifier = Modifier
                         .weight(1f)
-                        .padding(end = 8.dp),
+                        .padding(end = 8.dp)
+                        .focusRequester(focusRequesterForSearchBar),
                     singleLine = true,
                     leadingIcon = {
                         Icon(
@@ -151,11 +157,21 @@ fun AppBar(
                             }
                         }
                     },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            // onSearch 状態になると TextField へのフォーカスをクリアする
+                            focusManagerForSearchBar.clearFocus()
+                        }
+                    ),
                     shape = RoundedCornerShape(50),
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
                         disabledIndicatorColor = Color.Transparent
@@ -164,7 +180,10 @@ fun AppBar(
 
                 // フィルターボタン
                 IconButton(
-                    onClick = { showSheet = true }
+                    onClick = {
+                        showSheet = true
+                        focusManagerForSearchBar.clearFocus()
+                    }
                 ) {
                     Icon(
                         imageVector = if (filterSetting.value.isDefault()) {
@@ -179,7 +198,10 @@ fun AppBar(
 
                 // メニューボタン
                 IconButton(
-                    onClick = { showMenu.value = true }
+                    onClick = {
+                        showMenu.value = true
+                        focusManagerForSearchBar.clearFocus()
+                    }
                 ) {
                     Icon(
                         imageVector = Icons.Filled.MoreVert,
