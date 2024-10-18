@@ -98,7 +98,7 @@ fun AppBar(
     filterSetting: MutableState<FilterSetting>,
     searchText: MutableState<String>,
     focusRequesterForSearchBar: FocusRequester,
-    focusManagerForSearchBar: FocusManager
+    focusManagerOfSearchBar: FocusManager
 ) {
     val canPop = remember { mutableStateOf(false) }
     val showMenu = remember { mutableStateOf(false) }
@@ -118,8 +118,8 @@ fun AppBar(
             if (canPop.value) {
                 IconButton(
                     onClick = {
+                        clearFocusFromSearchBar(focusManagerOfSearchBar)
                         navController.navigateUp()
-                        focusManagerForSearchBar.clearFocus()
                     }
                 ) {
                     Icon(Icons.Filled.ArrowBack, contentDescription = null)
@@ -160,8 +160,8 @@ fun AppBar(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(
                         onSearch = {
-                            // onSearch 状態になると TextField へのフォーカスをクリアする
-                            focusManagerForSearchBar.clearFocus()
+                            // Search キーを押すと TextField からフォーカスを外す
+                            clearFocusFromSearchBar(focusManagerOfSearchBar)
                         }
                     ),
                     shape = RoundedCornerShape(50),
@@ -181,8 +181,8 @@ fun AppBar(
                 // フィルターボタン
                 IconButton(
                     onClick = {
+                        clearFocusFromSearchBar(focusManagerOfSearchBar)
                         showSheet = true
-                        focusManagerForSearchBar.clearFocus()
                     }
                 ) {
                     Icon(
@@ -199,8 +199,8 @@ fun AppBar(
                 // メニューボタン
                 IconButton(
                     onClick = {
+                        clearFocusFromSearchBar(focusManagerOfSearchBar)
                         showMenu.value = true
-                        focusManagerForSearchBar.clearFocus()
                     }
                 ) {
                     Icon(
