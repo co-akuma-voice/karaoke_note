@@ -114,6 +114,7 @@ fun AppBar(
     TopAppBar(
         backgroundColor = MaterialTheme.colorScheme.surface,
         title = {},
+        elevation = 2.dp,
         navigationIcon = {
             if (canPop.value) {
                 IconButton(
@@ -266,8 +267,7 @@ fun FilterContents(
                 contentDescription = null,
                 modifier = Modifier
                     .padding(end = 8.dp)
-                    .scale(0.75f)
-                ,
+                    .scale(0.75f),
                 tint = MaterialTheme.colorScheme.primary,
             )
             Text(text = "Game", fontWeight = FontWeight.Bold)
@@ -292,7 +292,6 @@ fun FilterContentGroup(
     gameSelected: Map<GameKind, MutableState<Boolean>>,
     modifier: Modifier = Modifier
 ) {
-
     Column (
         modifier = modifier
     ) {
