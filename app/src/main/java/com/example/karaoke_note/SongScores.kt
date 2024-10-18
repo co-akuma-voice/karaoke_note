@@ -32,6 +32,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -57,7 +58,8 @@ fun SongScores(
     showEntrySheetDialog: MutableState<Boolean>,
     editingSongScore: MutableState<SongScore?>,
     filterSetting: FilterSetting,
-    searchText: String
+    searchText: String,
+    focusManagerOfSearchBar: FocusManager
 ) {
     fun onUpdate(songId: Long, newTitle: String) {
         scope.launch {
@@ -137,6 +139,7 @@ fun SongScores(
                 val expanded = remember { mutableStateOf(false) }
                 IconButton(
                     onClick = {
+                        clearFocusFromSearchBar(focusManagerOfSearchBar)
                         expanded.value = true
                         selectedScoreId.value = songScore.id
                     },
@@ -211,7 +214,10 @@ fun SongScores(
                 )
             }
             IconButton(
-                onClick = { isEditing = true }
+                onClick = {
+                    clearFocusFromSearchBar(focusManagerOfSearchBar)
+                    isEditing = true
+                }
             ) {
                 // 通常状態だと位置が下にずれて見えるが、編集状態だとぴったり真ん中になる
                 Icon(
@@ -225,10 +231,18 @@ fun SongScores(
             color = MaterialTheme.colorScheme.outlineVariant,
             thickness = 1.dp
         )
-        SortableTable(items = filteredScores, columns = columns) {
-            openDetailDialog = true
-            selectedScore.value = it
-        }
+        SortableTable(
+            items = filteredScores,
+            columns = columns,
+            onHeaderClick = {
+                clearFocusFromSearchBar(focusManagerOfSearchBar)
+            },
+            onRowClick = {
+                clearFocusFromSearchBar(focusManagerOfSearchBar)
+                openDetailDialog = true
+                selectedScore.value = it
+            }
+        )
     }
     
     if (openDetailDialog) {

@@ -42,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
@@ -199,7 +200,8 @@ fun NewEntryScreen(
     scope: CoroutineScope,
     screenOpened: MutableState<Boolean>,
     editingSongScoreState: MutableState<SongScore?>,
-    snackBarHostState: SnackbarHostState
+    snackBarHostState: SnackbarHostState,
+    focusManagerOfSearchBar: FocusManager
 ) {
     val editingSongScore = editingSongScoreState.value
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -247,6 +249,9 @@ fun NewEntryScreen(
 
     //LaunchedEffect(key1 = defaultArtistId, key2 = defaultTitle, key3 = editingSongScore) {
     LaunchedEffect(key1 = screenOpened.value, key2 = isPlanning) {
+        // ここに書けばすべて賄える
+        clearFocusFromSearchBar(focusManagerOfSearchBar)
+
         isComeFromPlansPage = (defaultScore == "0.000")
 
         newArtist = artistDao.getNameById(defaultArtistId) ?: ""

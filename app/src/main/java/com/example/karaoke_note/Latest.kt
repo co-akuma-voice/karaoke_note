@@ -64,7 +64,7 @@ fun LatestPage(
     artistDao: ArtistDao,
     filterSetting: FilterSetting,
     searchText: String,
-    focusManagerForSearchBar: FocusManager
+    focusManagerOfSearchBar: FocusManager
 ) {
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
@@ -122,7 +122,7 @@ fun LatestPage(
                     if (song != null) {
                         val artist = artistDao.getNameById(song.artistId)
                         if (artist != null) {
-                            LatestList(song, songScore, artist, focusManagerForSearchBar, navController)
+                            LatestList(song, songScore, artist, focusManagerOfSearchBar, navController)
                         }
                     }
                 }
@@ -145,7 +145,7 @@ fun LatestPage(
             AnimatedScrollUpButton(
                 isVisible = (!isTopOfList),
             ){
-                focusManagerForSearchBar.clearFocus()
+                clearFocusFromSearchBar(focusManagerOfSearchBar)
                 coroutineScope.launch {
                     listState.animateScrollToItem(index = 0)
                 }
@@ -220,7 +220,7 @@ fun LatestList(
     song: Song,
     songScore: SongScore,
     artist: String,
-    focusManagerForSearchBar: FocusManager,
+    focusManagerOfSearchBar: FocusManager,
     navController: NavController
 ) {
     val keyFormat = if (songScore.key != 0) { "%+d" } else { "%d" }
@@ -231,7 +231,7 @@ fun LatestList(
             modifier = Modifier
                 //.height(90.dp)
                 .clickable {
-                    focusManagerForSearchBar.clearFocus()
+                    focusManagerOfSearchBar.clearFocus()
                     navController.navigate("song_data/${song.id}")
                 },
             leadingContent = {
