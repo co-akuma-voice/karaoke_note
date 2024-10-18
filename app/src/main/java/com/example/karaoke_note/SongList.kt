@@ -55,6 +55,7 @@ fun convertToSongDataList(
     songScoreDao: SongScoreDao,
     songs: List<Song>,
     filterSetting: FilterSetting,
+    searchText: String
 ): List<SongData> {
     return runBlocking(Dispatchers.IO) {
         songs.map { song ->
@@ -68,6 +69,8 @@ fun convertToSongDataList(
                     lastDate = lastDate ?: LocalDate.MIN
                 )
             }
+        }.filter {
+            it.await().title.contains(searchText)
         }.awaitAll()
     }
 }
@@ -81,6 +84,7 @@ fun SongList(
     songScoreDao: SongScoreDao,
     artistDao: ArtistDao,
     filterSetting: FilterSetting,
+    searchText: String
 ) {
     fun onUpdate(artistId: Long, newTitle: String) {
         artistDao.updateName(artistId, newTitle)
@@ -93,7 +97,7 @@ fun SongList(
     }
     val songsFlow = songDao.getSongsWithScores(artistId)
     val songs = songsFlow.collectAsState(initial = listOf()).value
-    val songDatum by remember(songs, selectedGameKinds) { mutableStateOf(convertToSongDataList(songScoreDao, songs, filterSetting)) }
+    val songDatum by remember(songs, selectedGameKinds, searchText) { mutableStateOf(convertToSongDataList(songScoreDao, songs, filterSetting, searchText)) }
 
     val artistName = artistDao.getNameById(artistId) ?: ""
     val formatter = DateTimeFormatter.ofPattern("yy/MM/dd")
