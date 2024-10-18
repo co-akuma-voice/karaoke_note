@@ -49,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -74,6 +75,7 @@ fun ArtistsPage(
     songScoreDao: SongScoreDao,
     filterSetting: FilterSetting,
     searchText: String,
+    focusManagerOfSearchBar: FocusManager
 ) {
     val buttonWidth = 120
     val buttonInnerPadding = 4
@@ -94,7 +96,10 @@ fun ArtistsPage(
         ) {
             Row {
                 OutlinedButton(
-                    onClick = { isArtistListSelected.value = true },
+                    onClick = {
+                        clearFocusFromSearchBar(focusManagerOfSearchBar)
+                        isArtistListSelected.value = true
+                    },
                     modifier = Modifier
                         .width(buttonWidth.dp)
                         .defaultMinSize(minHeight = 1.dp),
@@ -131,7 +136,10 @@ fun ArtistsPage(
                     )
                 }
                 OutlinedButton(
-                    onClick = { isArtistListSelected.value = false },
+                    onClick = {
+                        clearFocusFromSearchBar(focusManagerOfSearchBar)
+                        isArtistListSelected.value = false
+                    },
                     modifier = Modifier
                         .width(buttonWidth.dp)
                         .defaultMinSize(minHeight = 1.dp)
@@ -173,7 +181,7 @@ fun ArtistsPage(
 
         Box(modifier = Modifier.fillMaxWidth()) {
             if (isArtistListSelected.value) {
-                DisplayArtistsList(navController, artists, artistDao, songDao, searchText)
+                DisplayArtistsList(navController, artists, artistDao, songDao, searchText, focusManagerOfSearchBar)
             }
             else {
                 DisplayAllSongsList(navController, sortMethodOfAllSongs, allSongs, artistDao, songScoreDao, filterSetting, searchText)
@@ -190,12 +198,14 @@ fun DisplayArtistsList(
     artistDao: ArtistDao,
     songDao: SongDao,
     searchText: String,
+    focusManagerOfSearchBar: FocusManager
 ) {
     var sortDirection by remember { mutableStateOf(SortDirection.Asc) }
     var sortedArtists by remember(sortDirection, artists, searchText) { mutableStateOf(getSortedArtists(sortDirection, artists, searchText)) }
 
     Column {
-        ArtistsListHeader(sortDirection) { newSortDirection ->
+        // ソート順の矢印
+        ArtistsListHeader(sortDirection, focusManagerOfSearchBar) { newSortDirection ->
             sortDirection = newSortDirection
             sortedArtists = getSortedArtists(sortDirection, artists, searchText)
         }
@@ -204,7 +214,7 @@ fun DisplayArtistsList(
         ) {
             LazyColumn {
                 itemsIndexed(sortedArtists) { _, artist ->
-                    ArtistListItem(navController, artist, artistDao, songDao)
+                    ArtistListItem(navController, artist, focusManagerOfSearchBar, artistDao, songDao)
                 }
             }
         }
@@ -230,6 +240,7 @@ fun getSortedArtists(
 @Composable
 fun ArtistsListHeader(
     sortDirection: SortDirection,
+    focusManagerOfSearchBar: FocusManager,
     onSortChanged: (SortDirection) -> Unit
 ) {
     val iconScale = 0.8f
@@ -240,6 +251,7 @@ fun ArtistsListHeader(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable {
+                    clearFocusFromSearchBar(focusManagerOfSearchBar)
                     val newArtistDirection = when (sortDirection) {
                         SortDirection.None, SortDirection.Desc -> SortDirection.Asc
                         else -> SortDirection.Desc
@@ -292,6 +304,7 @@ fun getIcon(iconNumber: Int): ImageVector {
 fun ArtistListItem(
     navController: NavController,
     artist: Artist,
+    focusManagerOfSearchBar: FocusManager,
     artistDao: ArtistDao,
     songDao: SongDao
 ) {
@@ -308,9 +321,11 @@ fun ArtistListItem(
     val numberOfSongs = songList.size
 
     Column(
-        modifier = Modifier.clickable {
-            navController.navigate("song_list/${artist.id}")
-        }
+        modifier = Modifier
+            .clickable {
+                clearFocusFromSearchBar(focusManagerOfSearchBar)
+                navController.navigate("song_list/${artist.id}")
+            }
     ) {
         ListItem(
             headlineContent = {
@@ -326,8 +341,11 @@ fun ArtistListItem(
                     tint = MaterialTheme.colorScheme.primary,
                     contentDescription = null,
                     modifier = Modifier.combinedClickable(
-                        onClick = {},
+                        onClick = {
+                            clearFocusFromSearchBar(focusManagerOfSearchBar)
+                        },
                         onLongClick = {
+                            clearFocusFromSearchBar(focusManagerOfSearchBar)
                             haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                             iconColorSelectorOpened = true
                         }
@@ -354,6 +372,7 @@ fun ArtistListItem(
                 for (index in 0..7) { // 8色
                     IconButton(
                         onClick = {
+                            clearFocusFromSearchBar(focusManagerOfSearchBar)
                             updateArtistIcon(artist.id, index)
                             iconColorSelectorOpened = false
                         },

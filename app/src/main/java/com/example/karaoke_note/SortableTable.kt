@@ -40,6 +40,7 @@ fun <T> SortableTable(
     items: List<T>,
     columns: List<TableColumn<T>>,
     initialSortColumnIndex: Int = 0,
+    onHeaderClick: () -> Unit = {},
     onRowClick: (T) -> Unit = {}
 ) {
     var sortDirection by remember { mutableStateOf(SortDirection.None) }
@@ -61,6 +62,7 @@ fun <T> SortableTable(
         HeaderRow(columns, sortColumnIndex, sortDirection) { newSortColumnIndex, newSortDirection ->
             sortColumnIndex = newSortColumnIndex
             sortDirection = newSortDirection
+            onHeaderClick()
         }
         Divider(
             color = MaterialTheme.colorScheme.outlineVariant,

@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -43,7 +45,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -56,10 +57,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.karaoke_note.data.Artist
 import com.example.karaoke_note.data.ArtistDao
@@ -70,6 +74,7 @@ import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
+import com.example.karaoke_note.ui.component.CustomTextField
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializer
@@ -91,7 +96,9 @@ fun AppBar(
     songScoreDao: SongScoreDao,
     artistDao: ArtistDao,
     filterSetting: MutableState<FilterSetting>,
-    searchText: MutableState<String>
+    searchText: MutableState<String>,
+    focusRequesterForSearchBar: FocusRequester,
+    focusManagerOfSearchBar: FocusManager
 ) {
     val canPop = remember { mutableStateOf(false) }
     val showMenu = remember { mutableStateOf(false) }
@@ -105,17 +112,16 @@ fun AppBar(
     }
 
     TopAppBar(
-        backgroundColor = MaterialTheme.colorScheme.primaryContainer,
-        title = {
-            Text(
-                text = "カラオケ点数管理",
-                fontSize = 16.sp
-            )
-        },
+        backgroundColor = MaterialTheme.colorScheme.surface,
+        title = {},
+        elevation = 2.dp,
         navigationIcon = {
             if (canPop.value) {
                 IconButton(
-                    onClick = { navController.navigateUp() }
+                    onClick = {
+                        clearFocusFromSearchBar(focusManagerOfSearchBar)
+                        navController.navigateUp()
+                    }
                 ) {
                     Icon(Icons.Filled.ArrowBack, contentDescription = null)
                 }
@@ -126,13 +132,14 @@ fun AppBar(
                 modifier = Modifier.align(alignment = Alignment.CenterVertically)
             ) {
                 // 検索ウインドウ
-                TextField(
+                CustomTextField(
                     value = searchText.value,
                     onValueChange = { searchText.value = it },
                     placeholder = { Text(text = "検索") },
                     modifier = Modifier
                         .weight(1f)
-                        .padding(end = 8.dp),
+                        .padding(end = 8.dp)
+                        .focusRequester(focusRequesterForSearchBar),
                     singleLine = true,
                     leadingIcon = {
                         Icon(
@@ -143,7 +150,10 @@ fun AppBar(
                     trailingIcon = {
                         // バツボタン（クリアボタン）
                         if (searchText.value.isNotEmpty()) {
-                            IconButton(onClick = { searchText.value = "" }) {
+                            IconButton(
+                                onClick = { searchText.value = "" },
+                                modifier = Modifier.scale(0.8f)
+                            ){
                                 Icon(
                                     imageVector = Icons.Filled.Close,
                                     contentDescription = "Clear text"
@@ -151,20 +161,34 @@ fun AppBar(
                             }
                         }
                     },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            // Search キーを押すと TextField からフォーカスを外す
+                            clearFocusFromSearchBar(focusManagerOfSearchBar)
+                        }
+                    ),
                     shape = RoundedCornerShape(50),
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
                         disabledIndicatorColor = Color.Transparent
-                    )
+                    ),
+                    contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(0.dp, 0.dp, 0.dp, 0.dp)
                 )
 
                 // フィルターボタン
                 IconButton(
-                    onClick = { showSheet = true }
+                    onClick = {
+                        clearFocusFromSearchBar(focusManagerOfSearchBar)
+                        showSheet = true
+                    }
                 ) {
                     Icon(
                         imageVector = if (filterSetting.value.isDefault()) {
@@ -179,7 +203,10 @@ fun AppBar(
 
                 // メニューボタン
                 IconButton(
-                    onClick = { showMenu.value = true }
+                    onClick = {
+                        clearFocusFromSearchBar(focusManagerOfSearchBar)
+                        showMenu.value = true
+                    }
                 ) {
                     Icon(
                         imageVector = Icons.Filled.MoreVert,
@@ -219,6 +246,10 @@ fun AppBar(
     }
 }
 
+fun clearFocusFromSearchBar(focusManager: FocusManager) {
+    focusManager.clearFocus()
+}
+
 @Composable
 fun FilterContents(
     filterSetting: MutableState<FilterSetting>
@@ -236,8 +267,7 @@ fun FilterContents(
                 contentDescription = null,
                 modifier = Modifier
                     .padding(end = 8.dp)
-                    .scale(0.75f)
-                ,
+                    .scale(0.75f),
                 tint = MaterialTheme.colorScheme.primary,
             )
             Text(text = "Game", fontWeight = FontWeight.Bold)
@@ -262,7 +292,6 @@ fun FilterContentGroup(
     gameSelected: Map<GameKind, MutableState<Boolean>>,
     modifier: Modifier = Modifier
 ) {
-
     Column (
         modifier = modifier
     ) {

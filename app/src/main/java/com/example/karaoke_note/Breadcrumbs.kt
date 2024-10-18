@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -30,6 +31,7 @@ fun truncateText(
 @Composable
 fun Breadcrumbs(
     navController: NavController,
+    focusManagerOfSearchBar: FocusManager,
     songDao: SongDao,
     artistDao: ArtistDao
 ) {
@@ -79,7 +81,11 @@ fun Breadcrumbs(
             //Text(" > ")
             Text(
                 truncateText(artistName!!, 8),
-                modifier = Modifier.clickable { navController.navigate("song_list/$artistId") },
+                modifier = Modifier
+                    .clickable {
+                        focusManagerOfSearchBar.clearFocus()
+                        navController.navigate("song_list/$artistId")
+                    },
                 fontSize = fontSize.sp
             )
         }
