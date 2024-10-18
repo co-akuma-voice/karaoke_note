@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -84,7 +85,8 @@ fun SongList(
     songScoreDao: SongScoreDao,
     artistDao: ArtistDao,
     filterSetting: FilterSetting,
-    searchText: String
+    searchText: String,
+    focusManagerOfSearchBar: FocusManager
 ) {
     fun onUpdate(artistId: Long, newTitle: String) {
         artistDao.updateName(artistId, newTitle)
@@ -189,8 +191,14 @@ fun SongList(
             color = MaterialTheme.colorScheme.outlineVariant,
             thickness = 1.dp
         )
-        SortableTable(items = songDatum, columns = columns) { item ->
-            navController.navigate("song_data/${item.id}")
-        }
+        SortableTable(
+            items = songDatum,
+            columns = columns,
+            onHeaderClick = { clearFocusFromSearchBar(focusManagerOfSearchBar) },
+            onRowClick = { item ->
+                clearFocusFromSearchBar(focusManagerOfSearchBar)
+                navController.navigate("song_data/${item.id}")
+            }
+        )
     }
 }

@@ -241,6 +241,10 @@ fun AppBar(
     }
 }
 
+fun clearFocusFromSearchBar(focusManager: FocusManager) {
+    focusManager.clearFocus()
+}
+
 @Composable
 fun FilterContents(
     filterSetting: MutableState<FilterSetting>

@@ -53,9 +53,9 @@ class MainActivity : ComponentActivity() {
                 val filterSetting = remember { mutableStateOf(FilterSetting()) }
                 // 検索文字列の設定
                 val searchText = remember { mutableStateOf("") }
-                // Search bar に対するフォーカスの変更を管理する
+                // SearchBar に対するフォーカスの変更を管理する
                 val focusRequesterForSearchBar = remember { FocusRequester() }
-                val focusManagerForSearchBar = LocalFocusManager.current
+                val focusManagerOfSearchBar = LocalFocusManager.current
 
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -66,15 +66,15 @@ class MainActivity : ComponentActivity() {
                     Scaffold(
                         topBar = {
                             Column {
-                                AppBar(navController, songDao, songScoreDao, artistDao, filterSetting, searchText, focusRequesterForSearchBar, focusManagerForSearchBar)
-                                Breadcrumbs(navController, songDao, artistDao)
+                                AppBar(navController, songDao, songScoreDao, artistDao, filterSetting, searchText, focusRequesterForSearchBar, focusManagerOfSearchBar)
+                                Breadcrumbs(navController, focusManagerOfSearchBar, songDao, artistDao)
                             }
                         },
                         bottomBar = {
                             BottomNavigationBar(navController, songScoreDao)
                         },
                         floatingActionButton = {
-                            NewEntryScreen(navController, songDao, songScoreDao, artistDao, lifecycleScope, showDialog, editingSongScore, snackBarHostState)
+                            NewEntryScreen(navController, songDao, songScoreDao, artistDao, lifecycleScope, showDialog, editingSongScore, snackBarHostState, focusManagerOfSearchBar)
                         },
                         snackbarHost = {
                             SnackbarHost(snackBarHostState)
@@ -86,14 +86,14 @@ class MainActivity : ComponentActivity() {
                             Modifier.padding(paddingValues)
                         ) {
                             composable("latest") {
-                                LatestPage(navController, songDao, songScoreDao, artistDao, filterSetting.value, searchText.value, focusManagerForSearchBar)
+                                LatestPage(navController, songDao, songScoreDao, artistDao, filterSetting.value, searchText.value, focusManagerOfSearchBar)
                             }
                             composable("song_data/{songId}") {backStackEntry ->
                                 val songId = backStackEntry.arguments?.getString("songId")?.toLongOrNull()
                                 if (songId != null) {
                                     val song = songDao.getSong(songId)
                                     if (song != null) {
-                                        SongScores(song, songDao, songScoreDao, lifecycleScope, showDialog, editingSongScore, filterSetting.value, searchText.value)
+                                        SongScores(song, songDao, songScoreDao, lifecycleScope, showDialog, editingSongScore, filterSetting.value, searchText.value, focusManagerOfSearchBar)
                                     }
                                 }
                             }
@@ -101,12 +101,12 @@ class MainActivity : ComponentActivity() {
                                 PlansPage(songDao, songScoreDao, artistDao, showDialog, editingSongScore, lifecycleScope, snackBarHostState)
                             }
                             composable("list"){
-                                ArtistsPage(navController, isArtistListSelected, sortMethodOfAllSongs, artistDao, songDao, songScoreDao, filterSetting.value, searchText.value)
+                                ArtistsPage(navController, isArtistListSelected, sortMethodOfAllSongs, artistDao, songDao, songScoreDao, filterSetting.value, searchText.value, focusManagerOfSearchBar)
                             }
                             composable("song_list/{artistId}"){backStackEntry ->
                                 val artistId = backStackEntry.arguments?.getString("artistId")?.toLongOrNull()
                                 if (artistId != null) {
-                                    SongList(navController, artistId, songDao, songScoreDao, artistDao, filterSetting.value, searchText.value)
+                                    SongList(navController, artistId, songDao, songScoreDao, artistDao, filterSetting.value, searchText.value, focusManagerOfSearchBar)
                                 }
                             }
                         }
