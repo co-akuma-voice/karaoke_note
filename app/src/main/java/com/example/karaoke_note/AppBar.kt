@@ -45,7 +45,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -75,6 +74,7 @@ import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
+import com.example.karaoke_note.ui.component.CustomTextField
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializer
@@ -131,7 +131,7 @@ fun AppBar(
                 modifier = Modifier.align(alignment = Alignment.CenterVertically)
             ) {
                 // 検索ウインドウ
-                TextField(
+                CustomTextField(
                     value = searchText.value,
                     onValueChange = { searchText.value = it },
                     placeholder = { Text(text = "検索") },
@@ -149,7 +149,10 @@ fun AppBar(
                     trailingIcon = {
                         // バツボタン（クリアボタン）
                         if (searchText.value.isNotEmpty()) {
-                            IconButton(onClick = { searchText.value = "" }) {
+                            IconButton(
+                                onClick = { searchText.value = "" },
+                                modifier = Modifier.scale(0.8f)
+                            ){
                                 Icon(
                                     imageVector = Icons.Filled.Close,
                                     contentDescription = "Clear text"
@@ -175,7 +178,8 @@ fun AppBar(
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
                         disabledIndicatorColor = Color.Transparent
-                    )
+                    ),
+                    contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(0.dp, 0.dp, 0.dp, 0.dp)
                 )
 
                 // フィルターボタン
