@@ -7,9 +7,10 @@ import android.provider.DocumentsContract
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -257,6 +259,7 @@ fun FilterContents(
     Column(
         modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
+        // Game 表示
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Start,
@@ -272,11 +275,15 @@ fun FilterContents(
             )
             Text(text = "Game", fontWeight = FontWeight.Bold)
         }
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+
+        // JOY/DAM グループ
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ){
             FilterContentGroup(label = "JOY", filterSetting.value.joySelected, filterSetting.value.joyGameSelected)
             FilterContentGroup(label = "DAM", filterSetting.value.damSelected, filterSetting.value.damGameSelected)
         }
@@ -292,28 +299,37 @@ fun FilterContentGroup(
     gameSelected: Map<GameKind, MutableState<Boolean>>,
     modifier: Modifier = Modifier
 ) {
-    Column (
-        modifier = modifier
+    Column(
+        //modifier = modifier.background(color = Color.Yellow)
     ) {
+        // 採点ゲームグループ
         FilterContent(
             label = label,
+            modifier = Modifier,
             selectedStatus = selectedStatus,
             onClick = {
                 selectedStatus.value = !selectedStatus.value
                 gameSelected.forEach { (_, value) -> value.value = selectedStatus.value }
             }
         )
-        Column(
-            modifier = modifier
-                .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
-                .padding(2.dp)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
+
+        // 各採点ゲームのボタン
+        Box(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            gameSelected.entries.forEach() { entry ->
-                FilterContent(
-                    label = entry.key.displayName,
-                    selectedStatus = entry.value
-                )
+            Row(
+                modifier = Modifier
+                    .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
+                    .padding(start = 2.dp, end = 2.dp)
+                    .horizontalScroll(rememberScrollState())
+            ) {
+                gameSelected.entries.forEach() { entry ->
+                    FilterContent(
+                        label = entry.key.displayName,
+                        modifier = Modifier.padding(horizontal = 5.dp, vertical = 4.dp),
+                        selectedStatus = entry.value
+                    )
+                }
             }
         }
     }
@@ -323,12 +339,13 @@ fun FilterContentGroup(
 @Composable
 fun FilterContent(
     label: String,
+    modifier: Modifier,
     selectedStatus: MutableState<Boolean>,
     onClick: () -> Unit = { selectedStatus.value = !selectedStatus.value }
 ) {
     FilterChip(
         onClick = onClick,
-        modifier = Modifier.padding(horizontal = 5.dp, vertical = 4.dp),
+        modifier = modifier,
         label = { Text(label) },
         selected = selectedStatus.value,
         leadingIcon = if (selectedStatus.value) {
@@ -341,7 +358,7 @@ fun FilterContent(
             }
         } else {
             null
-        },
+        }
     )
 }
 
