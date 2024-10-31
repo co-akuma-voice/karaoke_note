@@ -298,9 +298,7 @@ fun FilterContentGroup(
     selectedStatus: MutableState<Boolean>,
     gameSelected: Map<GameKind, MutableState<Boolean>>,
 ) {
-    Column(
-        //modifier = modifier.background(color = Color.Yellow)
-    ) {
+    Column() {
         // 採点ゲームグループ
         FilterContent(
             label = label,
