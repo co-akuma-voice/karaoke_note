@@ -131,7 +131,8 @@ fun AppBar(
         },
         actions = {
             Row(
-                modifier = Modifier.align(alignment = Alignment.CenterVertically)
+                modifier = Modifier.align(alignment = Alignment.CenterVertically),
+                //horizontalArrangement = Arrangement.End
             ) {
                 // 検索ウインドウ
                 CustomTextField(
@@ -204,26 +205,30 @@ fun AppBar(
                 }
 
                 // メニューボタン
-                IconButton(
-                    onClick = {
-                        clearFocusFromSearchBar(focusManagerOfSearchBar)
-                        showMenu.value = true
-                    }
+                Box(
+                    contentAlignment = Alignment.BottomEnd
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.MoreVert,
-                        contentDescription = "メニュー"
-                    )
-                }
-                DropdownMenu(
-                    expanded = showMenu.value,
-                    onDismissRequest = { showMenu.value = false }
-                ) {
-                    ImportMenu(songDao, songScoreDao, artistDao, navController.context) {
-                        showMenu.value = false
+                    IconButton(
+                        onClick = {
+                            clearFocusFromSearchBar(focusManagerOfSearchBar)
+                            showMenu.value = true
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = "メニュー"
+                        )
                     }
-                    ExportMenu(songDao, songScoreDao, artistDao, navController.context) {
-                        showMenu.value = false
+                    DropdownMenu(
+                        expanded = showMenu.value,
+                        onDismissRequest = { showMenu.value = false }
+                    ) {
+                        ImportMenu(songDao, songScoreDao, artistDao, navController.context) {
+                            showMenu.value = false
+                        }
+                        ExportMenu(songDao, songScoreDao, artistDao, navController.context) {
+                            showMenu.value = false
+                        }
                     }
                 }
             }
