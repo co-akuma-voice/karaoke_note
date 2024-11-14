@@ -71,7 +71,7 @@ fun convertToSongDataList(
                 )
             }
         }.filter {
-            it.await().title.contains(searchText)
+            it.await().title.contains(searchText, ignoreCase = true)
         }.awaitAll()
     }
 }
