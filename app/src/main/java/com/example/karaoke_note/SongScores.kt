@@ -73,7 +73,7 @@ fun SongScores(
     }
     val scoresFlow = songScoreDao.getScoresForSong(song.id)
     val scores by scoresFlow.collectAsState(initial = emptyList())
-    val filteredScores = scores.filter { it.gameKind in selectedGameKinds && it.comment.contains(searchText) }
+    val filteredScores = scores.filter { it.gameKind in selectedGameKinds && it.comment.contains(searchText, ignoreCase = true) }
     val selectedScoreId = remember { mutableStateOf<Long?>(null) }
     val formatter = DateTimeFormatter.ofPattern("yy/MM/dd")
     val titleFontSize = 20
