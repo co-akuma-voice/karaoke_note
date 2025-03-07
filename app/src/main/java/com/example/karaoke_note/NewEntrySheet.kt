@@ -232,6 +232,9 @@ fun NewEntryScreen(
     val defaultGameKind = editingSongScore?.gameKind ?: previousGameKind
 
     val gamesList = enumValues<GameKind>()
+    // ゲーム選択画面に表示される順序 (もっとスマートな方法はないだろうか)
+    val sortedGamesList = arrayOf(gamesList[0], gamesList[1], gamesList[2], gamesList[3],
+        gamesList[9], gamesList[5], gamesList[6], gamesList[7], gamesList[8], gamesList[4])
     var expanded by remember { mutableStateOf(false) }
     val gameListFontSize = 10
     val gameListHeight = 56
@@ -478,7 +481,7 @@ fun NewEntryScreen(
                                             onDismissRequest = { expanded = false },
                                             modifier = Modifier.fillMaxWidth()
                                         ) {
-                                            gamesList.forEach {
+                                            sortedGamesList.forEach {
                                                 ExposedGameSelectorItem(
                                                     gameKind = it,
                                                     height = gameListHeight,
