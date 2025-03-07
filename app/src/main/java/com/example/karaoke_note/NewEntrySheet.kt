@@ -45,6 +45,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -203,6 +204,9 @@ fun NewEntryScreen(
     snackBarHostState: SnackbarHostState,
     focusManagerOfSearchBar: FocusManager
 ) {
+    val context = LocalContext.current
+    var backHandlingEnabled by remember { mutableStateOf(true) }
+
     val editingSongScore = editingSongScoreState.value
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val parentPage: String? = currentBackStackEntry?.destination?.route
