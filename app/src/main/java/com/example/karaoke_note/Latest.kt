@@ -203,12 +203,12 @@ fun getPainterResourceIdOfGameImage(gameName: String): Int {
         GameKind.JOY_ANALYSIS_SCORING_AI_PLUS.name -> R.drawable.joy_bunseki_saiten_ai_plus
         GameKind.JOY_ANALYSIS_SCORING_AI.name -> R.drawable.joy_bunseki_saiten_ai
         GameKind.JOY_ANALYSIS_SCORING_MASTER.name -> R.drawable.joy_bunseki_saiten_master
-        GameKind.DAM_RANKING_BATTLE_ONLINE.name -> R.drawable.dam_ranking_battle_online
+        GameKind.DAM_PRECISE_SCORING_AI_HEART.name -> R.drawable.dam_seimitsu_saiten_ai_heart
         GameKind.DAM_PRECISE_SCORING_AI.name -> R.drawable.dam_seimitsu_saiten_ai
         GameKind.DAM_PRECISE_SCORING_DX_G.name -> R.drawable.dam_seimitsu_saiten_dx_g
         GameKind.DAM_PRECISE_SCORING_DX_DUET.name -> R.drawable.dam_seimitsu_saiten_dx_duet
         GameKind.DAM_PRECISE_SCORING_DX.name -> R.drawable.dam_seimitsu_saiten_dx
-        GameKind.DAM_PRECISE_SCORING_AI_HEART.name -> R.drawable.dam_seimitsu_saiten_ai_heart
+        GameKind.DAM_RANKING_BATTLE_ONLINE.name -> R.drawable.dam_ranking_battle_online
         else -> R.drawable.unknown_game
     }
     return painterResourceId
