@@ -33,12 +33,12 @@ enum class GameKind(val displayName: String) {
                 JOY_ANALYSIS_SCORING_AI_PLUS -> BrandKind.JOY
                 JOY_ANALYSIS_SCORING_AI -> BrandKind.JOY
                 JOY_ANALYSIS_SCORING_MASTER -> BrandKind.JOY
-                DAM_RANKING_BATTLE_ONLINE -> BrandKind.DAM
+                DAM_PRECISE_SCORING_AI_HEART -> BrandKind.DAM
                 DAM_PRECISE_SCORING_AI -> BrandKind.DAM
                 DAM_PRECISE_SCORING_DX_G -> BrandKind.DAM
                 DAM_PRECISE_SCORING_DX_DUET -> BrandKind.DAM
                 DAM_PRECISE_SCORING_DX -> BrandKind.DAM
-                DAM_PRECISE_SCORING_AI_HEART -> BrandKind.DAM
+                DAM_RANKING_BATTLE_ONLINE -> BrandKind.DAM
             }
         }
         fun getJoyGameKinds(): List<GameKind> {
