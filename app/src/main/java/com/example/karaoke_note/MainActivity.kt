@@ -2,6 +2,7 @@ package com.example.karaoke_note
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,12 @@ import com.example.karaoke_note.ui.component.SortMethod
 import com.example.karaoke_note.ui.theme.Karaoke_noteTheme
 
 class MainActivity : ComponentActivity() {
+
+    private val onBackPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            TODO("Not yet implemented")
+        }
+    }
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
     @ExperimentalMaterialApi
@@ -114,6 +121,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        onBackPressedDispatcher.addCallback(onBackPressedCallback)
     }
 }
 

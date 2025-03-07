@@ -208,6 +208,7 @@ fun getPainterResourceIdOfGameImage(gameName: String): Int {
         GameKind.DAM_PRECISE_SCORING_DX_G.name -> R.drawable.dam_seimitsu_saiten_dx_g
         GameKind.DAM_PRECISE_SCORING_DX_DUET.name -> R.drawable.dam_seimitsu_saiten_dx_duet
         GameKind.DAM_PRECISE_SCORING_DX.name -> R.drawable.dam_seimitsu_saiten_dx
+        GameKind.DAM_PRECISE_SCORING_AI_HEART.name -> R.drawable.dam_seimitsu_saiten_ai_heart
         else -> R.drawable.unknown_game
     }
     return painterResourceId
