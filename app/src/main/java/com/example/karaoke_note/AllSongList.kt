@@ -58,7 +58,7 @@ fun getSortedAllSongInfo(
         val highestScore = songScoreDao.getHighestScoreBySongIdAndGameKinds(song.id, filterSetting.getSelectedGameKinds())?.score
         SongInfo(song, mostRecentDate?.format(DateTimeFormatter.ofPattern("yy/MM/dd")), highestScore)
     }.filter {
-        it.song.title.contains(searchText)
+        it.song.title.contains(searchText, ignoreCase = true)
     }
     return when (sortMethod) {
         SortMethod.NameAsc -> songInfo.sortedBy { it.song.title }

@@ -232,7 +232,7 @@ fun getSortedArtists(
         SortDirection.Desc -> artists.sortedByDescending(Artist::name)
     }
     return sortedArtists.filter { artist ->
-        artist.name.contains(searchText)
+        artist.name.contains(searchText, ignoreCase = true)
     }
 }
 
