@@ -1,8 +1,6 @@
 package com.example.karaoke_note
 
 import android.annotation.SuppressLint
-import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -207,6 +205,7 @@ fun NewEntryScreen(
     focusManagerOfSearchBar: FocusManager
 ) {
     val context = LocalContext.current
+    var backHandlingEnabled by remember { mutableStateOf(true) }
 
     val editingSongScore = editingSongScoreState.value
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -233,6 +232,9 @@ fun NewEntryScreen(
     val defaultGameKind = editingSongScore?.gameKind ?: previousGameKind
 
     val gamesList = enumValues<GameKind>()
+    // ゲーム選択画面に表示される順序 (もっとスマートな方法はないだろうか)
+    val sortedGamesList = arrayOf(gamesList[0], gamesList[1], gamesList[2], gamesList[3],
+        gamesList[9], gamesList[5], gamesList[6], gamesList[7], gamesList[8], gamesList[4])
     var expanded by remember { mutableStateOf(false) }
     val gameListFontSize = 10
     val gameListHeight = 56
@@ -304,13 +306,6 @@ fun NewEntryScreen(
                 color = MaterialTheme.colorScheme.background,
                 modifier = Modifier.fillMaxSize()
             ) {
-                // 誤爆防止のため、ここに限って標準のバックキー操作を無効化
-                // 設定メニューで ON/OFF できるようにできればいいな
-                BackHandler(enabled = true) {
-                    Toast.makeText(context, "Back key is disabled.", Toast.LENGTH_SHORT).show()
-                }
-
-                // NewEntryScreen のコンテンツ
                 Column {
                     Box(
                         modifier = Modifier
@@ -486,7 +481,7 @@ fun NewEntryScreen(
                                             onDismissRequest = { expanded = false },
                                             modifier = Modifier.fillMaxWidth()
                                         ) {
-                                            gamesList.forEach {
+                                            sortedGamesList.forEach {
                                                 ExposedGameSelectorItem(
                                                     gameKind = it,
                                                     height = gameListHeight,
