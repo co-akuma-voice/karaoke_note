@@ -1,6 +1,8 @@
 package com.example.karaoke_note
 
 import android.annotation.SuppressLint
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -205,7 +207,6 @@ fun NewEntryScreen(
     focusManagerOfSearchBar: FocusManager
 ) {
     val context = LocalContext.current
-    var backHandlingEnabled by remember { mutableStateOf(true) }
 
     val editingSongScore = editingSongScoreState.value
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -306,6 +307,12 @@ fun NewEntryScreen(
                 color = MaterialTheme.colorScheme.background,
                 modifier = Modifier.fillMaxSize()
             ) {
+                // 誤爆防止のため、ここに限って標準のバックキー操作を無効化
+                // 設定メニューで ON/OFF できるようにできればいいな
+                BackHandler(enabled = true) {
+                    Toast.makeText(context, "Back key is disabled.", Toast.LENGTH_SHORT).show()
+                }
+
                 Column {
                     Box(
                         modifier = Modifier
