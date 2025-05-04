@@ -19,15 +19,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.karaoke_note.data.GameKind
 import com.example.karaoke_note.getPainterResourceIdOfBrandImage
 import com.example.karaoke_note.getPainterResourceIdOfGameImage
@@ -124,45 +121,40 @@ fun ExposedGameSelectorItem(
     textHorizontalPaddingValues: Int,
     onClick: () -> Unit
 ){
+    val horizontalPaddingValues = 6
+
     DropdownMenuItem(
-        text = {
+        text = {/*
             Text(
                 text = "(" + gameKind.displayName + ")",
                 fontSize = textSize.sp,
-                modifier = Modifier.padding(start = textHorizontalPaddingValues.dp)
-            )
+                modifier = Modifier.padding(start = textHorizontalPaddingValues.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )*/
         },
         onClick = { onClick() },
-        modifier = Modifier,
+        modifier = Modifier.height(height.dp),
         leadingIcon = {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(height.dp),
+                modifier = Modifier,
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
                     painter = painterResource(
-                        getPainterResourceIdOfBrandImage(
-                            gameKind.name.take(3)
-                        )
+                        getPainterResourceIdOfBrandImage(gameKind.name.take(3))
                     ),
                     contentDescription = null,
-                    modifier = Modifier.padding(horizontal = 4.dp)
+                    modifier = Modifier.padding(horizontal = horizontalPaddingValues.dp)
                 )
                 Image(
                     painter = painterResource(
                         getPainterResourceIdOfGameImage(gameKind.name)
                     ),
                     contentDescription = null,
-                    modifier = Modifier.padding(horizontal = 4.dp)
+                    modifier = Modifier.padding(horizontal = horizontalPaddingValues.dp)
                 )
             }
         },
-        trailingIcon = {},
-        enabled = true,
-        colors = MenuDefaults.itemColors(),
-        contentPadding = MenuDefaults.DropdownMenuItemContentPadding,
-        interactionSource = null
     )
 }

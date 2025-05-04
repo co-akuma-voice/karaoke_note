@@ -239,7 +239,7 @@ fun NewEntryScreen(
     val sortedGamesList = arrayOf(gamesList[0], gamesList[1], gamesList[2], gamesList[3],
         gamesList[9], gamesList[5], gamesList[6], gamesList[7], gamesList[8], gamesList[4])
     var expanded by remember { mutableStateOf(false) }
-    val gameListFontSize = 10
+    val gameListFontSize = 16
     val gameListHeight = 56
 
     var newTitle by remember { mutableStateOf("") }
@@ -476,6 +476,7 @@ fun NewEntryScreen(
                                     ExposedDropdownMenuBox(
                                         expanded = expanded,
                                         onExpandedChange = { expanded = !expanded },
+                                        modifier = Modifier
                                     ) {
                                         // 現在設定値の表示部分
                                         ExposedGameSelectorBox(
@@ -489,7 +490,6 @@ fun NewEntryScreen(
                                         ExposedDropdownMenu(
                                             expanded = expanded,
                                             onDismissRequest = { expanded = false },
-                                            modifier = Modifier.fillMaxWidth()
                                         ) {
                                             sortedGamesList.forEach {
                                                 ExposedGameSelectorItem(
