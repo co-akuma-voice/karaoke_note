@@ -15,9 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.IconButton
-import androidx.compose.material.Surface
-import androidx.compose.material.TextButton
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.rounded.Add
@@ -69,7 +69,7 @@ import com.example.karaoke_note.ui.component.ExposedGameSelectorBox
 import com.example.karaoke_note.ui.component.ExposedGameSelectorItem
 import com.example.karaoke_note.ui.component.getErrorSupportingTextForScoreField
 import com.example.karaoke_note.ui.component.getErrorSupportingTextForTitleAndArtistField
-import com.example.karaoke_note.ui.component.getLocalizedDate
+//import com.example.karaoke_note.ui.component.getLocalizedDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -192,6 +192,7 @@ fun entryToDataBase(
 }
 
 @SuppressLint("DefaultLocale")
+@Suppress("UnusedBoxWithConstraintsScope")
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3Api
 @Composable
@@ -587,7 +588,7 @@ fun NewEntryScreen(
                                                 top = verticalPaddingValue.dp,
                                                 end = (horizontalPaddingValue * 2).dp
                                             )
-                                    ) {
+                                    ){
                                         val newKeyText: String
                                         val newKeyLabel = newKey.roundToInt()
                                         newKeyText = if (newKeyLabel > 0) {

@@ -9,15 +9,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -105,7 +106,7 @@ fun ExposedGameSelectorBox(
             }
         }
         // TextField っぽく見せるために下枠のみ線を入れる
-        Divider(
+        HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = 1.dp,
             color = MaterialTheme.colorScheme.outline
@@ -122,35 +123,44 @@ fun ExposedGameSelectorItem(
     onClick: () -> Unit
 ){
     DropdownMenuItem(
-        onClick = { onClick() }
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(height.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(
-                    getPainterResourceIdOfBrandImage(
-                        gameKind.name.take(3)
-                    )
-                ),
-                contentDescription = null,
-                modifier = Modifier.padding(horizontal = 4.dp)
-            )
-            Image(
-                painter = painterResource(
-                    getPainterResourceIdOfGameImage(gameKind.name)
-                ),
-                contentDescription = null,
-                modifier = Modifier.padding(horizontal = 4.dp)
-            )
+        text = {
             Text(
                 text = "(" + gameKind.displayName + ")",
                 fontSize = textSize.sp,
                 modifier = Modifier.padding(start = textHorizontalPaddingValues.dp)
             )
-        }
-    }
+        },
+        onClick = { onClick() },
+        modifier = Modifier,
+        leadingIcon = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(
+                        getPainterResourceIdOfBrandImage(
+                            gameKind.name.take(3)
+                        )
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                )
+                Image(
+                    painter = painterResource(
+                        getPainterResourceIdOfGameImage(gameKind.name)
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                )
+            }
+        },
+        trailingIcon = {},
+        enabled = true,
+        colors = MenuDefaults.itemColors(),
+        contentPadding = MenuDefaults.DropdownMenuItemContentPadding,
+        interactionSource = null
+    )
 }
