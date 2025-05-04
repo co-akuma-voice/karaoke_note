@@ -480,7 +480,7 @@ fun NewEntryScreen(
                                         ExposedGameSelectorBox(
                                             initialGameKind = newGame,
                                             height = gameListHeight,
-                                            modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType),
+                                            modifier = Modifier.menuAnchor(),
                                             isExpanded = expanded,
                                             startPaddingValue = 16    // もっと理屈で表せないかな？
                                         )
