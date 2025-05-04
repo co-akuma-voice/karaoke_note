@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +35,7 @@ import com.example.karaoke_note.getPainterResourceIdOfGameImage
 //
 // NewEntrySheet の採点ゲーム選択部分
 //
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExposedGameSelectorBox(
     initialGameKind: GameKind,

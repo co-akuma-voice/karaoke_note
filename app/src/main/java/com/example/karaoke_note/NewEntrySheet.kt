@@ -1,5 +1,6 @@
 package com.example.karaoke_note
 
+//import com.example.karaoke_note.ui.component.getLocalizedDate
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -15,9 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Surface
-import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.rounded.Add
@@ -25,12 +23,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -69,7 +70,6 @@ import com.example.karaoke_note.ui.component.ExposedGameSelectorBox
 import com.example.karaoke_note.ui.component.ExposedGameSelectorItem
 import com.example.karaoke_note.ui.component.getErrorSupportingTextForScoreField
 import com.example.karaoke_note.ui.component.getErrorSupportingTextForTitleAndArtistField
-//import com.example.karaoke_note.ui.component.getLocalizedDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -480,7 +480,7 @@ fun NewEntryScreen(
                                         ExposedGameSelectorBox(
                                             initialGameKind = newGame,
                                             height = gameListHeight,
-                                            modifier = Modifier.menuAnchor(),
+                                            modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType),
                                             isExpanded = expanded,
                                             startPaddingValue = 16    // もっと理屈で表せないかな？
                                         )
