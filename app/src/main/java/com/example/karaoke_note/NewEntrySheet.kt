@@ -257,9 +257,6 @@ fun NewEntryScreen(
     var isSaveButtonEnabled by remember { mutableStateOf(false) }
     var isComeFromPlansPage = false
 
-    var showCalender by remember { mutableStateOf(false) }
-    var selectedDate by remember { mutableStateOf<Long?>(null) }
-
     //LaunchedEffect(key1 = defaultArtistId, key2 = defaultTitle, key3 = editingSongScore) {
     LaunchedEffect(key1 = screenOpened.value, key2 = isPlanning) {
         // ここに書けばすべて賄える
@@ -636,30 +633,6 @@ fun NewEntryScreen(
                                 Text(text = "Date")
                                 // 日付表示とカレンダーマーク
                                 newDate = getLocalizedDate(defaultDate)
-/*
-                                // カレンダーボタン
-                                IconButton(
-                                    onClick = { showCalender = true },
-                                    modifier = Modifier,
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.DateRange,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                }
-                                if (showCalender) {
-                                    DatePickerModal(
-                                        onDateSelected = {
-                                            selectedDate = it
-                                            showCalender = false
-                                        },
-                                        onDismiss = { showCalender = false },
-                                        initialDate = defaultDate
-                                    )
-                                }
-
- */
                             }
                         }
 
