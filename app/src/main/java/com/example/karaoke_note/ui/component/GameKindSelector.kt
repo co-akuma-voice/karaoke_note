@@ -9,23 +9,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.karaoke_note.data.GameKind
 import com.example.karaoke_note.getPainterResourceIdOfBrandImage
 import com.example.karaoke_note.getPainterResourceIdOfGameImage
@@ -33,6 +32,7 @@ import com.example.karaoke_note.getPainterResourceIdOfGameImage
 //
 // NewEntrySheet の採点ゲーム選択部分
 //
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExposedGameSelectorBox(
     initialGameKind: GameKind,
@@ -105,7 +105,7 @@ fun ExposedGameSelectorBox(
             }
         }
         // TextField っぽく見せるために下枠のみ線を入れる
-        Divider(
+        HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = 1.dp,
             color = MaterialTheme.colorScheme.outline
@@ -121,36 +121,40 @@ fun ExposedGameSelectorItem(
     textHorizontalPaddingValues: Int,
     onClick: () -> Unit
 ){
+    val horizontalPaddingValues = 6
+
     DropdownMenuItem(
-        onClick = { onClick() }
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(height.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(
-                    getPainterResourceIdOfBrandImage(
-                        gameKind.name.take(3)
-                    )
-                ),
-                contentDescription = null,
-                modifier = Modifier.padding(horizontal = 4.dp)
-            )
-            Image(
-                painter = painterResource(
-                    getPainterResourceIdOfGameImage(gameKind.name)
-                ),
-                contentDescription = null,
-                modifier = Modifier.padding(horizontal = 4.dp)
-            )
+        text = {/*
             Text(
                 text = "(" + gameKind.displayName + ")",
                 fontSize = textSize.sp,
-                modifier = Modifier.padding(start = textHorizontalPaddingValues.dp)
-            )
-        }
-    }
+                modifier = Modifier.padding(start = textHorizontalPaddingValues.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )*/
+        },
+        onClick = { onClick() },
+        modifier = Modifier.height(height.dp),
+        leadingIcon = {
+            Row(
+                modifier = Modifier,
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(
+                        getPainterResourceIdOfBrandImage(gameKind.name.take(3))
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier.padding(horizontal = horizontalPaddingValues.dp)
+                )
+                Image(
+                    painter = painterResource(
+                        getPainterResourceIdOfGameImage(gameKind.name)
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier.padding(horizontal = horizontalPaddingValues.dp)
+                )
+            }
+        },
+    )
 }

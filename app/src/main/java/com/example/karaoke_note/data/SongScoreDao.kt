@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.RoomWarnings
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
@@ -53,6 +54,7 @@ interface SongScoreDao {
     ORDER BY date DESC, id DESC
     LIMIT :limit OFFSET :offset
 """)
+    @SuppressWarnings(RoomWarnings.QUERY_MISMATCH)
     fun getLatestScoresByText(searchQuery: String, limit: Int, offset: Int): List<SongScore>
 
     @Update

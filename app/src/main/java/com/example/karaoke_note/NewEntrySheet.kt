@@ -1,5 +1,6 @@
 package com.example.karaoke_note
 
+//import com.example.karaoke_note.ui.component.getLocalizedDate
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -15,9 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.IconButton
-import androidx.compose.material.Surface
-import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.rounded.Add
@@ -25,12 +23,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -192,6 +193,7 @@ fun entryToDataBase(
 }
 
 @SuppressLint("DefaultLocale")
+@Suppress("UnusedBoxWithConstraintsScope")
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3Api
 @Composable
@@ -237,7 +239,7 @@ fun NewEntryScreen(
     val sortedGamesList = arrayOf(gamesList[0], gamesList[1], gamesList[2], gamesList[3],
         gamesList[9], gamesList[5], gamesList[6], gamesList[7], gamesList[8], gamesList[4])
     var expanded by remember { mutableStateOf(false) }
-    val gameListFontSize = 10
+    val gameListFontSize = 16
     val gameListHeight = 56
 
     var newTitle by remember { mutableStateOf("") }
@@ -280,7 +282,7 @@ fun NewEntryScreen(
     val focusRequester = remember { FocusRequester() }
 
     val verticalPaddingValue = 1
-    val horizontalPaddingValue = 10
+    val horizontalPaddingValue = 12
     val fontSize = 16
 
     FloatingActionButton(
@@ -474,6 +476,7 @@ fun NewEntryScreen(
                                     ExposedDropdownMenuBox(
                                         expanded = expanded,
                                         onExpandedChange = { expanded = !expanded },
+                                        modifier = Modifier
                                     ) {
                                         // 現在設定値の表示部分
                                         ExposedGameSelectorBox(
@@ -487,7 +490,6 @@ fun NewEntryScreen(
                                         ExposedDropdownMenu(
                                             expanded = expanded,
                                             onDismissRequest = { expanded = false },
-                                            modifier = Modifier.fillMaxWidth()
                                         ) {
                                             sortedGamesList.forEach {
                                                 ExposedGameSelectorItem(
@@ -587,7 +589,7 @@ fun NewEntryScreen(
                                                 top = verticalPaddingValue.dp,
                                                 end = (horizontalPaddingValue * 2).dp
                                             )
-                                    ) {
+                                    ){
                                         val newKeyText: String
                                         val newKeyLabel = newKey.roundToInt()
                                         newKeyText = if (newKeyLabel > 0) {
