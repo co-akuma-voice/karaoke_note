@@ -16,7 +16,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.rememberDismissState
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -192,7 +192,7 @@ fun BackGroundItem() {
                     .padding(end = 30.dp)
             )
         }
-        Divider(thickness = 1.dp, color = MaterialTheme.colorScheme.errorContainer)
+        HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.errorContainer)
     }
 }
 
@@ -210,7 +210,7 @@ fun PlansListItem(
     Column(modifier = Modifier) {
         ListItem(
             modifier = Modifier
-                .height(60.dp)
+                //.height(60.dp)
                 .clickable {
                     // ListItem をタップしたときには、その仮登録データを初期データとして新規登録画面を起動する
                     editingSongScore.value = songScore.copy(date = LocalDate.now())
@@ -251,7 +251,7 @@ fun PlansListItem(
             },
             shadowElevation = 1.dp
         )
-        Divider(
+        HorizontalDivider(
             color = MaterialTheme.colorScheme.outlineVariant,
             thickness = 1.dp
         )
