@@ -247,7 +247,7 @@ fun LatestList(
                     Text(
                         text = songScore.date.toString(),
                         modifier = Modifier
-                            .padding(top = 2.dp, bottom = 6.dp)
+                            .padding(top = 1.dp, bottom = 4.dp)
                             .align(Alignment.Start),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = fontSize[2].sp,
@@ -255,7 +255,7 @@ fun LatestList(
                     Text(
                         text = song.title,
                         modifier = Modifier
-                            .padding(top = 2.dp, bottom = 2.dp)
+                            .padding(top = 1.dp, bottom = 1.dp)
                             .align(Alignment.Start),
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = fontSize[0].sp,
@@ -265,7 +265,7 @@ fun LatestList(
                     Text(
                         text = artist,
                         modifier = Modifier
-                            .padding(top = 2.dp, bottom = 6.dp)
+                            .padding(top = 1.dp, bottom = 4.dp)
                             .align(Alignment.Start),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = fontSize[1].sp,
@@ -278,7 +278,7 @@ fun LatestList(
                 Text(
                     text = songScore.comment,
                     modifier = Modifier
-                        .padding(top = 2.dp, end = 4.dp, bottom = 2.dp),
+                        .padding(top = 1.dp, end = 4.dp, bottom = 1.dp),
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = fontSize[2].sp,
                     maxLines = 1,
@@ -290,7 +290,7 @@ fun LatestList(
                     Text(
                         text = String.format("%.3f", songScore.score),
                         modifier = Modifier
-                            .padding(top = 0.dp, end = 16.dp, bottom = 2.dp)
+                            .padding(top = 0.dp, end = 16.dp, bottom = 1.dp)
                             .align(Alignment.End),
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = fontSize[0].sp,
@@ -298,7 +298,7 @@ fun LatestList(
                     Text(
                         text = String.format(keyFormat, songScore.key),
                         modifier = Modifier
-                            .padding(top = 2.dp, end = 16.dp, bottom = 2.dp)
+                            .padding(top = 1.dp, end = 16.dp, bottom = 1.dp)
                             .align(Alignment.End),
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = fontSize[0].sp,
