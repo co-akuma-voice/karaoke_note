@@ -19,8 +19,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -131,8 +131,7 @@ fun LatestPage(
                 if (isLoading.value) {
                     item {
                         Box(
-                            modifier = Modifier
-                                .fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth(),
                             contentAlignment = Alignment.Center
                         ) {
                             CircularProgressIndicator()
@@ -248,7 +247,7 @@ fun LatestList(
                     Text(
                         text = songScore.date.toString(),
                         modifier = Modifier
-                            .padding(top = 2.dp, bottom = 6.dp)
+                            .padding(top = 2.dp, bottom = 4.dp)
                             .align(Alignment.Start),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = fontSize[2].sp,
@@ -256,7 +255,7 @@ fun LatestList(
                     Text(
                         text = song.title,
                         modifier = Modifier
-                            .padding(top = 2.dp, bottom = 2.dp)
+                            .padding(top = 1.dp, bottom = 1.dp)
                             .align(Alignment.Start),
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = fontSize[0].sp,
@@ -266,7 +265,7 @@ fun LatestList(
                     Text(
                         text = artist,
                         modifier = Modifier
-                            .padding(top = 2.dp, bottom = 6.dp)
+                            .padding(top = 1.dp, bottom = 4.dp)
                             .align(Alignment.Start),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = fontSize[1].sp,
@@ -279,7 +278,7 @@ fun LatestList(
                 Text(
                     text = songScore.comment,
                     modifier = Modifier
-                        .padding(top = 2.dp, end = 4.dp, bottom = 2.dp),
+                        .padding(top = 2.dp, end = 6.dp, bottom = 2.dp),
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = fontSize[2].sp,
                     maxLines = 1,
@@ -291,7 +290,7 @@ fun LatestList(
                     Text(
                         text = String.format("%.3f", songScore.score),
                         modifier = Modifier
-                            .padding(top = 0.dp, end = 16.dp, bottom = 2.dp)
+                            .padding(top = 0.dp, end = 16.dp, bottom = 4.dp)
                             .align(Alignment.End),
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = fontSize[0].sp,
@@ -299,7 +298,7 @@ fun LatestList(
                     Text(
                         text = String.format(keyFormat, songScore.key),
                         modifier = Modifier
-                            .padding(top = 2.dp, end = 16.dp, bottom = 2.dp)
+                            .padding(top = 4.dp, end = 16.dp, bottom = 2.dp)
                             .align(Alignment.End),
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = fontSize[0].sp,
@@ -308,6 +307,6 @@ fun LatestList(
             },
             shadowElevation = 1.dp
         )
-        Divider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
+        HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
     }
 }
