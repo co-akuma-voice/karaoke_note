@@ -301,7 +301,7 @@ fun FilterContentGroup(
     selectedStatus: MutableState<Boolean>,
     gameSelected: Map<GameKind, MutableState<Boolean>>,
 ) {
-    Column() {
+    Column {
         // 採点ゲームグループ
         FilterContent(
             label = label,
@@ -323,7 +323,7 @@ fun FilterContentGroup(
                     .padding(start = 2.dp, end = 2.dp)
                     .horizontalScroll(rememberScrollState())
             ) {
-                gameSelected.entries.forEach() { entry ->
+                gameSelected.entries.forEach { entry ->
                     FilterContent(
                         label = entry.key.displayName,
                         modifier = Modifier.padding(horizontal = 5.dp, vertical = 4.dp),
