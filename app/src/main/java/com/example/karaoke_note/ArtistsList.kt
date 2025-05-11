@@ -313,7 +313,7 @@ fun ArtistListItem(
     }
 
     val haptics = LocalHapticFeedback.current
-    var iconColorSelectorOpened by remember { mutableStateOf(false) }
+    var iconSelectorOpened by remember { mutableStateOf(false) }
 
     // アーティストごとに曲数を取得する
     val songsListFlow = songDao.getSongsWithScores(artist.id)
@@ -347,7 +347,7 @@ fun ArtistListItem(
                         onLongClick = {
                             clearFocusFromSearchBar(focusManagerOfSearchBar)
                             haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                            iconColorSelectorOpened = true
+                            iconSelectorOpened = true
                         }
                     )
                 )
@@ -359,7 +359,7 @@ fun ArtistListItem(
         )
     }
 
-    if (iconColorSelectorOpened) { // これもできれば切り出したいな
+    if (iconSelectorOpened) { // これもできれば切り出したいな
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(4.dp)
@@ -374,7 +374,7 @@ fun ArtistListItem(
                         onClick = {
                             clearFocusFromSearchBar(focusManagerOfSearchBar)
                             updateArtistIcon(artist.id, index)
-                            iconColorSelectorOpened = false
+                            iconSelectorOpened = false
                         },
                         modifier = Modifier
                             .weight(1f)   // 均等に
