@@ -10,7 +10,7 @@ class FilterSetting {
     val damGameSelected: Map<GameKind, MutableState<Boolean>> = GameKind.getDamGameKinds().associateWith { mutableStateOf(true) }
 
     fun getSelectedGameKinds(): List<GameKind> {
-        return GameKind.values().filter { gameKind ->
+        return GameKind.entries.filter { gameKind ->
             when (gameKind) {
                 in joyGameSelected -> joyGameSelected[gameKind]?.value ?: false
                 in damGameSelected -> damGameSelected[gameKind]?.value ?: false
