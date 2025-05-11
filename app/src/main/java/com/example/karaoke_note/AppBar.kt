@@ -21,7 +21,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -46,6 +45,8 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -112,9 +113,7 @@ fun AppBar(
     }
 
     TopAppBar(
-        backgroundColor = MaterialTheme.colorScheme.surface,
         title = {},
-        elevation = 2.dp,
         navigationIcon = {
             if (canPop.value) {
                 IconButton(
@@ -230,7 +229,9 @@ fun AppBar(
                     }
                 }
             }
-        }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(),
+        scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     )
 
     if (showSheet) {
