@@ -1,26 +1,16 @@
 package com.example.karaoke_note
 
-import androidx.compose.foundation.background
+//noinspection UsingMaterialAndMaterial3Libraries
+//noinspection UsingMaterialAndMaterial3Libraries
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-//noinspection UsingMaterialAndMaterial3Libraries
-import androidx.compose.material.DismissDirection
-//noinspection UsingMaterialAndMaterial3Libraries
-import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
-//noinspection UsingMaterialAndMaterial3Libraries
-import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
@@ -30,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -41,7 +30,7 @@ import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
-import com.example.karaoke_note.ui.component.CustomSwipeToDismiss
+import com.example.karaoke_note.ui.component.DraggableBox
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -131,6 +120,7 @@ fun PlansPage(
                     if (song != null) {
                         val artist = artistDao.getNameById(song.artistId)
                         if (artist != null) {
+                            /*
                             val dismissState = rememberDismissState(
                                 confirmStateChange = {
                                     if (songScoreList.isNotEmpty() && it == DismissValue.DismissedToStart) {
@@ -153,6 +143,35 @@ fun PlansPage(
                                 }
                             )
 
+                             */
+
+                            DraggableBox(
+                                modifier = Modifier,
+                                onDelete = {
+                                    if (songScoreList.isNotEmpty()) {
+                                        // Plan データを削除する
+                                        removePlansListItem(
+                                            artistId = song.artistId,
+                                            songId = songScore.songId,
+                                            scoreId = songScore.id,
+                                            artistDao = artistDao,
+                                            songDao = songDao,
+                                            songScoreDao = songScoreDao,
+                                            scope = scope,
+                                            snackBarHostState = snackBarHostState
+                                        )
+                                        true    // スワイプして songScore が消える
+                                    }
+                                    else {
+                                        false   // スワイプして元に戻る
+                                    }
+                                }
+                            ) {
+                                PlansListItem(song, songScore, artist, showEntrySheetDialog, editingSongScore)
+                            }
+
+
+                            /*
                             CustomSwipeToDismiss(
                                 state = dismissState,
                                 modifier = Modifier,
@@ -164,6 +183,8 @@ fun PlansPage(
                                     PlansListItem(song, songScore, artist, showEntrySheetDialog, editingSongScore)
                                 }
                             )
+
+                             */
                         }
                     }
                     else {
@@ -174,7 +195,7 @@ fun PlansPage(
         }
     }
 }
-
+/*
 // SwipeToDismissBox の背面に表示されるコンテンツ (ゴミ箱)
 @Composable
 fun BackGroundItem() {
@@ -199,6 +220,7 @@ fun BackGroundItem() {
         HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.errorContainer)
     }
 }
+*/
 
 @Composable
 fun PlansListItem(
