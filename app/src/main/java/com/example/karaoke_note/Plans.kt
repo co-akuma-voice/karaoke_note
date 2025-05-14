@@ -175,9 +175,10 @@ fun PlansPage(
     }
 }
 
+// SwipeToDismissBox の背面に表示されるコンテンツ (ゴミ箱)
 @Composable
 fun BackGroundItem() {
-    Column(modifier = Modifier) {
+    Column {
         Box(
             modifier = Modifier
                 .padding()
