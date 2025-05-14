@@ -21,6 +21,7 @@ import androidx.compose.ui.window.Dialog
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.getPainterResourceIdOfGameImage
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 //
 // 結果の詳細表示用ダイアログ
@@ -88,7 +89,7 @@ fun SongScoreDetailDialog(
                                 fontSize = fontSizeSmall.sp
                             )
                             Text(
-                                text = String.format("%.3f", songScore.score),
+                                text = String.format(Locale.US, "%.3f", songScore.score),
                                 modifier = Modifier.padding(),
                                 fontSize = fontSizeLarge.sp
                             )

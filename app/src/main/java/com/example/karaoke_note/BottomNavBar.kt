@@ -1,8 +1,8 @@
 package com.example.karaoke_note
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.PlaylistAdd
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -43,13 +43,13 @@ fun BottomNavigationBar(navController: NavController, songScoreDao: SongScoreDao
         BottomNavItem(
             name = "Plans",
             route = "plans",
-            icon = Icons.Filled.PlaylistAdd,
+            icon = Icons.AutoMirrored.Filled.PlaylistAdd,
             badge = plansBadge
         ),
         BottomNavItem(
             name = "List",
             route = "list",
-            icon = Icons.Filled.List,
+            icon = Icons.AutoMirrored.Filled.List,
         )
     )
 

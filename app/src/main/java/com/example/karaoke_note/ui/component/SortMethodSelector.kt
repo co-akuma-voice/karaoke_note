@@ -3,13 +3,14 @@ package com.example.karaoke_note.ui.component
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,7 +31,7 @@ enum class SortMethod(val displayName: String) {
 
     companion object {
         fun fromDisplayName(displayName: String): SortMethod? {
-            return SortMethod.values().firstOrNull { it.displayName == displayName }
+            return entries.firstOrNull { it.displayName == displayName }
         }
     }
 }
@@ -89,12 +90,19 @@ fun SortMethodSelectorItem(
 
     DropdownMenuItem(
         onClick = { onClick() },
-    ) {
-        Text(
-            text = sortMethod.displayName,
-            color = fontColor,
-            fontSize = textSize.sp,
-            fontWeight = fontWeight,
-        )
-    }
+        text = {
+            Text(
+                text = sortMethod.displayName,
+                color = fontColor,
+                fontSize = textSize.sp,
+                fontWeight = fontWeight,
+            )
+        },
+        modifier = Modifier,
+        leadingIcon = null,
+        trailingIcon = null,
+        enabled = true,
+        colors = MenuDefaults.itemColors(),
+        contentPadding = MenuDefaults.DropdownMenuItemContentPadding,
+    )
 }
