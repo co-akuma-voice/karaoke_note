@@ -129,7 +129,7 @@ fun AppBar(
         actions = {
             Row(
                 modifier = Modifier.align(alignment = Alignment.CenterVertically),
-                //horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.End
             ) {
                 // 検索ウインドウ
                 CustomTextField(
@@ -138,7 +138,7 @@ fun AppBar(
                     placeholder = { Text(text = "検索") },
                     modifier = Modifier
                         .weight(1f)
-                        .padding(end = 8.dp)
+                        .padding(start = 4.dp, end = 8.dp)
                         .focusRequester(focusRequesterForSearchBar),
                     singleLine = true,
                     leadingIcon = {
