@@ -34,8 +34,6 @@ import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntOffset
@@ -60,9 +58,6 @@ fun DraggableBox(
                 with(density) { (maxWidth * percentage).dp.toPx() }
             },
         )
-        var icon: ImageVector
-        var alignment: Alignment
-        var color: Color
 
         SwipeToDismissBox(
             state = swipeState,
