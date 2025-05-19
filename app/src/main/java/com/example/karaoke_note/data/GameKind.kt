@@ -6,7 +6,7 @@ enum class BrandKind(val displayName: String) {
 
     companion object {
         fun fromDisplayName(displayName: String): BrandKind? {
-            return values().firstOrNull { it.displayName == displayName }
+            return entries.firstOrNull { it.displayName == displayName }
         }
     }
 }
@@ -25,7 +25,7 @@ enum class GameKind(val displayName: String) {
 
     companion object {
         fun fromDisplayName(displayName: String): GameKind? {
-            return values().firstOrNull { it.displayName == displayName }
+            return entries.firstOrNull { it.displayName == displayName }
         }
         fun getBrandKind(gameKind: GameKind): BrandKind {
             return when (gameKind) {
@@ -42,10 +42,10 @@ enum class GameKind(val displayName: String) {
             }
         }
         fun getJoyGameKinds(): List<GameKind> {
-            return values().filter { getBrandKind(it) == BrandKind.JOY }
+            return entries.filter { getBrandKind(it) == BrandKind.JOY }
         }
         fun getDamGameKinds(): List<GameKind> {
-            return values().filter { getBrandKind(it) == BrandKind.DAM }
+            return entries.filter { getBrandKind(it) == BrandKind.DAM }
         }
     }
 }

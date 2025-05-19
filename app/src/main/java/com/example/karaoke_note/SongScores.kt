@@ -12,17 +12,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -162,24 +163,38 @@ fun SongScores(
                             expanded.value = false
                             showEntrySheetDialog.value = true
                             editingSongScore.value = songScore
-                        }
-                    ) {
-                        Text(
-                            text = "編集",
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
+                        },
+                        text = {
+                            Text(
+                                text = "編集",
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        },
+                        modifier = Modifier,
+                        leadingIcon = null,
+                        trailingIcon = null,
+                        enabled = true,
+                        colors = MenuDefaults.itemColors(),
+                        contentPadding = MenuDefaults.DropdownMenuItemContentPadding
+                    )
                     DropdownMenuItem(
                         onClick = {
                             selectedScoreId.value?.let { songScoreDao.deleteSongScore(it) }
                             expanded.value = false
-                        }
-                    ) {
-                        Text(
-                            text = "削除",
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
+                        },
+                        text = {
+                            Text(
+                                text = "削除",
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        },
+                        modifier = Modifier,
+                        leadingIcon = null,
+                        trailingIcon = null,
+                        enabled = true,
+                        colors = MenuDefaults.itemColors(),
+                        contentPadding = MenuDefaults.DropdownMenuItemContentPadding
+                    )
                 }
             },
             comparator = null,
@@ -227,7 +242,7 @@ fun SongScores(
                 )
             }
         }
-        Divider(
+        HorizontalDivider(
             color = MaterialTheme.colorScheme.outlineVariant,
             thickness = 1.dp
         )

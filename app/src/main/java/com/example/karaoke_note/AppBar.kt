@@ -21,9 +21,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.FilterAlt
@@ -33,12 +32,12 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +45,8 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -112,9 +113,7 @@ fun AppBar(
     }
 
     TopAppBar(
-        backgroundColor = MaterialTheme.colorScheme.surface,
         title = {},
-        elevation = 2.dp,
         navigationIcon = {
             if (canPop.value) {
                 IconButton(
@@ -123,14 +122,14 @@ fun AppBar(
                         navController.navigateUp()
                     }
                 ) {
-                    Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                 }
             }
         },
         actions = {
             Row(
                 modifier = Modifier.align(alignment = Alignment.CenterVertically),
-                //horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.End
             ) {
                 // 検索ウインドウ
                 CustomTextField(
@@ -139,7 +138,7 @@ fun AppBar(
                     placeholder = { Text(text = "検索") },
                     modifier = Modifier
                         .weight(1f)
-                        .padding(end = 8.dp)
+                        .padding(start = 4.dp, end = 8.dp)
                         .focusRequester(focusRequesterForSearchBar),
                     singleLine = true,
                     leadingIcon = {
@@ -230,7 +229,9 @@ fun AppBar(
                     }
                 }
             }
-        }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(),
+        scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     )
 
     if (showSheet) {
@@ -290,7 +291,7 @@ fun FilterContents(
             FilterContentGroup(label = "JOY", filterSetting.value.joySelected, filterSetting.value.joyGameSelected)
             FilterContentGroup(label = "DAM", filterSetting.value.damSelected, filterSetting.value.damGameSelected)
         }
-        Divider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
+        HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
     }
 }
 
@@ -301,7 +302,7 @@ fun FilterContentGroup(
     selectedStatus: MutableState<Boolean>,
     gameSelected: Map<GameKind, MutableState<Boolean>>,
 ) {
-    Column() {
+    Column {
         // 採点ゲームグループ
         FilterContent(
             label = label,
@@ -323,7 +324,7 @@ fun FilterContentGroup(
                     .padding(start = 2.dp, end = 2.dp)
                     .horizontalScroll(rememberScrollState())
             ) {
-                gameSelected.entries.forEach() { entry ->
+                gameSelected.entries.forEach { entry ->
                     FilterContent(
                         label = entry.key.displayName,
                         modifier = Modifier.padding(horizontal = 5.dp, vertical = 4.dp),
