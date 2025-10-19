@@ -258,7 +258,7 @@ fun NewEntryScreen(
     var isComeFromPlansPage = false
 
     //LaunchedEffect(key1 = defaultArtistId, key2 = defaultTitle, key3 = editingSongScore) {
-    LaunchedEffect(key1 = screenOpened.value, key2 = isPlanning) {
+    LaunchedEffect(key1 = screenOpened.value) {
         // ここに書けばすべて賄える
         clearFocusFromSearchBar(focusManagerOfSearchBar)
 
@@ -549,7 +549,7 @@ fun NewEntryScreen(
                             ) {
                                 Text(
                                     text = "Entry as plans",
-                                    fontSize = (fontSize * 0.6).sp
+                                    fontSize = (fontSize * 0.75).sp
                                 )
                                 Switch(
                                     checked = isPlanning,
