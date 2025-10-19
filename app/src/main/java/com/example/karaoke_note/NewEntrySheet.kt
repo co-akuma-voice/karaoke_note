@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -482,7 +483,7 @@ fun NewEntryScreen(
                                         ExposedGameSelectorBox(
                                             initialGameKind = newGame,
                                             height = gameListHeight,
-                                            modifier = Modifier.menuAnchor(),
+                                            modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
                                             isExpanded = expanded,
                                             startPaddingValue = 16    // もっと理屈で表せないかな？
                                         )
@@ -661,4 +662,3 @@ fun NewEntryScreen(
         }
     }
 }
-
