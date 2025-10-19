@@ -558,7 +558,7 @@ fun NewEntryScreen(
                                         isSaveButtonEnabled = isValid(errorSupportingTextTitle, errorSupportingTextArtist,
                                             errorSupportingTextScore, it)
                                     },
-                                    modifier = Modifier.scale(0.5f)
+                                    modifier = Modifier.scale(0.75f)
                                 )
                             }
                         }
