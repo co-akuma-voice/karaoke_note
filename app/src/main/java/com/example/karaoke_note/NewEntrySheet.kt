@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -258,7 +259,7 @@ fun NewEntryScreen(
     var isComeFromPlansPage = false
 
     //LaunchedEffect(key1 = defaultArtistId, key2 = defaultTitle, key3 = editingSongScore) {
-    LaunchedEffect(key1 = screenOpened.value, key2 = isPlanning) {
+    LaunchedEffect(key1 = screenOpened.value) {
         // ここに書けばすべて賄える
         clearFocusFromSearchBar(focusManagerOfSearchBar)
 
@@ -482,7 +483,7 @@ fun NewEntryScreen(
                                         ExposedGameSelectorBox(
                                             initialGameKind = newGame,
                                             height = gameListHeight,
-                                            modifier = Modifier.menuAnchor(),
+                                            modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
                                             isExpanded = expanded,
                                             startPaddingValue = 16    // もっと理屈で表せないかな？
                                         )
@@ -549,7 +550,7 @@ fun NewEntryScreen(
                             ) {
                                 Text(
                                     text = "Entry as plans",
-                                    fontSize = (fontSize * 0.6).sp
+                                    fontSize = (fontSize * 0.75).sp
                                 )
                                 Switch(
                                     checked = isPlanning,
@@ -558,7 +559,7 @@ fun NewEntryScreen(
                                         isSaveButtonEnabled = isValid(errorSupportingTextTitle, errorSupportingTextArtist,
                                             errorSupportingTextScore, it)
                                     },
-                                    modifier = Modifier.scale(0.5f)
+                                    modifier = Modifier.scale(0.75f)
                                 )
                             }
                         }
@@ -661,4 +662,3 @@ fun NewEntryScreen(
         }
     }
 }
-
