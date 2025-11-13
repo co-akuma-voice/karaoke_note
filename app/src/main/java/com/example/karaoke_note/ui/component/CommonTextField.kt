@@ -3,13 +3,11 @@ package com.example.karaoke_note.ui.component
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Error
@@ -17,6 +15,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -143,8 +142,7 @@ fun CommonTextField(
         }
     }
 
-    Column {
-        // 基本部分
+    Column {        // 基本部分
         OutlinedTextField(
             value = textFieldValue,
             onValueChange = { inputText ->
@@ -162,8 +160,7 @@ fun CommonTextField(
                     }
                 }
                 .fillMaxWidth()
-                .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp)
-                .imePadding(),
+                .padding(horizontalPaddingValue.dp, verticalPaddingValue.dp),
             label = { Text(label) },
             isError = isError,
             supportingText = {
