@@ -1,8 +1,6 @@
 package com.example.karaoke_note
 
 //noinspection UsingMaterialAndMaterial3Libraries
-//noinspection UsingMaterialAndMaterial3Libraries
-//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -196,32 +194,6 @@ fun PlansPage(
         }
     }
 }
-/*
-// SwipeToDismissBox の背面に表示されるコンテンツ (ゴミ箱)
-@Composable
-fun BackGroundItem() {
-    Column {
-        Box(
-            modifier = Modifier
-                .padding()
-                .fillMaxWidth()
-                .height(80.dp)
-                .background(MaterialTheme.colorScheme.errorContainer),
-            contentAlignment = Alignment.CenterEnd
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Delete,
-                contentDescription = "delete",
-                tint = MaterialTheme.colorScheme.error,
-                modifier = Modifier
-                    .size(60.dp)
-                    .padding(end = 30.dp)
-            )
-        }
-        HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.errorContainer)
-    }
-}
-*/
 
 @Composable
 fun PlansListItem(
