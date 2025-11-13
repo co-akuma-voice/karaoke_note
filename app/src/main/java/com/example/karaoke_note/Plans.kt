@@ -31,7 +31,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -138,7 +137,6 @@ fun PlansPage(
                     if (song != null) {
                         val artist = artistDao.getNameById(song.artistId)
                         if (artist != null) {
-                            val localCoroutineScope = rememberCoroutineScope()
                             val isDeleted = remember { mutableStateOf(false) }
 
                             if (!isDeleted.value) {
@@ -188,7 +186,7 @@ fun PlansPage(
                                                 artistDao = artistDao,
                                                 songDao = songDao,
                                                 songScoreDao = songScoreDao,
-                                                scope = localCoroutineScope,
+                                                scope = scope,
                                                 snackBarHostState = snackBarHostState
                                             ) {
                                                 // Undo が押されたら UI に再表示する
