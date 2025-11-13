@@ -132,29 +132,9 @@ fun PlansPage(
                         if (artist != null) {
                             // SwipeToDismissBox の状態を管理する State
                             val dismissState = rememberSwipeToDismissBoxState(
+                                initialValue = SwipeToDismissBoxValue.Settled,
                                 // スワイプが確定する閾値を調整する
-                                positionalThreshold = { it * 0.75f },
-                                confirmValueChange = { dismissValue ->
-                                    // 右から左へのスワイプが完了した場合
-                                    if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
-                                        // Plan データを削除する
-                                        removePlansListItem(
-                                            artistId = song.artistId,
-                                            songId = songScore.songId,
-                                            scoreId = songScore.id,
-                                            artistDao = artistDao,
-                                            songDao = songDao,
-                                            songScoreDao = songScoreDao,
-                                            scope = scope,
-                                            snackBarHostState = snackBarHostState
-                                        )
-                                        // true を返すとスワイプが実行され、リストから項目が消える
-                                        true
-                                    } else {
-                                        // それ以外の操作では元に戻す
-                                        false
-                                    }
-                                }
+                                positionalThreshold = { it * 0.75f }
                             )
 
                             SwipeToDismissBox(
@@ -182,6 +162,26 @@ fun PlansPage(
                                 },
                                 // 左から右へのスワイプを無効化する
                                 enableDismissFromStartToEnd = false,
+                                onDismiss = { dismissValue ->
+                                    // 右から左へのスワイプが完了した場合
+                                    if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
+                                        // Plan データを削除する
+                                        removePlansListItem(
+                                            artistId = song.artistId,
+                                            songId = songScore.songId,
+                                            scoreId = songScore.id,
+                                            artistDao = artistDao,
+                                            songDao = songDao,
+                                            songScoreDao = songScoreDao,
+                                            scope = scope,
+                                            snackBarHostState = snackBarHostState
+                                        )
+                                    }
+                                    // 状態をリセットして元の位置に戻す
+                                    scope.launch {
+                                        dismissState.reset()
+                                    }
+                                }
                             ) {
                                 // 表示するメインのコンテンツ
                                 PlansListItem(song, songScore, artist, showEntrySheetDialog, editingSongScore)
