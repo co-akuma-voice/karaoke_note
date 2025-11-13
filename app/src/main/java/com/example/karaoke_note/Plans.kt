@@ -13,9 +13,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -104,7 +104,7 @@ private fun removePlansListItem(
     deleteArtistData(artistId, artistDao, songDao, scope)
 }
 
-@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 @Composable
 fun PlansPage(
     songDao: SongDao,
@@ -132,9 +132,11 @@ fun PlansPage(
                         if (artist != null) {
                             // SwipeToDismissBox の状態を管理する State
                             val dismissState = rememberSwipeToDismissBoxState(
+                                // スワイプが確定する閾値を調整する
+                                positionalThreshold = { it * 0.75f },
                                 confirmValueChange = { dismissValue ->
                                     // 右から左へのスワイプが完了した場合
-                                    if (songScoreList.isNotEmpty() && dismissValue == SwipeToDismissBoxValue.EndToStart) {
+                                    if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
                                         // Plan データを削除する
                                         removePlansListItem(
                                             artistId = song.artistId,
@@ -152,9 +154,7 @@ fun PlansPage(
                                         // それ以外の操作では元に戻す
                                         false
                                     }
-                                },
-                                // スワイプが確定する閾値を調整する
-                                positionalThreshold = { it * 0.75f }
+                                }
                             )
 
                             SwipeToDismissBox(
@@ -182,7 +182,6 @@ fun PlansPage(
                                 },
                                 // 左から右へのスワイプを無効化する
                                 enableDismissFromStartToEnd = false,
-                                enableDismissFromEndToStart = true
                             ) {
                                 // 表示するメインのコンテンツ
                                 PlansListItem(song, songScore, artist, showEntrySheetDialog, editingSongScore)
