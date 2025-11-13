@@ -3,23 +3,34 @@ package com.example.karaoke_note
 //noinspection UsingMaterialAndMaterial3Libraries
 //noinspection UsingMaterialAndMaterial3Libraries
 //noinspection UsingMaterialAndMaterial3Libraries
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -30,7 +41,6 @@ import com.example.karaoke_note.data.Song
 import com.example.karaoke_note.data.SongDao
 import com.example.karaoke_note.data.SongScore
 import com.example.karaoke_note.data.SongScoreDao
-import com.example.karaoke_note.ui.component.DraggableBox
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -120,10 +130,11 @@ fun PlansPage(
                     if (song != null) {
                         val artist = artistDao.getNameById(song.artistId)
                         if (artist != null) {
-                            /*
-                            val dismissState = rememberDismissState(
-                                confirmStateChange = {
-                                    if (songScoreList.isNotEmpty() && it == DismissValue.DismissedToStart) {
+                            // SwipeToDismissBox の状態を管理する State
+                            val dismissState = rememberSwipeToDismissBoxState(
+                                confirmValueChange = { dismissValue ->
+                                    // 右から左へのスワイプが完了した場合
+                                    if (songScoreList.isNotEmpty() && dismissValue == SwipeToDismissBoxValue.EndToStart) {
                                         // Plan データを削除する
                                         removePlansListItem(
                                             artistId = song.artistId,
@@ -135,56 +146,47 @@ fun PlansPage(
                                             scope = scope,
                                             snackBarHostState = snackBarHostState
                                         )
-                                        true    // スワイプして songScore が消える
+                                        // true を返すとスワイプが実行され、リストから項目が消える
+                                        true
+                                    } else {
+                                        // それ以外の操作では元に戻す
+                                        false
                                     }
-                                    else {
-                                        false   // スワイプして元に戻る
-                                    }
-                                }
+                                },
+                                // スワイプが確定する閾値を調整する
+                                positionalThreshold = { it * 0.75f }
                             )
 
-                             */
-
-                            DraggableBox(
-                                modifier = Modifier,
-                                onDelete = {
-                                    if (songScoreList.isNotEmpty()) {
-                                        // Plan データを削除する
-                                        removePlansListItem(
-                                            artistId = song.artistId,
-                                            songId = songScore.songId,
-                                            scoreId = songScore.id,
-                                            artistDao = artistDao,
-                                            songDao = songDao,
-                                            songScoreDao = songScoreDao,
-                                            scope = scope,
-                                            snackBarHostState = snackBarHostState
+                            SwipeToDismissBox(
+                                state = dismissState,
+                                backgroundContent = {
+                                    val color = when (dismissState.targetValue) {
+                                        SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
+                                        else -> MaterialTheme.colorScheme.background
+                                    }
+                                    Row (
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(color)
+                                            .padding(horizontal = 24.dp),
+                                        horizontalArrangement = Arrangement.End,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon (
+                                            imageVector = Icons.Outlined.Delete,
+                                            contentDescription = "Delete",
+                                            tint = MaterialTheme.colorScheme.onErrorContainer,
+                                            modifier = Modifier
                                         )
-                                        true    // スワイプして songScore が消える
                                     }
-                                    else {
-                                        false   // スワイプして元に戻る
-                                    }
-                                }
+                                },
+                                // 左から右へのスワイプを無効化する
+                                enableDismissFromStartToEnd = false,
+                                enableDismissFromEndToStart = true
                             ) {
+                                // 表示するメインのコンテンツ
                                 PlansListItem(song, songScore, artist, showEntrySheetDialog, editingSongScore)
                             }
-
-
-                            /*
-                            CustomSwipeToDismiss(
-                                state = dismissState,
-                                modifier = Modifier,
-                                directions = setOf(DismissDirection.EndToStart),
-                                background = {
-                                    BackGroundItem()
-                                },
-                                dismissContent = {
-                                    PlansListItem(song, songScore, artist, showEntrySheetDialog, editingSongScore)
-                                }
-                            )
-
-                             */
                         }
                     }
                     else {
