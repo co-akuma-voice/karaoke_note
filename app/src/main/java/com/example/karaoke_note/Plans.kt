@@ -20,6 +20,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
@@ -28,6 +29,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -80,26 +84,32 @@ private fun removePlansListItem(
     songDao: SongDao,
     songScoreDao: SongScoreDao,
     scope: CoroutineScope,
-    snackBarHostState: SnackbarHostState
+    snackBarHostState: SnackbarHostState,
+    onUndo: () -> Unit
 ) {
     scope.launch {
         val snackbarResult = snackBarHostState.showSnackbar(
-            message = "One data has been deleted.",
-            actionLabel = null,
+            message = "One data has been removed",
+            actionLabel = "Undo",
             withDismissAction = true,
             duration = SnackbarDuration.Long
         )
-        // Undo 機能を実装したい
+        // スナックバーの Undo がタップされなかった場合にのみ削除処理を実行する
+        if (snackbarResult != SnackbarResult.ActionPerformed) {
+            // スコア ID を削除
+            //   これだけでは一度 Plans に登録した SongID や ArtistID などは残るので、サジェスト機能で出てくる
+            songScoreDao.deleteSongScore(scoreId)
+
+            // SongID の削除
+            deleteSongData(songId, songScoreDao, songDao, scope)
+            // ArtistID の削除
+            deleteArtistData(artistId, artistDao, songDao, scope)
+        }
+        else {
+            // Undo が押された場合は onUndo コールバックを実行する
+            onUndo()
+        }
     }
-
-    // スコア ID を削除
-    //   これだけでは一度 Plans に登録した SongID や ArtistID などは残るので、サジェスト機能で出てくる
-    songScoreDao.deleteSongScore(scoreId)
-
-    // SongID の削除
-    deleteSongData(songId, songScoreDao, songDao, scope)
-    // ArtistID の削除
-    deleteArtistData(artistId, artistDao, songDao, scope)
 }
 
 @ExperimentalMaterial3Api
@@ -128,61 +138,74 @@ fun PlansPage(
                     if (song != null) {
                         val artist = artistDao.getNameById(song.artistId)
                         if (artist != null) {
-                            // SwipeToDismissBox の状態を管理する State
-                            val dismissState = rememberSwipeToDismissBoxState(
-                                initialValue = SwipeToDismissBoxValue.Settled,
-                                // スワイプが確定する閾値を調整する
-                                positionalThreshold = { it * 0.75f }
-                            )
+                            val localCoroutineScope = rememberCoroutineScope()
+                            val isDeleted = remember { mutableStateOf(false) }
 
-                            SwipeToDismissBox(
-                                state = dismissState,
-                                backgroundContent = {
-                                    val color = when (dismissState.targetValue) {
-                                        SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
-                                        else -> MaterialTheme.colorScheme.background
-                                    }
-                                    Row (
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .background(color)
-                                            .padding(horizontal = 24.dp),
-                                        horizontalArrangement = Arrangement.End,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon (
-                                            imageVector = Icons.Outlined.Delete,
-                                            contentDescription = "Delete",
-                                            tint = MaterialTheme.colorScheme.onErrorContainer,
+                            if (!isDeleted.value) {
+                                // SwipeToDismissBox の状態を管理する State
+                                val dismissState = rememberSwipeToDismissBoxState(
+                                    initialValue = SwipeToDismissBoxValue.Settled,
+                                    // スワイプが確定する距離的閾値を調整する
+                                    // 本当なら速度的閾値も調整したいのだが・・・
+                                    positionalThreshold = { it * 0.75f },
+                                )
+                                SwipeToDismissBox(
+                                    state = dismissState,
+                                    backgroundContent = {
+                                        val color = when (dismissState.targetValue) {
+                                            SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
+                                            else -> MaterialTheme.colorScheme.background
+                                        }
+                                        Row(
                                             modifier = Modifier
-                                        )
+                                                .fillMaxSize()
+                                                .background(color)
+                                                .padding(horizontal = 24.dp),
+                                            horizontalArrangement = Arrangement.End,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Outlined.Delete,
+                                                contentDescription = "Delete",
+                                                tint = MaterialTheme.colorScheme.onErrorContainer,
+                                                modifier = Modifier
+                                            )
+                                        }
+                                    },
+                                    // 左から右へのスワイプを無効化する
+                                    enableDismissFromStartToEnd = false,
+                                    onDismiss = { dismissValue ->
+                                        // 右から左へのスワイプが完了した場合
+                                        if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
+                                            // UI から即座にアイテムを削除する
+                                            isDeleted.value = true
+
+                                            // Plan データを削除する処理を非同期で実行する
+                                            removePlansListItem(
+                                                artistId = song.artistId,
+                                                songId = songScore.songId,
+                                                scoreId = songScore.id,
+                                                artistDao = artistDao,
+                                                songDao = songDao,
+                                                songScoreDao = songScoreDao,
+                                                scope = localCoroutineScope,
+                                                snackBarHostState = snackBarHostState
+                                            ) {
+                                                // Undo が押されたら UI に再表示する
+                                                isDeleted.value = false
+                                            }
+                                        }
                                     }
-                                },
-                                // 左から右へのスワイプを無効化する
-                                enableDismissFromStartToEnd = false,
-                                onDismiss = { dismissValue ->
-                                    // 右から左へのスワイプが完了した場合
-                                    if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
-                                        // Plan データを削除する
-                                        removePlansListItem(
-                                            artistId = song.artistId,
-                                            songId = songScore.songId,
-                                            scoreId = songScore.id,
-                                            artistDao = artistDao,
-                                            songDao = songDao,
-                                            songScoreDao = songScoreDao,
-                                            scope = scope,
-                                            snackBarHostState = snackBarHostState
-                                        )
-                                    }
-                                    // 状態をリセットして元の位置に戻す
-                                    scope.launch {
-                                        dismissState.reset()
-                                    }
+                                ) {
+                                    // 表示するメインのコンテンツ
+                                    PlansListItem(
+                                        song,
+                                        songScore,
+                                        artist,
+                                        showEntrySheetDialog,
+                                        editingSongScore
+                                    )
                                 }
-                            ) {
-                                // 表示するメインのコンテンツ
-                                PlansListItem(song, songScore, artist, showEntrySheetDialog, editingSongScore)
                             }
                         }
                     }
