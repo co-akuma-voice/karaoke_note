@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,11 +64,11 @@ fun SettingScreen(
     songDao: SongDao,
     songScoreDao: SongScoreDao,
     artistDao: ArtistDao,
+    isBackKeyDisabled: MutableState<Boolean>,
     onNavigateBack: () -> Unit // 戻るボタンが押されたときのコールバック
 ) {
     // 各Switchの状態を管理する
-    var switch1 by remember { mutableStateOf(true) }
-    var switch2 by remember { mutableStateOf(false) }
+    val switch2 = remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -93,26 +94,22 @@ fun SettingScreen(
             // 1つ目のSwitch設定
             SettingItemRow(
                 title = "登録画面において戻るボタンを無効化する",
-                checked = switch1,
-                onCheckedChanged = { switch1 = it }
+                checked = isBackKeyDisabled,
+                onCheckedChanged = { isBackKeyDisabled.value = it }
             )
 
             // 2つ目のSwitch設定
             SettingItemRow(
                 title = "(仮)ダークモードを有効にする",
                 checked = switch2,
-                onCheckedChanged = { switch2 = it }
+                onCheckedChanged = { switch2.value = it }
             )
             Spacer(modifier = Modifier.height(32.dp))
 
-            ImportMenu(songDao, songScoreDao, artistDao, navController.context) {
-                //showMenu.value = false
-            }
+            ImportMenu(songDao, songScoreDao, artistDao, navController.context) {}
             Spacer(modifier = Modifier.height(16.dp))
 
-            ExportMenu(songDao, songScoreDao, artistDao, navController.context) {
-                //showMenu.value = false
-            }
+            ExportMenu(songDao, songScoreDao, artistDao, navController.context) {}
 
         }
     }
@@ -121,7 +118,7 @@ fun SettingScreen(
 @Composable
 fun SettingItemRow(
     title: String,
-    checked: Boolean,
+    checked: MutableState<Boolean>,
     onCheckedChanged: (Boolean) -> Unit
 ) {
     Row(
@@ -136,7 +133,7 @@ fun SettingItemRow(
             style = MaterialTheme.typography.bodyLarge
         )
         Switch(
-            checked = checked,
+            checked = checked.value,
             onCheckedChange = onCheckedChanged
         )
     }

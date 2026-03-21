@@ -62,6 +62,8 @@ class MainActivity : ComponentActivity() {
                 // SearchBar に対するフォーカスの変更を管理する
                 val focusRequesterForSearchBar = remember { FocusRequester() }
                 val focusManagerOfSearchBar = LocalFocusManager.current
+                // 標準の戻るキーが無効かどうか
+                val isBackKeyDisabled = remember { mutableStateOf(false) }
 
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -72,7 +74,7 @@ class MainActivity : ComponentActivity() {
                     Scaffold(
                         topBar = {
                             Column {
-                                AppBar(navController, songDao, songScoreDao, artistDao, filterSetting, searchText, focusRequesterForSearchBar, focusManagerOfSearchBar)
+                                AppBar(navController, songDao, songScoreDao, artistDao, filterSetting, searchText, focusRequesterForSearchBar, focusManagerOfSearchBar, isBackKeyDisabled)
                                 Breadcrumbs(navController, focusManagerOfSearchBar, songDao, artistDao)
                             }
                         },
@@ -80,7 +82,7 @@ class MainActivity : ComponentActivity() {
                             BottomNavigationBar(navController, songScoreDao)
                         },
                         floatingActionButton = {
-                            NewEntryScreen(navController, songDao, songScoreDao, artistDao, lifecycleScope, showDialog, editingSongScore, snackBarHostState, focusManagerOfSearchBar)
+                            NewEntryScreen(navController, songDao, songScoreDao, artistDao, lifecycleScope, showDialog, isBackKeyDisabled,editingSongScore, snackBarHostState, focusManagerOfSearchBar)
                         },
                         snackbarHost = {
                             SnackbarHost(snackBarHostState)

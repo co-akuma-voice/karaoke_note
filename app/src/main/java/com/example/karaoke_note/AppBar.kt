@@ -73,7 +73,8 @@ fun AppBar(
     filterSetting: MutableState<FilterSetting>,
     searchText: MutableState<String>,
     focusRequesterForSearchBar: FocusRequester,
-    focusManagerOfSearchBar: FocusManager
+    focusManagerOfSearchBar: FocusManager,
+    isBackKeyDisabled: MutableState<Boolean>
 ) {
     val canPop = remember { mutableStateOf(false) }
     var showSheet by remember { mutableStateOf(false) }
@@ -154,7 +155,9 @@ fun AppBar(
                         unfocusedIndicatorColor = Color.Transparent,
                         disabledIndicatorColor = Color.Transparent
                     ),
-                    contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(0.dp, 0.dp, 0.dp, 0.dp)
+                    contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(
+                        0.dp, 0.dp, 0.dp, 0.dp
+                    )
                 )
 
                 // フィルターボタン
@@ -175,7 +178,7 @@ fun AppBar(
                     )
                 }
 
-                // メニューボタン
+                // 設定ボタン
                 Box(
                     contentAlignment = Alignment.BottomEnd
                 ) {
@@ -187,22 +190,10 @@ fun AppBar(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Settings,
-                            contentDescription = "Settings"
+                            contentDescription = "Settings",
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
-                    /*
-                    DropdownMenu(
-                        expanded = showMenu.value,
-                        onDismissRequest = { showMenu.value = false }
-                    ) {
-                        ImportMenu(songDao, songScoreDao, artistDao, navController.context) {
-                            showMenu.value = false
-                        }
-                        ExportMenu(songDao, songScoreDao, artistDao, navController.context) {
-                            showMenu.value = false
-                        }
-                    }
-                    */
                 }
             }
         },
@@ -230,7 +221,7 @@ fun AppBar(
 
     // 設定画面
     if (showSettings) {
-        SettingScreen(navController, songDao, songScoreDao,artistDao) {
+        SettingScreen(navController, songDao, songScoreDao, artistDao, isBackKeyDisabled) {
             showSettings = false
         }
     }
