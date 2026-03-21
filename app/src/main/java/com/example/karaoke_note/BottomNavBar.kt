@@ -30,7 +30,10 @@ data class BottomNavItem(
 
 @ExperimentalMaterial3Api
 @Composable
-fun BottomNavigationBar(navController: NavController, songScoreDao: SongScoreDao) {
+fun BottomNavigationBar(
+    navController: NavController,
+    songScoreDao: SongScoreDao
+) {
     val songDataFlow = songScoreDao.getAll0Scores()
     val songDataList by songDataFlow.collectAsState(initial = listOf())
     val plansBadge = songDataList.size
