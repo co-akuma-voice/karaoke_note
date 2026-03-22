@@ -205,6 +205,7 @@ fun NewEntryScreen(
     artistDao: ArtistDao,
     scope: CoroutineScope,
     screenOpened: MutableState<Boolean>,
+    isBackKeyDisabled: MutableState<Boolean>,
     editingSongScoreState: MutableState<SongScore?>,
     snackBarHostState: SnackbarHostState,
     focusManagerOfSearchBar: FocusManager
@@ -312,9 +313,11 @@ fun NewEntryScreen(
             ) {
                 // 誤爆防止のため、ここに限って標準のバックキー操作を無効化
                 // 設定メニューで ON/OFF できるようにできればいいな
-                BackHandler(enabled = true) {
-                    // バックキーを押すたびに出てしまうのが鬱陶しい
-                    Toast.makeText(context, "Back key is disabled.", Toast.LENGTH_SHORT).show()
+                if (isBackKeyDisabled.value) {
+                    BackHandler(enabled = true) {
+                        // バックキーを押すたびに出てしまうのが鬱陶しい
+                        Toast.makeText(context, "Back key is disabled.", Toast.LENGTH_SHORT).show()
+                    }
                 }
 
                 Column {
